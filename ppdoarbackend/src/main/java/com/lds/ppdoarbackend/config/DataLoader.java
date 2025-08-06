@@ -142,10 +142,16 @@ public class DataLoader implements CommandLineRunner {
                 sampleProject.setDescription("This is a sample project for " + name);
                 sampleProject.setLocation("City Hall");
                 sampleProject.setStartDate(new Date());
+                sampleProject.setEndDate(new Date());
+                sampleProject.setImplementationSchedule(new Date());
+                sampleProject.setDateOfAccomplishment(new Date());
                 sampleProject.setBudget(50000.00);
+                sampleProject.setPercentCompletion(50.0);
                 sampleProject.setFundSource("General Fund");
                 sampleProject.setStatus("ongoing");
                 sampleProject.setTargetParticipant("Participants from " + name);
+                sampleProject.setOfficeInCharge("Office of the Mayor");
+                sampleProject.setRemarks("This is a sample remark.");
                 sampleProject.setDivision(division);
                 sampleProject.setDateCreated(new Date());
                 sampleProject.setDateUpdated(new Date());
