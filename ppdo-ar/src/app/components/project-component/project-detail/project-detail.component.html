@@ -1,0 +1,280 @@
+<div *ngIf="project$ | async as project; else projectNotFound" class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 lg:p-10 w-full">
+  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 pb-6 border-b border-gray-200 dark:border-gray-700 gap-4">
+    <div class="flex items-center space-x-4 w-full lg:w-auto">
+      <button (click)="goBack()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 font-semibold py-2.5 px-4 rounded-lg shadow-sm flex items-center transition duration-200 whitespace-nowrap">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Projects
+      </button>
+      <h1 class="text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white truncate max-w-2xl">{{ project.title }}</h1>
+    </div>
+
+    <div class="flex flex-wrap gap-3 w-full lg:w-auto justify-end">
+      <button
+        (click)="editProject()"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap shadow-md"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M13.586 3.586a2 2 0 112.828 2.828l-7.279 7.279a2 2 0 01-1.071.554l-4 1a2 2 0 01-2.28-2.28l1-4a2 2 0 01.554-1.071l7.279-7.279z" />
+        </svg>
+        Edit Project
+      </button>
+      <button
+        (click)="confirmDelete()"
+        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap shadow-md"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+        </svg>
+        Delete Project
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-10">
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">Project Description</h2>
+    <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed bg-gray-50 dark:bg-gray-700 p-6 rounded-lg border border-gray-200 dark:border-gray-600">{{ project.description }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-10 mb-10">
+    <div class="xl:col-span-1 bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+      <h3 class="text-2xl font-semibold text-gray-800 dark:text-white mb-5 pb-3 border-b border-gray-200 dark:border-gray-600">Project Details</h3>
+      <div class="space-y-4">
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Division</h4>
+          <p class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ project.division.name }}</p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Location</h4>
+          <p class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ project.location }}</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Start Date</h4>
+            <p class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ project.startDate | date:'mediumDate' }}</p>
+          </div>
+          <div>
+            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">End Date</h4>
+            <p class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ project.endDate | date:'mediumDate' }}</p>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Budget</h4>
+          <p class="text-xl font-semibold text-blue-600 dark:text-blue-400">{{ project.budget | currency:'PHP':'symbol':'1.2-2' }}</p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Funding Source</h4>
+          <p class="text-lg font-medium text-gray-800 dark:text-gray-200">{{ project.fundSource }}</p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Status</h4>
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold"
+            [ngClass]="{
+                'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300': project.status === 'planned',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300': project.status === 'ongoing',
+                'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': project.status === 'completed',
+                'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300': project.status === 'cancelled'
+              }"
+          >
+              {{ project.status | titlecase }}
+            </span>
+        </div>
+
+        <div class="xl:col-span-2">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-2 ">
+
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Project Discussion
+            </h3>
+
+            <div #commentSection class="space-y-4 mb-6" style="max-height: 450px; overflow-y: auto;">
+
+              <div *ngFor="let comment of comments" class="flex items-start"
+                   [ngClass]="{ 'justify-end': currentUser && comment.user.id === currentUser.id, 'justify-start': !currentUser || comment.user.id !== currentUser.id }">
+
+                <div class="max-w-xl rounded-lg p-4"
+                     [ngClass]="{
+                'bg-blue-600 text-white': currentUser && comment.user.id === currentUser.id,
+                'bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600': !currentUser || comment.user.id !== currentUser.id
+             }">
+
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center"
+                         [ngClass]="{
+                    'bg-blue-500 text-blue-50': currentUser && comment.user.id === currentUser.id,
+                    'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300': !currentUser || comment.user.id !== currentUser.id
+                 }">
+              <span class="font-semibold">
+                {{ comment.user.firstName.charAt(0) }}{{ comment.user.lastName.charAt(0) }}
+              </span>
+                    </div>
+
+                    <div class="flex-1">
+                      <div class="flex justify-between items-baseline">
+                        <p class="font-semibold text-sm"
+                           [ngClass]="{ 'text-white': currentUser && comment.user.id === currentUser.id, 'text-gray-900 dark:text-white': !currentUser || comment.user.id !== currentUser.id }">
+                          {{ comment.user.firstName }} {{ comment.user.lastName }}
+                          <span class="ml-2 text-xs font-normal"
+                                [ngClass]="{ 'text-blue-200': currentUser && comment.user.id === currentUser.id, 'text-gray-500 dark:text-gray-400': !currentUser || comment.user.id !== currentUser.id }">
+                    {{ comment.user.division?.code | uppercase }}
+                  </span>
+                        </p>
+                        <span class="text-xs ml-3 flex-shrink-0"
+                              [ngClass]="{ 'text-blue-200': currentUser && comment.user.id === currentUser.id, 'text-gray-500 dark:text-gray-400': !currentUser || comment.user.id !== currentUser.id }">
+                  {{ comment.dateCreated | date:'short' }}
+                </span>
+                      </div>
+                      <p class="mt-1 text-sm"
+                         [ngClass]="{ 'text-blue-50': currentUser && comment.user.id === currentUser.id, 'text-gray-700 dark:text-gray-300': !currentUser || comment.user.id !== currentUser.id }">
+                        {{ comment.content }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div *ngIf="comments.length === 0" class="text-center py-8">
+                <p class="text-gray-500 dark:text-gray-400">
+                  No comments yet. Be the first to start the discussion!
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <textarea
+        [(ngModel)]="newComment"
+        class="w-full p-3 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        rows="3"
+        placeholder="Write a comment...">
+      </textarea>
+
+              <div class="flex justify-end mt-2">
+                <button
+                  (click)="postComment()"
+                  [disabled]="!newComment.trim()"
+                  class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 text-sm rounded-md shadow-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                  Post Comment
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="xl:col-span-2 space-y-8">
+      <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+        <h3 class="text-2xl font-semibold text-gray-800 dark:text-white mb-5 pb-3 border-b border-gray-200 dark:border-gray-600">Project Location</h3>
+        <div class="bg-gray-200 dark:bg-gray-800 h-96 flex flex-col items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-600 relative">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <p class="text-lg font-medium mb-1">Project Location Map</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 max-w-md text-center">Integrate with Google Maps or Leaflet to show project location at coordinates</p>
+          <div class="absolute bottom-4 right-4">
+            <button class="bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-200 font-medium py-2 px-4 rounded-lg shadow-sm border border-gray-300 dark:border-gray-500 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd" />
+              </svg>
+              Fullscreen
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="project.images && project.images.length > 0" class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+        <div class="flex justify-between items-center mb-5 pb-3 border-b border-gray-200 dark:border-gray-600">
+          <h3 class="text-2xl font-semibold text-gray-800 dark:text-white">Project Gallery</h3>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div *ngFor="let image of project.images; let i = index" class="group relative overflow-hidden rounded-lg shadow-md border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-shadow duration-300" (click)="openCarousel(i)">
+            <img
+              [src]="image.imageUrl"
+              alt="{{ image.caption || project.title }}"
+              class="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300"
+            />
+            <div *ngIf="image.caption" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+              <p class="text-white font-medium truncate">{{ image.caption }}</p>
+            </div>
+            <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <button class="bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 flex justify-end gap-6">
+    <span>Date Created: {{ project.dateCreated | date:'medium' }}</span>
+    <span>Last Updated: {{ project.dateUpdated | date:'medium' }}</span>
+  </div>
+</div>
+
+
+
+<ng-template #projectNotFound>
+  <div class="flex flex-col items-center justify-center py-20 px-6 text-center bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-2xl mx-auto mt-10">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Project Not Found</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-6 max-w-md">The project you're looking for doesn't exist or may have been removed. Please check the project and try again.</p>
+    <button (click)="goBack()" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Return to Projects
+    </button>
+  </div>
+</ng-template>
+
+<app-project-confirmation-dialog
+  [show]="showConfirmationDialog"
+  [message]="dialogMessage"
+  (confirmed)="onConfirmation($event)"
+></app-project-confirmation-dialog>
+
+<div *ngIf="showCarousel && currentProject" @fade class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+
+  <div class="relative w-full max-w-5xl h-full flex items-center justify-center">
+
+    <button (click)="closeCarousel()" class="absolute -top-2 -right-2 md:top-2 md:right-2 bg-white/20 hover:bg-white/40 text-white rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold z-20 transition-all duration-200 transform hover:scale-110">
+      &times;
+    </button>
+
+    <button (click)="prevImage()" class="absolute left-0 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 text-4xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105">
+      &#8249;
+    </button>
+
+    <img *ngIf="currentProject.images?.length"
+         @fade
+         [src]="currentProject.images[currentImageIndex].imageUrl"
+         [alt]="currentProject.images[currentImageIndex].caption || 'Carousel Image'"
+         class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl">
+
+    <button (click)="nextImage()" class="absolute right-0 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 text-4xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105">
+      &#8250;
+    </button>
+
+    <div *ngIf="currentProject.images[currentImageIndex]?.caption" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-center text-base px-4 py-2 rounded-full shadow-lg">
+      <p>{{ currentProject.images[currentImageIndex].caption }}</p>
+    </div>
+
+  </div>
+</div>

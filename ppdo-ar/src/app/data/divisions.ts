@@ -1,0 +1,31 @@
+import { Division } from '../models/project.model';
+
+export const divisions: Division[] = [
+  { id: '1', name: 'Office of the Provincial Governor', code: 'PGO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '2', name: 'Provincial Tourism, Culture and Arts Office', code: 'PTCAO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '3', name: 'Provincial Development Division', code: 'PDD', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '4', name: 'Information and Communications Technology Office', code: 'ICTO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '5', name: 'Rural Youth Development Office', code: 'RYDO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '6', name: 'Provincial Welfare Office', code: 'PWO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '7', name: 'Provincial Livelihood and Productivity Program', code: 'PLPP', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '8', name: 'Provincial Training, Livelihood, and Development Center', code: 'PTLDC', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '9', name: 'Local Economic Development and Investment Promotion Office', code: 'LEDIPO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '10', name: 'Gender and Development Office', code: 'GAD', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '11', name: 'Office of the Vice Governor', code: 'OPVG', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '12', name: 'Provincial Engineer\'s Office', code: 'PEO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '13', name: 'Public Information Office', code: 'PIO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '14', name: 'Provincial Cooperative Office', code: 'PCO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '15', name: 'Office of the Provincial Agriculturist', code: 'OPAG', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '16', name: 'Provincial Environment and Natural Resources Office', code: 'PENRO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '17', name: 'Provincial Social Welfare and Development Office', code: 'PSWDO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '18', name: 'Provincial Health Office', code: 'PHO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '19', name: 'Provincial Veterinary Office', code: 'PVO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '20', name: 'Provincial Planning and Development Office', code: 'PPDO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '21', name: 'Provincial Human Resource Management Office', code: 'PHRMO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '22', name: 'Provincial General Services Office', code: 'PGSO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '23', name: 'Provincial Treasurer\'s Office', code: 'PTO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '24', name: 'Provincial Accounting Office', code: 'PACCO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '25', name: 'Provincial Budget Office', code: 'PBO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '26', name: 'Provincial Legal Services Office', code: 'PLSO', dateCreated: new Date(), dateUpdated: new Date() },
+  { id: '27', name: 'Provincial Security Force', code: 'PSF', dateCreated: new Date(), dateUpdated: new Date() }
+];

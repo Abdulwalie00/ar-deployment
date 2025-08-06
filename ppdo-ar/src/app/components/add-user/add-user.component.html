@@ -1,0 +1,144 @@
+<div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Create New User</h2>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Fill out the form to add a new user to the system.</p>
+    </div>
+
+    <form (ngSubmit)="submit()" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
+          <div class="mt-1">
+            <input
+              id="firstName"
+              [(ngModel)]="user.firstName"
+              name="firstName"
+              placeholder="Enter first name"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="middleName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Middle Name</label>
+          <div class="mt-1">
+            <input
+              id="middleName"
+              [(ngModel)]="user.middleName"
+              name="middleName"
+              placeholder="Enter middle name"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+          <div class="mt-1">
+            <input
+              id="lastName"
+              [(ngModel)]="user.lastName"
+              name="lastName"
+              placeholder="Enter last name"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+          <div class="mt-1">
+            <input
+              id="email"
+              [(ngModel)]="user.email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+          <div class="mt-1">
+            <input
+              id="username"
+              [(ngModel)]="user.username"
+              name="username"
+              placeholder="Enter username"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+          <div class="mt-1">
+            <input
+              id="password"
+              [(ngModel)]="user.password"
+              name="passwordHash"
+              type="password"
+              placeholder="Enter a secure password"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+          <select
+            id="role"
+            [(ngModel)]="user.role"
+            name="role"
+            class="w-full mt-1 pl-3 pr-10 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            required
+          >
+            <option value="ROLE_ADMIN">Admin</option>
+            <option value="ROLE_USER">User</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="divisionId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Division</label>
+          <select
+            id="divisionId"
+            [(ngModel)]="user.divisionId"
+            name="divisionId"
+            class="w-full mt-1 pl-3 pr-10 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option [ngValue]="null" disabled>Select a Division</option>
+            <option *ngFor="let division of divisions" [value]="division.id">
+              {{ division.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancel()"
+          class="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors">
+          Cancel
+        </button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+          Add User
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <app-confirm-dialog
+    *ngIf="showDialog"
+    [message]="'Are you sure you want to add this user?'"
+    (confirm)="onConfirm($event)"
+  ></app-confirm-dialog>
+</div>

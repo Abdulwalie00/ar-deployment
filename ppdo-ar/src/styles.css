@@ -1,0 +1,33 @@
+/* Import Poppins */
+@import '@fontsource/poppins/index.css';
+
+/* Tailwind Base */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apply Poppins as the default font */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    padding: 20px;
+    font-size: 12pt;
+  }
+
+  .print-summary {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+  }
+}

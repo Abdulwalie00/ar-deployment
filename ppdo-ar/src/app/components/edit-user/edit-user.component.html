@@ -1,0 +1,119 @@
+<div *ngIf="user" class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Edit User Account</h2>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Update the user's profile information and role.</p>
+    </div>
+
+    <form (ngSubmit)="submit()" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input
+              id="firstName"
+              [(ngModel)]="user.firstName"
+              name="firstName"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter first name"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input
+              id="lastName"
+              [(ngModel)]="user.lastName"
+              name="lastName"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter last name"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input
+              id="email"
+              [(ngModel)]="user.email"
+              name="email"
+              type="email"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input
+              id="username"
+              [(ngModel)]="user.username"
+              name="username"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Enter username"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <input
+              id="password"
+              [(ngModel)]="password"
+              name="password"
+              type="password"
+              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Leave blank to keep current password"
+            />
+          </div>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+          <select
+            id="role"
+            [(ngModel)]="user.role"
+            name="role"
+            class="w-full mt-1 pl-3 pr-10 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            required
+          >
+            <option value="ROLE_ADMIN">Admin</option>
+            <option value="ROLE_USER">User</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancel()"
+          class="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors">
+          Cancel
+        </button> 
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+          Update User
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <app-confirm-dialog
+    *ngIf="showDialog"
+    [message]="'Confirm update to this user?'"
+    (confirm)="onConfirm($event)">
+  </app-confirm-dialog>
+</div>
+
+<div *ngIf="!user" class="p-6 max-w-xl mx-auto text-center">
+  <p class="text-gray-800 dark:text-gray-300">Loading user data...</p>
+</div>

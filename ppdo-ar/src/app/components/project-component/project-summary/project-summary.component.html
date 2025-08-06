@@ -1,0 +1,155 @@
+<div class="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 min-h-screen">
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Project Summary</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Overview of all registered projects.</p>
+    </div>
+    <div class="flex gap-2 mt-4 sm:mt-0">
+      <button (click)="printReport()" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
+        </svg>
+        Print Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+
+
+      <!-- Year Filter -->
+      <div class="w-full">
+        <label for="yearFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
+        <select id="yearFilter" [(ngModel)]="selectedYear" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">All Years</option>
+          <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+
+      <!-- Month Filter -->
+      <div class="w-full">
+        <label for="monthFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Month</label>
+        <select id="monthFilter" [(ngModel)]="selectedMonth" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">All Months</option>
+          <option *ngFor="let month of months" [value]="month">{{ month }}</option>
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="w-full">
+        <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+        <select id="statusFilter" [(ngModel)]="selectedStatus" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">All Statuses</option>
+          <option *ngFor="let status of statuses" [value]="status">{{ status | titlecase }}</option>
+        </select>
+      </div>
+
+      <!-- Division Filter (Admin Only) -->
+      <div *ngIf="isAdmin" class="w-full">
+        <label for="divisionFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Division</label>
+        <select id="divisionFilter" [(ngModel)]="selectedDivision" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">All Divisions</option>
+          <option *ngFor="let division of divisions" [value]="division.id">{{ division.name }}</option>
+        </select>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="w-full">
+        <button (click)="resetFilters()" class="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-sm transition-colors">
+          Reset Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table and Pagination Controls -->
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-4">
+    <!-- Items per page selector -->
+    <div class="flex justify-end mb-4">
+      <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <span>Show</span>
+        <select [(ngModel)]="itemsPerPage" (ngModelChange)="onItemsPerPageChange()" class="p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+          <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+        </select>
+        <span>entries</span>
+      </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-300">
+        <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 5%;">No.</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 20%;">Title</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 15%;">Location</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 15%;">Category</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 15%;">Division</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 10%;">Start Date</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 10%;">End Date</th>
+          <th scope="col" class="px-6 py-3 font-medium" style="width: 10%;">Status</th>
+        </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tr *ngFor="let project of paginatedProjects; let i = index" class="hover:bg-gray-50 dark:hover:bg-gray-600/50 transition-colors">
+          <td class="px-6 py-4 font-medium text-gray-500 dark:text-gray-400">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white break-words">{{ project.title }}</td>
+          <td class="px-6 py-4 break-words">{{ project.location }}</td>
+          <td class="px-6 py-4 break-words">{{ project.projectCategory?.name || 'N/A' }}</td>
+          <td class="px-6 py-4 break-words">{{ project.division.name }}</td>
+          <td class="px-6 py-4">{{ project.startDate | date:'mediumDate' }}</td>
+          <td class="px-6 py-4">{{ project.endDate | date:'mediumDate' }}</td>
+          <td class="px-6 py-4">
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [ngClass]="{
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300': project.status === 'planned',
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300': project.status === 'ongoing',
+                    'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300': project.status === 'completed',
+                    'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300': project.status === 'cancelled'
+                  }">
+              {{ project.status | titlecase }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="filteredProjects.length === 0">
+          <td colspan="8" class="text-center py-10 text-gray-500 dark:text-gray-400">
+            <div class="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <p class="mt-2 font-semibold">No projects found</p>
+              <p class="text-sm">Try adjusting your filters.</p>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div *ngIf="totalPages > 0" class="flex justify-between items-center mt-4 text-sm">
+      <div class="text-gray-600 dark:text-gray-400">
+        Showing
+        <span class="font-semibold">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+        to
+        <span class="font-semibold">{{ currentPage * itemsPerPage > filteredProjects.length ? filteredProjects.length : currentPage * itemsPerPage }}</span>
+        of
+        <span class="font-semibold">{{ filteredProjects.length }}</span>
+        entries
+      </div>
+      <div class="flex items-center gap-2">
+        <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" class="px-3 py-1 border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          Previous
+        </button>
+        <span class="px-3 py-1">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages" class="px-3 py-1 border rounded-md bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

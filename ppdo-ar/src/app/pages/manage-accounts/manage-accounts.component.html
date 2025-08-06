@@ -1,0 +1,91 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">Manage Accounts</h2>
+    <button
+      class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition"
+      (click)="navigateToAdd()"
+    >
+      + Add User
+    </button>
+  </div>
+
+  <div class="flex justify-end items-center mb-4">
+    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+      <span>Show</span>
+      <select [(ngModel)]="itemsPerPage" (ngModelChange)="onItemsPerPageChange()" class="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+        <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+      </select>
+      <span>entries</span>
+    </div>
+  </div>
+
+
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+    <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-300">
+      <thead class="bg-gray-50 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+      <tr>
+        <th class="px-6 py-3 font-medium">No.</th>
+        <th class="px-6 py-3 font-medium">Name</th>
+        <th class="px-6 py-3 font-medium">Email</th>
+        <th class="px-6 py-3 font-medium">Username</th>
+        <th class="px-6 py-3 font-medium">Role</th>
+        <th class="px-6 py-3 font-medium">Division</th>
+        <th class="px-6 py-3 font-medium text-right">Actions</th>
+      </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+      <tr
+        *ngFor="let user of paginatedUsers; let i = index"
+        class="hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+      >
+        <td class="px-6 py-4 whitespace-nowrap">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+        <td class="px-6 py-4 whitespace-normal"> <div class="font-medium">{{ user.lastName }}, {{ user.firstName }} {{ user.middleName }}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-normal break-words"> {{ user.email }}
+        </td>
+        <td class="px-6 py-4 whitespace-normal break-words"> {{ user.username }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">{{ user.role }}</td>
+        <td class="px-6 py-4 whitespace-normal break-words"> {{ user.division?.name }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right">
+          <button
+            class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium transition"
+            (click)="navigateToEdit(user.id)"
+          >
+            Edit
+          </button>
+          <button
+            class="ml-4 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium transition"
+            (click)="confirmDelete(user.id)"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="totalPages > 1" class="flex justify-between items-center mt-4 text-sm">
+    <div class="text-gray-600 dark:text-gray-400">
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ currentPage * itemsPerPage > users.length ? users.length : currentPage * itemsPerPage }} of {{ users.length }} entries
+    </div>
+    <div class="flex items-center gap-2">
+      <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" class="px-3 py-1 border rounded bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50">
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages" class="px-3 py-1 border rounded bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50">
+        Next
+      </button>
+    </div>
+  </div>
+
+
+  <app-confirm-dialog
+    *ngIf="showDialog"
+    [message]="dialogMessage"
+    (confirm)="onConfirm($event)"
+  ></app-confirm-dialog>
+</div>

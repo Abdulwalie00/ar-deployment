@@ -1,0 +1,15 @@
+<div *ngIf="division" class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 border-b pb-4 border-gray-200 dark:border-gray-700">
+    Projects for {{ division.name }}
+  </h2>
+
+  <app-project-list
+    [inputProjects]="projects"
+    [showAddButton]="true"
+    [currentDivisionCode]="divisionCode">
+  </app-project-list>
+</div>
+
+<div *ngIf="!division" class="text-center p-8">
+  <p class="text-gray-500 dark:text-gray-400">Loading division projects...</p>
+</div>
