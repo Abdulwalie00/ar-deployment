@@ -20,7 +20,7 @@ export class WebsocketService {
     // Configure the client to use SockJS
     this.client.webSocketFactory = () => {
       // Use "as any" to bypass the TypeScript type-checking issue
-      return new SockJS('http://192.168.139.39:8080/ws') as any; // <-- ✅  APPLY THE FIX HERE
+      return new SockJS('/ws') as any; // <-- ✅  APPLY THE FIX HERE
     };
 
     // --- The rest of your configuration remains the same ---

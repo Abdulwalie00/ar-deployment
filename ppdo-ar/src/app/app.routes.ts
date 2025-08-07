@@ -77,9 +77,9 @@ export const routes: Routes = [
       {
         path: 'project-division/:divisionCode',
         component: ProjectDivisionPageComponent,
-        canActivate: [DivisionGuard] // Apply the guard here
+        canActivate: [DivisionGuard]
       },
-      { path: 'project-list', component: ProjectListComponent, canActivate: [AdminGuard, SuperAdminGuard]},
+      { path: 'project-list', component: ProjectListComponent, canActivate: [AdminGuard]},
       { path: 'project-add', component: ProjectAddEditComponent },
       { path: 'project-edit/:id', component: ProjectAddEditComponent },
       { path: 'project-detail/:id', component: ProjectDetailComponent },
@@ -87,8 +87,8 @@ export const routes: Routes = [
       { path: 'project-summary', component: ProjectSummaryComponent },
       {
         path: 'project-categories',
-        component: ProjectCategoryListComponent
-        // canActivate: [AuthGuard] // Add your authentication guard here if you have one
+        component: ProjectCategoryListComponent,
+        canActivate: [AdminGuard, SuperAdminGuard]
       },
 
       { path: 'divisions', component: DivisionListComponent, canActivate: [AdminGuard, SuperAdminGuard] },
@@ -106,8 +106,8 @@ export const routes: Routes = [
       { path: 'profile', component: ProfileComponent },
 
       { path: 'accounts', component: ManageAccountsComponent, canActivate: [SuperAdminGuard] },
-      { path: 'accounts/add', component: AddUserComponent, canActivate: [AdminGuard, SuperAdminGuard] },
-      { path: 'accounts/edit/:id', component: EditUserComponent, canActivate: [AdminGuard, SuperAdminGuard] },
+      { path: 'accounts/add', component: AddUserComponent, canActivate: [SuperAdminGuard] },
+      { path: 'accounts/edit/:id', component: EditUserComponent, canActivate: [SuperAdminGuard] },
     ]
   },
   { path: '**', component: NotFoundComponent },
