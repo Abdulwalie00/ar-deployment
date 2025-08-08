@@ -1,4 +1,4 @@
-// app/components/sidebar/sidebar.component.ts
+
 import {Component, ElementRef, OnDestroy, OnInit, Renderer2, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
@@ -32,6 +32,7 @@ interface MenuItem {
   isExpanded?: boolean;
   children?: MenuItem[];
   requiredRole?: string;
+  tooltip?: string;
 }
 
 @Component({
@@ -66,19 +67,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private el: ElementRef,
     private authService: AuthService
   ) {
-    // 👇 THIS IS THE FIX 👇
-    // Now checks if the user has either ROLE_ADMIN or ROLE_SUPERADMIN
     this.isAdmin$ = this.authService.userRoles$.pipe(
       map(roles => roles.includes('ROLE_ADMIN') || roles.includes('ROLE_SUPERADMIN'))
     );
-    // This remains the same, to specifically check for the superadmin role
     this.isSuperAdmin$ = this.authService.userRoles$.pipe(
       map(roles => roles.includes('ROLE_SUPERADMIN'))
     );
     this.collapseSubmenuOnNavigate();
   }
 
-  // ... (The rest of your component code remains the same)
   menuItems = signal<MenuItem[]>([
     {
       title: 'Dashboard',
@@ -86,58 +83,74 @@ export class SidebarComponent implements OnInit, OnDestroy {
       link: '/project-dashboard',
     },
     {
-      title: 'PGO',
+      title: 'SEPARATOR',
+      icon: null
+    },
+    {
+      title: 'Social',
       icon: faBuildingColumns,
       isExpanded: false,
       children: [
-        {
-          title: 'PTCAO', link: '/project-division/PTCAO',
-          icon: faCircle
-        },
-        //PGO Pages
-        { title: 'PDD', icon: faCircle, link: '/project-division/PDD' },
-        { title: 'ICTO', icon: faCircle, link: '/project-division/ICTO' },
-        { title: 'RYDO', icon: faCircle, link: '/project-division/RYDO' },
-        { title: 'PWO', icon: faCircle, link: '/project-division/PWO' },
-        { title: 'PLPP', icon: faCircle, link: '/project-division/PLPP' },
-        { title: 'PTLDC', icon: faCircle, link: '/project-division/PTLDC' },
-        { title: 'LEDIPO', icon: faCircle, link: '/project-division/LEDIPO' },
-        { title: 'GAD', icon: faCircle, link: '/project-division/GAD' },
+        {title: 'RYDO', icon: faCircle ,link: '/project-division/RYDO', tooltip: 'Ranao Youth and Development Office'},
+        { title: 'GAD', icon: faCircle, link: '/project-division/GAD', tooltip: 'Gender and Development' },
+        { title: 'PSWDO', icon: faCircle, link: '/project-division/PSWDO', tooltip: 'Provincial Social Welfare and Development Office' },
+        { title: 'PHO', icon: faCircle, link: '/project-division/PHO', tooltip: 'Provincial Health Office' },
+        { title: 'PYSDO', icon: faCircle, link: '/project-division/PYSDO', tooltip: 'Provincial Youth, Sports and Development Office' },
+        { title: 'PCPC', icon: faCircle, link: '/project-division/PCPC', tooltip: 'Provincial Council for the Protection of Children' },
+        { title: 'PCAT', icon: faCircle, link: '/project-division/PCAT', tooltip: 'Provincial Council Against Trafficking' },
       ]
     },
     {
-      title: 'OPVG',
-      icon: faBuildingColumns,
-      link: '/project-division/OPVG'
-    },
-    {
-      title: 'Implementing',
+      title: 'Institutional',
       icon: faBuildingColumns,
       isExpanded: false,
       children: [
-        { title: 'PEO', icon: faCircle, link: '/project-division/PEO' },
-        { title: 'PIO', icon: faCircle, link: '/project-division/PIO' },
-        { title: 'PCO', icon: faCircle, link: '/project-division/PCO' },
-        { title: 'OPAG', icon: faCircle, link: '/project-division/OPAG' },
-        { title: 'PENRO', icon: faCircle, link: '/project-division/PENRO' },
-        { title: 'PSWDO', icon: faCircle, link: '/project-division/PSWDO' },
-        { title: 'PHO', icon: faCircle, link: '/project-division/PHO' },
-        { title: 'PVO', icon: faCircle, link: '/project-division/PVO' },
+        { title: 'PDO', icon: faCircle, link: '/project-division/PDO', tooltip: 'Provincial Development Office' },
+        { title: 'PPDO', icon: faCircle, link: '/project-division/PPDO', tooltip: 'Provincial Planning and Development Office' },
+        { title: 'PSF', icon: faCircle, link: '/project-division/PSF', tooltip: 'Public Safety Force' },
+        { title: 'PASSO', icon: faCircle, link: '/project-division/PASSO', tooltip: 'Provincial Assessor\'s Office' },
+        { title: 'LPPPL', icon: faCircle, link: '/project-division/LPPPL', tooltip: 'Lanao del Sur People\'s Provincial Library' },
+        { title: 'PIO', icon: faCircle, link: '/project-division/PIO', tooltip: 'Public Information Office' },
+        { title: 'PGO', icon: faCircle, link: '/project-division/PGO', tooltip: 'Provincial Governor\'s Office' },
+        { title: 'PWO', icon: faCircle, link: '/project-division/PWO', tooltip: 'Provincial Warden\'s Office' },
+        { title: 'PHRMO', icon: faCircle, link: '/project-division/PHRMO', tooltip: 'Provincial Human Resource Management Office' },
+        { title: 'SP', icon: faCircle, link: '/project-division/SP', tooltip: 'Sangguniang Panlalawigan' },
+        { title: 'PGSO', icon: faCircle, link: '/project-division/PGSO', tooltip: 'Provincial General Services Office' },
+        { title: 'PBO', icon: faCircle, link: '/project-division/PBO', tooltip: 'Provincial Budget Office' },
+        { title: 'PACCO', icon: faCircle, link: '/project-division/PACCO', tooltip: 'Provincial Accountant\'s Office' },
+        { title: 'PTO', icon: faCircle, link: '/project-division/PTO', tooltip: 'Provincial Treasurer\'s Office' },
+        { title: 'PLO', icon: faCircle, link: '/project-division/PLO', tooltip: 'Provincial Legal Office' },
+        { title: 'IAS', icon: faCircle, link: '/project-division/IAS', tooltip: 'Internal Audit Service' },
       ]
     },
     {
-      title: 'Administrative Support',
+      title: 'Economic',
       icon: faBuildingColumns,
       isExpanded: false,
       children: [
-        { title: 'PPDO', icon: faCircle, link: '/project-division/PPDO' },
-        { title: 'PHRMO', icon: faCircle, link: '/project-division/PHRMO' },
-        { title: 'PGSO', icon: faCircle, link: '/project-division/PGSO' },
-        { title: 'PTO', icon: faCircle, link: '/project-division/PTO' },
-        { title: 'PACCO', icon: faCircle, link: '/project-division/PACCO' },
-        { title: 'PBO', icon: faCircle, link: '/project-division/PBO' },
-        { title: 'PLSO', icon: faCircle, link: '/project-division/PLSO' },
-        { title: 'PSF', icon: faCircle, link: '/project-division/PSF' },
+        { title: 'PCO', icon: faCircle, link: '/project-division/PCO', tooltip: 'Provincial Cooperative Office' },
+        { title: 'PTLDC', icon: faCircle, link: '/project-division/PTLDC', tooltip: 'Provincial Tourism, Livelihood, and Development Center' },
+        { title: 'OPAG', icon: faCircle, link: '/project-division/OPAG', tooltip: 'Office of the Provincial Agriculturist' },
+        { title: 'PVO', icon: faCircle, link: '/project-division/PVO', tooltip: 'Provincial Veterinary Office' },
+        { title: 'PTCAO', icon: faCircle, link: '/project-division/PTCAO', tooltip: 'Provincial Tourism and Cultural Affairs Office' },
+      ]
+    },
+    {
+      title: 'Environment',
+      icon: faBuildingColumns,
+      isExpanded: false,
+      children: [
+        { title: 'PDRRMO', icon: faCircle, link: '/project-division/PDRRMO', tooltip: 'Provincial Disaster Risk Reduction and Management Office' },
+        { title: 'PENRO', icon: faCircle, link: '/project-division/PENRO', tooltip: 'Provincial Environment and Natural Resources Office' },
+      ]
+    },
+    {
+      title: 'Infrastructure',
+      icon: faBuildingColumns,
+      isExpanded: false,
+      children: [
+        { title: 'PEO', icon: faCircle, link: '/project-division/PEO', tooltip: 'Provincial Engineer\'s Office' },
+        { title: 'PAO', icon: faCircle, link: '/project-division/PAO', tooltip: 'Provincial Administrator\'s Office' },
       ]
     },
     {
@@ -145,12 +158,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       icon: faUsers,
       link: '/accounts',
       requiredRole: 'ROLE_SUPERADMIN'
-    },
-    {
-      title: 'Settings',
-      icon: faCog,
-      link: '/settings'
-    },
+    }
   ]);
 
   faChevronRight = faChevronRight;
@@ -171,29 +179,39 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleMenu(menuItem: MenuItem) {
-    if (menuItem.children) {
-      menuItem.isExpanded = !menuItem.isExpanded;
+  toggleMenu(clickedItem: MenuItem) {
+    if (clickedItem.children) {
+      const wasExpanded = clickedItem.isExpanded;
+
+      // First, collapse all other submenus
+      this.menuItems().forEach(item => {
+        if (item !== clickedItem && item.children) {
+          item.isExpanded = false;
+        }
+      });
+
+      // Then, toggle the state of the clicked item
+      clickedItem.isExpanded = !wasExpanded;
     }
   }
 
   handleMenuClick(menuItem: MenuItem, event: MouseEvent) {
     if (this.isCollapsed()) {
-      // Close all other submenus first
+      // This logic already ensures only one is open at a time for the collapsed state
+      const currentlyExpanded = menuItem.isExpanded;
       this.menuItems().forEach(item => {
-        if (item !== menuItem && item.isExpanded) {
+        if (item !== menuItem) { // Close all *other* pop-ups
           item.isExpanded = false;
         }
       });
-
-      // Then toggle the clicked menu item's expansion state
-      menuItem.isExpanded = !menuItem.isExpanded;
+      menuItem.isExpanded = !currentlyExpanded; // Then toggle the clicked one
 
       if (menuItem.isExpanded) {
         this.calculateTopPosition(event);
       }
       event.stopPropagation();
     } else {
+      // For the expanded sidebar, use the updated toggleMenu logic
       this.toggleMenu(menuItem);
     }
   }

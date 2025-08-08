@@ -66,35 +66,43 @@ public class DataLoader implements CommandLineRunner {
 
         // Division code-name pairs
         Map<String, String> divisions = Map.ofEntries(
-                Map.entry("PTCAO", "Provincial Tourism and Cultural Affairs Office"),
-                Map.entry("PDD", "Provincial Development Department"),
-                Map.entry("ICTO", "Information and Communication Technology Office"),
-                Map.entry("RYDO", "Rizal Youth Development Office"),
-                Map.entry("PWO", "Provincial Welfare Office"),
-                Map.entry("PLPP", "Provincial Legal and Public Protection"),
-                Map.entry("PTLDC", "Provincial Training and Livelihood Development Center"),
-                Map.entry("LEDIPO", "Local Economic Development and Investment Promotions Office"),
+                // Social
+                Map.entry("RYDO", "Ranao Youth and Development Office"),
                 Map.entry("GAD", "Gender and Development"),
-                Map.entry("OPVG", "Office of the Provincial Vice Governor"),
-                Map.entry("PEO", "Provincial Engineering Office"),
-                Map.entry("PIO", "Provincial Information Office"),
-                Map.entry("PCO", "Provincial Cooperative Office"),
-                Map.entry("OPAG", "Office of the Provincial Agriculturist"),
-                Map.entry("PENRO", "Provincial Environment and Natural Resources Office"),
                 Map.entry("PSWDO", "Provincial Social Welfare and Development Office"),
                 Map.entry("PHO", "Provincial Health Office"),
-                Map.entry("PVO", "Provincial Veterinary Office"),
+                Map.entry("PYSDO", "Provincial Youth, Sports and Development Office"),
+                Map.entry("PCPC", "Provincial Council for the Protection of Children"),
+                Map.entry("PCAT", "Provincial Council Against Trafficking"),
+                // Institutional
+                Map.entry("PDO", "Provincial Development Office"),
                 Map.entry("PPDO", "Provincial Planning and Development Office"),
+                Map.entry("PSF", "Public Safety Force"),
+                Map.entry("PASSO", "Provincial Assessor's Office"),
+                Map.entry("LPPPL", "Lanao del Sur People's Provincial Library"),
+                Map.entry("PIO", "Public Information Office"),
+                Map.entry("PGO", "Provincial Governor's Office"),
+                Map.entry("PWO", "Provincial Warden's Office"),
                 Map.entry("PHRMO", "Provincial Human Resource Management Office"),
+                Map.entry("SP", "Sangguniang Panlalawigan"),
                 Map.entry("PGSO", "Provincial General Services Office"),
-                Map.entry("PTO", "Provincial Treasurer's Office"),
-                Map.entry("PACCO", "Provincial Accounting Office"),
                 Map.entry("PBO", "Provincial Budget Office"),
-                Map.entry("PLSO", "Provincial Legal Services Office"),
-                Map.entry("PSF", "Provincial Security Force"),
-                // Add your new entry here
-                Map.entry("PMO", "Project Management Office"),
-                Map.entry("PPP", "Provincial Security Force")
+                Map.entry("PACCO", "Provincial Accountant's Office"),
+                Map.entry("PTO", "Provincial Treasurer's Office"),
+                Map.entry("PLO", "Provincial Legal Office"),
+                Map.entry("IAS", "Internal Audit Service"),
+                // Economic
+                Map.entry("PCO", "Provincial Cooperative Office"),
+                Map.entry("PTLDC", "Provincial Tourism, Livelihood, and Development Center"),
+                Map.entry("OPAG", "Office of the Provincial Agriculturist"),
+                Map.entry("PVO", "Provincial Veterinary Office"),
+                Map.entry("PTCAO", "Provincial Tourism and Cultural Affairs Office"),
+                // Environment
+                Map.entry("PDRRMO", "Provincial Disaster Risk Reduction and Management Office"),
+                Map.entry("PENRO", "Provincial Environment and Natural Resources Office"),
+                // Infrastructure
+                Map.entry("PEO", "Provincial Engineer's Office"),
+                Map.entry("PAO", "Provincial Administrator's Office")
         );
 
         for (Map.Entry<String, String> entry : divisions.entrySet()) {
