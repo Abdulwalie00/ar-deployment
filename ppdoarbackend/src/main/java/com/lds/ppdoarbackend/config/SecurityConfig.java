@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; // ✅ ADD THIS IMPORT
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Enable @PreAuthorize, @Secured, etc.
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -39,33 +40,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                // ✅ USE A MORE EXPLICIT WAY TO DISABLE CSRF
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // *** ADD THIS LINE TO ALLOW WEBSOCKET CONNECTIONS ***
-                        .requestMatchers("/ws/**").permitAll()
-                        // Allow public auth routes
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/api/project-categories/**").permitAll()
-
-                        // Allow users to access their own profile
                         .requestMatchers(HttpMethod.GET, "/api/users/username/**").authenticated()
-
-                        // Allow preflight OPTIONS requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // Only SUPERADMINs can access user management endpoints
                         .requestMatchers("/api/manage-users/**").hasRole("SUPERADMIN")
-
-                        // Only ADMINS and SUPERADMINS can access project endpoints
                         .requestMatchers( "/api/projects/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER")
-
-                        // Allow authenticated users to comment
                         .requestMatchers("/api/projects/{projectId}/comments/**").authenticated()
-
-
-                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
