@@ -1,3 +1,4 @@
+// app/components/project-component/project-detail/project-detail.component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
@@ -10,12 +11,22 @@ import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models/user.model';
-import {WebsocketService} from '../../../services/websocker.service';
+import { WebsocketService } from '../../../services/websocker.service';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { PasswordVerificationDialogComponent } from '../../password-verification-dialog/password-verification-dialog.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ProjectConfirmationDialogComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ProjectConfirmationDialogComponent,
+    FontAwesomeModule,
+    PasswordVerificationDialogComponent
+  ],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css']
 })
@@ -34,6 +45,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
 
   showCarousel = false;
   currentImageIndex = 0;
+
+  isBudgetVisible = false;
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
+
+  showPasswordDialog = false;
+  // This will determine what to do after password is verified
+  actionToPerformAfterVerification: 'viewBudget' | 'deleteProject' | null = null;
 
   private destroy$ = new Subject<void>();
   private shouldScrollToBottom = false;
@@ -73,6 +92,52 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
       takeUntil(this.destroy$)
     );
   }
+
+  // --- Password and Action Handling ---
+
+  toggleBudgetVisibility(): void {
+    if (this.isBudgetVisible) {
+      this.isBudgetVisible = false;
+    } else {
+      this.actionToPerformAfterVerification = 'viewBudget';
+      this.showPasswordDialog = true;
+    }
+  }
+
+  confirmDelete(): void {
+    this.actionToPerformAfterVerification = 'deleteProject';
+    this.showPasswordDialog = true;
+  }
+
+  onPasswordVerified(): void {
+    this.showPasswordDialog = false;
+    if (this.actionToPerformAfterVerification === 'viewBudget') {
+      this.isBudgetVisible = true;
+    } else if (this.actionToPerformAfterVerification === 'deleteProject') {
+      if (!this.currentProject) return;
+      this.dialogMessage = `Are you sure you want to delete project "${this.currentProject.title}"? This action cannot be undone.`;
+      this.dialogAction = 'delete';
+      this.showConfirmationDialog = true;
+    }
+    this.actionToPerformAfterVerification = null; // Reset action
+  }
+
+  onPasswordDialogClosed(): void {
+    this.showPasswordDialog = false;
+    this.actionToPerformAfterVerification = null; // Reset action
+  }
+
+  // Final deletion confirmation
+  onConfirmation(confirmed: boolean): void {
+    this.showConfirmationDialog = false;
+    if (confirmed && this.dialogAction === 'delete' && this.currentProject) {
+      this.projectDataService.deleteProject(this.currentProject.id).subscribe(() => {
+        this.router.navigate(['/project-list']);
+      });
+    }
+  }
+
+  // --- Other Component Methods (no changes needed below) ---
 
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
@@ -144,22 +209,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
   editProject(): void {
     if (this.currentProject) {
       this.router.navigate(['/project-edit', this.currentProject.id]);
-    }
-  }
-
-  confirmDelete(): void {
-    if (!this.currentProject) return;
-    this.dialogMessage = `Are you sure you want to delete project "${this.currentProject.title}"?`;
-    this.dialogAction = 'delete';
-    this.showConfirmationDialog = true;
-  }
-
-  onConfirmation(confirmed: boolean): void {
-    this.showConfirmationDialog = false;
-    if (confirmed && this.dialogAction === 'delete' && this.currentProject) {
-      this.projectDataService.deleteProject(this.currentProject.id).subscribe(() => {
-        this.router.navigate(['/project-list']);
-      });
     }
   }
 

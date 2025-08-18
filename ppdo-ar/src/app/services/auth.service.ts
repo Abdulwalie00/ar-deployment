@@ -34,6 +34,10 @@ export class AuthService {
     return this.getRolesFromToken();
   }
 
+  verifyPassword(password: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}auth/verify-password`, { password });
+  }
+
   /**
    * ADD THIS METHOD
    * Gets the primary role of the user.

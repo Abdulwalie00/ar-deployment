@@ -7,7 +7,7 @@
 
     <div class="text-center">
       <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100">Project Dashboard</h1>
-      <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Overview of all projects across your organization</p>
+      <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Overview of all projects across your office</p>
     </div>
 
     <div class="text-right">
@@ -20,7 +20,16 @@
   </div>
 
   <div class="mb-12">
-    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Project Status</h2>
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Project Status</h2>
+      <div class="flex items-center gap-2">
+        <label for="yearFilter" class="text-sm font-medium text-gray-700 dark:text-gray-300">Year:</label>
+        <select id="yearFilter" [(ngModel)]="selectedYear" (ngModelChange)="onYearChange()" class="p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">All Years</option>
+          <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <div
         *ngFor="let status of statusList"
@@ -80,7 +89,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">No projects yet</h3>
+      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">No projects found for {{selectedYear}}</h3>
       <p class="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first project</p>
       <button
         routerLink="/project-add"
