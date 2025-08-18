@@ -229,24 +229,24 @@
         class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/50 dark:file:text-blue-300 dark:hover:file:bg-blue-800/50"
       />
 
-      <div *ngIf="currentProjectImages.length > 0 || newlyUploadedImages.length > 0" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <div *ngFor="let img of currentProjectImages" class="relative group">
-          <img [src]="img.imageUrl" class="w-full h-32 object-cover rounded-md shadow-sm" alt="Existing Project Image" />
+      <div formArrayName="images" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div *ngFor="let imageControl of images.controls; let i = index" [formGroupName]="i" class="relative group">
+          <img [src]="imageControl.get('imageUrl')?.value" class="w-full h-32 object-cover rounded-md shadow-sm" alt="Project Image" />
+
           <button
             type="button"
-            (click)="removeCurrentImage(img.id)"
+            (click)="removeImage(i)"
             class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 opacity-0 group-hover:opacity-100 transition-opacity"
             title="Remove image">
-            &#x2715; </button>
-        </div>
-        <div *ngFor="let img of newlyUploadedImages" class="relative group">
-          <img [src]="img.imageUrl" class="w-full h-32 object-cover rounded-md shadow-sm" alt="New Project Image" />
-          <button
-            type="button"
-            (click)="removeNewImage(img.imageUrl)"
-            class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            title="Remove image">
-            &#x2715; </button>
+            &#x2715;
+          </button>
+
+          <input
+            type="text"
+            formControlName="caption"
+            placeholder="Add a caption..."
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-1 px-2 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          />
         </div>
       </div>
     </div>

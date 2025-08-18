@@ -1,6 +1,5 @@
 <div class="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 min-h-screen">
 
-  <!-- Page Header -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
     <div>
       <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Project Summary</h1>
@@ -16,12 +15,10 @@
     </div>
   </div>
 
-  <!-- Filter Controls -->
   <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
 
 
-      <!-- Year Filter -->
       <div class="w-full">
         <label for="yearFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Year</label>
         <select id="yearFilter" [(ngModel)]="selectedYear" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
@@ -30,7 +27,6 @@
         </select>
       </div>
 
-      <!-- Month Filter -->
       <div class="w-full">
         <label for="monthFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Month</label>
         <select id="monthFilter" [(ngModel)]="selectedMonth" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
@@ -39,16 +35,22 @@
         </select>
       </div>
 
-      <!-- Status Filter -->
       <div class="w-full">
-        <label for="statusFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-        <select id="statusFilter" [(ngModel)]="selectedStatus" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-          <option value="">All Statuses</option>
-          <option *ngFor="let status of statuses" [value]="status">{{ status | titlecase }}</option>
-        </select>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+        <div class="flex flex-wrap gap-x-4 gap-y-2">
+          <div *ngFor="let status of statuses" class="flex items-center">
+            <input
+              type="checkbox"
+              [id]="'status-' + status"
+              [(ngModel)]="selectedStatus[status]"
+              (ngModelChange)="filterProjects()"
+              class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <label [for]="'status-' + status" class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ status | titlecase }}</label>
+          </div>
+        </div>
       </div>
 
-      <!-- Division Filter (Admin Only) -->
       <div *ngIf="isAdmin" class="w-full">
         <label for="divisionFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Division</label>
         <select id="divisionFilter" [(ngModel)]="selectedDivision" (ngModelChange)="filterProjects()" class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
@@ -57,7 +59,6 @@
         </select>
       </div>
 
-      <!-- Reset Button -->
       <div class="w-full">
         <button (click)="resetFilters()" class="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-md shadow-sm transition-colors">
           Reset Filters
@@ -66,9 +67,7 @@
     </div>
   </div>
 
-  <!-- Table and Pagination Controls -->
   <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-4">
-    <!-- Items per page selector -->
     <div class="flex justify-end mb-4">
       <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
         <span>Show</span>
@@ -79,7 +78,6 @@
       </div>
     </div>
 
-    <!-- Projects Table -->
     <div class="overflow-x-auto">
       <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-300">
         <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -130,7 +128,6 @@
       </table>
     </div>
 
-    <!-- Pagination Footer -->
     <div *ngIf="totalPages > 0" class="flex justify-between items-center mt-4 text-sm">
       <div class="text-gray-600 dark:text-gray-400">
         Showing

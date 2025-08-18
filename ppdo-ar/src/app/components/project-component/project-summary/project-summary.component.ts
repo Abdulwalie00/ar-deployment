@@ -1,3 +1,4 @@
+// src/app/components/project-component/project-summary/project-summary.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +31,12 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   years: number[] = [];
 
   // Selected filter values
-  selectedStatus: string = '';
+  selectedStatus: { [key: string]: boolean } = {
+    planned: false,
+    ongoing: false,
+    completed: false,
+    cancelled: false
+  };
   selectedDivision: string = '';
   selectedMonth: string = '';
   selectedYear: string = '';
@@ -121,8 +127,9 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     let tempProjects = [...this.projects]; // Start with a fresh copy of all relevant projects
 
     // Apply Status Filter
-    if (this.selectedStatus) {
-      tempProjects = tempProjects.filter(p => p.status === this.selectedStatus);
+    const selectedStatuses = Object.keys(this.selectedStatus).filter(status => this.selectedStatus[status]);
+    if (selectedStatuses.length > 0) {
+      tempProjects = tempProjects.filter(p => selectedStatuses.includes(p.status));
     }
 
     // Apply Year Filter
@@ -149,7 +156,12 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.selectedStatus = '';
+    this.selectedStatus = {
+      planned: false,
+      ongoing: false,
+      completed: false,
+      cancelled: false
+    };
     this.selectedDivision = '';
     this.selectedMonth = '';
     this.selectedYear = '';
@@ -219,29 +231,31 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     for (const categoryName in projectsByCategory) {
       if (Object.prototype.hasOwnProperty.call(projectsByCategory, categoryName)) {
         projectRows += `
-          <tr class="category-row">
-            <td colspan="12"><strong>${this.safePrintValue(categoryName)}</strong></td>
-          </tr>
-        `;
+        <tr class="category-row">
+          <td colspan="12"><strong>${this.safePrintValue(categoryName)}</strong></td>
+        </tr>
+      `;
         projectsByCategory[categoryName].forEach(project => {
-          const startDate = new Date(project.startDate).toLocaleDateString();
+          const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A';
+          const implementationSchedule = project.implementationSchedule ? new Date(project.implementationSchedule).toLocaleDateString() : 'N/A';
+          const dateOfAccomplishment = project.dateOfAccomplishment ? new Date(project.dateOfAccomplishment).toLocaleDateString() : 'N/A';
 
           projectRows += `
-                <tr class="main-row">
-                  <td>${this.safePrintValue(project.title)}</td>
-                  <td>${this.safePrintValue(project.location)}</td>
-                  <td>${this.safePrintValue(project.targetParticipant)}</td>
-                  <td>${this.safePrintValue(project.implementationSchedule)}</td>
-                  <td>${this.safePrintValue(startDate)}</td>
-                  <td>${this.safePrintValue(project.dateOfAccomplishment)}</td>
-                  <td>${this.safePrintValue(project.officeInCharge)}</td>
-                  <td>${this.safePrintValue(project.budget)}</td>
-                  <td>${this.safePrintValue(project.fundSource)}</td>
-                  <td>${this.safePrintValue(project.percentCompletion)}${'%'}</td>
-                  <td>${this.safePrintValue(project.budget)}</td>
-                  <td>${this.safePrintValue(project.remarks)}</td>
-                </tr>
-            `;
+              <tr class="main-row">
+                <td>${this.safePrintValue(project.title)}</td>
+                <td>${this.safePrintValue(project.location)}</td>
+                <td>${this.safePrintValue(project.targetParticipant)}</td>
+                <td>${this.safePrintValue(implementationSchedule)}</td>
+                <td>${this.safePrintValue(startDate)}</td>
+                <td>${this.safePrintValue(dateOfAccomplishment)}</td>
+                <td>${this.safePrintValue(project.officeInCharge)}</td>
+                <td>${this.safePrintValue(project.budget)}</td>
+                <td>${this.safePrintValue(project.fundSource)}</td>
+                <td>${this.safePrintValue(project.percentCompletion)}${'%'}</td>
+                <td>${this.safePrintValue(project.budget)}</td>
+                <td>${this.safePrintValue(project.remarks)}</td>
+              </tr>
+          `;
         });
       }
     }
@@ -251,78 +265,78 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     }
 
     const printHtml = `
-      <html>
-      <head>
-        <title>Project Summary Report</title>
-        <style>
-          @media print {
-            @page { size: landscape; }
-            body { font-family: Arial, sans-serif; font-size: 10pt; }
-            .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-            .header-table td { vertical-align: middle; padding: 5px; border: 0 }
-            .logo {
-              width: 100%;
-              height: auto;
-              max-height: 120px; /* Adjust max-height as needed */
-              object-fit: contain;
-            }
-            .header-text { text-align: center; }
-            .header-text p { margin: 0; line-height: 1.4; }
-            .report-title { font-size: 14pt; font-weight: bold; margin-top: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 6px; text-align: left; }
-            th { background-color: #e0e0e0; font-weight: bold; }
-            .main-row { border-top: 2px solid #000; }
-            tbody tr:first-child.main-row { border-top: none; }
-            .category-row td { background-color: rgba(255,219,139,0.78); font-style: italic; padding-left: 20px; border-bottom: 2px solid #000; }
+    <html>
+    <head>
+      <title>Project Summary Report</title>
+      <style>
+        @media print {
+          @page { size: landscape; }
+          body { font-family: Arial, sans-serif; font-size: 10pt; }
+          .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+          .header-table td { vertical-align: middle; padding: 5px; border: 0 }
+          .logo {
+            width: 100%;
+            height: auto;
+            max-height: 120px; /* Adjust max-height as needed */
+            object-fit: contain;
           }
-        </style>
-      </head>
-      <body>
-        <table class="header-table">
-          <tr>
-            <td style="width: 15%; text-align: center;">
-              <img src="app/assets/logos/LDS.png" alt="Lanao del Sur Logo" class="logo">
-            </td>
-            <td class="header-text">
-              <p>Republic of the Philippines</p>
-              <p>BANGSAMORO AUTONOMOUS REGION IN MUSLIM MINDANAO</p>
-              <p>PROVINCE OF LANAO DEL SUR</p>
-              <p>New Capitol Complex, Buadi Sacayo, Marawi City</p>
-              <p class="report-title">MONTHLY ACCOMPLISHMENT REPORT</p>
-              <p>Month of: ${month}, ${year}</p>
-              <p>Office: ${divisionName}</p>
-            </td>
-            <td style="width: 15%; text-align: center;">
-              ${divisionLogoUrl ? `<img src="${divisionLogoUrl}" alt="Division Logo" class="logo">` : ''}
-            </td>
-          </tr>
-        </table>
+          .header-text { text-align: center; }
+          .header-text p { margin: 0; line-height: 1.4; }
+          .report-title { font-size: 14pt; font-weight: bold; margin-top: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+          th { background-color: #e0e0e0; font-weight: bold; }
+          .main-row { border-top: 2px solid #000; }
+          tbody tr:first-child.main-row { border-top: none; }
+          .category-row td { background-color: rgba(255,219,139,0.78); font-style: italic; padding-left: 20px; border-bottom: 2px solid #000; }
+        }
+      </style>
+    </head>
+    <body>
+      <table class="header-table">
+        <tr>
+          <td style="width: 15%; text-align: center;">
+            <img src="app/assets/logos/LDS.png" alt="Lanao del Sur Logo" class="logo">
+          </td>
+          <td class="header-text">
+            <p>Republic of the Philippines</p>
+            <p>BANGSAMORO AUTONOMOUS REGION IN MUSLIM MINDANAO</p>
+            <p>PROVINCE OF LANAO DEL SUR</p>
+            <p>New Capitol Complex, Buadi Sacayo, Marawi City</p>
+            <p class="report-title">MONTHLY ACCOMPLISHMENT REPORT</p>
+            <p>Month of: ${month}, ${year}</p>
+            <p>Office: ${divisionName}</p>
+          </td>
+          <td style="width: 15%; text-align: center;">
+            ${divisionLogoUrl ? `<img src="${divisionLogoUrl}" alt="Division Logo" class="logo">` : ''}
+          </td>
+        </tr>
+      </table>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Location</th>
-              <th>Target Participants</th>
-              <th>Implementation Schedule</th>
-              <th>Start Date</th>
-              <th>Date Accomplished</th>
-              <th>Person/s and or Office in Charge</th>
-              <th>Target Budget (Php)</th>
-              <th>Source of Fund</th>
-              <th>% of Completion</th>
-              <th>Total Cost Incurred to Date</th>
-              <th>Remarks</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${projectRows}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Target Participants</th>
+            <th>Implementation Schedule</th>
+            <th>Start Date</th>
+            <th>Date Accomplished</th>
+            <th>Person/s and or Office in Charge</th>
+            <th>Target Budget (Php)</th>
+            <th>Source of Fund</th>
+            <th>% of Completion</th>
+            <th>Total Cost Incurred to Date</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${projectRows}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
 
     const printWindow = window.open('', '_blank');
     if (printWindow) {

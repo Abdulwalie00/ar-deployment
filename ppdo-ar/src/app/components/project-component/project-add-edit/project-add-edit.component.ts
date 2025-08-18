@@ -1,7 +1,7 @@
-// src/app/components/project-add-edit/project-add-edit.component.ts
+// src/app/components/project-component/project-add-edit/project-add-edit.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, FormsModule, FormArray} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -32,7 +32,9 @@ export function dateRangeValidator(control: AbstractControl): { [key: string]: b
     CommonModule,
     ReactiveFormsModule,
     ProjectConfirmationDialogComponent,
-    ProjectCategoryAddDialogComponent // Import the dialog
+    ProjectCategoryAddDialogComponent,
+    FormsModule,
+    // Import the dialog
   ],
   templateUrl: './project-add-edit.component.html',
   styleUrls: ['./project-add-edit.component.css']
@@ -47,15 +49,16 @@ export class ProjectAddEditComponent implements OnInit {
   public isAdmin: boolean = false;
   public isSuperAdmin: boolean = false;
 
-  newlyUploadedImages: ProjectImage[] = [];
-  currentProjectImages: ProjectImage[] = [];
-
   showConfirmationDialog: boolean = false;
   dialogMessage: string = '';
   dialogAction: 'add' | 'update' = 'add';
 
   // Dialog control
   showAddCategoryDialog = false;
+
+  get images(): FormArray {
+    return this.projectForm.get('images') as FormArray;
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -132,6 +135,7 @@ export class ProjectAddEditComponent implements OnInit {
       percentCompletion: [0],
       implementationSchedule: [''],
       dateOfAccomplishment: [''],
+      images: this.fb.array([]),
     }, { validators: dateRangeValidator });
   }
 
@@ -178,11 +182,25 @@ export class ProjectAddEditComponent implements OnInit {
       objectives: project.objectives,
       officeInCharge: project.officeInCharge
     });
-    this.currentProjectImages = project.images || [];
+
+    if (project.images) {
+      project.images.forEach(image => this.addImage(image));
+    }
 
     if (!this.isSuperAdmin && !this.isAdmin) {
       this.projectForm.get('divisionId')?.disable();
     }
+  }
+
+  addImage(image: ProjectImage): void {
+    const imageGroup = this.fb.group({
+      id: [image.id],
+      projectId: [this.projectId || ''],
+      imageUrl: [image.imageUrl],
+      caption: [image.caption || ''],
+      dateUploaded: [image.dateUploaded],
+    });
+    this.images.push(imageGroup);
   }
 
   onCategoryChange(event: Event): void {
@@ -208,27 +226,26 @@ export class ProjectAddEditComponent implements OnInit {
     const uploadObservables = files.map(file =>
       this.projectDataService.uploadImage(file)
     );
+
     forkJoin(uploadObservables).subscribe({
       next: (urls) => {
-        const newImages = urls.map(url => ({
-          id: uuidv4(),
-          projectId: this.projectId || '',
-          imageUrl: url,
-          caption: '',
-          dateUploaded: new Date()
-        }));
-        this.newlyUploadedImages.push(...newImages);
+        urls.forEach(url => {
+          const newImage: ProjectImage = {
+            id: uuidv4(),
+            projectId: this.projectId || '',
+            imageUrl: url,
+            caption: '',
+            dateUploaded: new Date()
+          };
+          this.addImage(newImage);
+        });
       },
       error: (err) => console.error('Image upload failed', err)
     });
   }
 
-  removeNewImage(imageUrl: string): void {
-    this.newlyUploadedImages = this.newlyUploadedImages.filter(img => img.imageUrl !== imageUrl);
-  }
-
-  removeCurrentImage(imageId: string): void {
-    this.currentProjectImages = this.currentProjectImages.filter(img => img.id !== imageId);
+  removeImage(index: number): void {
+    this.images.removeAt(index);
   }
 
   onPercentInput(event: Event): void {
@@ -255,12 +272,11 @@ export class ProjectAddEditComponent implements OnInit {
     this.showConfirmationDialog = false;
     if (confirmed) {
       const formValue = this.projectForm.getRawValue();
-      const finalImages = [...this.currentProjectImages, ...this.newlyUploadedImages];
-      const projectData = { ...formValue, images: finalImages };
 
       const operation = this.isEditMode && this.projectId
-        ? this.projectDataService.updateProject(this.projectId, projectData)
-        : this.projectDataService.addProject(projectData);
+        ? this.projectDataService.updateProject(this.projectId, formValue)
+        : this.projectDataService.addProject(formValue);
+
       operation.subscribe(project => {
         this.location.back()
       });
