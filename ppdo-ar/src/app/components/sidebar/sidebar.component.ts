@@ -121,6 +121,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { title: 'PTO', icon: faCircle, link: '/project-division/PTO', tooltip: 'Provincial Treasurer\'s Office' },
         { title: 'PLO', icon: faCircle, link: '/project-division/PLO', tooltip: 'Provincial Legal Office' },
         { title: 'IAS', icon: faCircle, link: '/project-division/IAS', tooltip: 'Internal Audit Service' },
+        { title: 'PADO', icon: faCircle, link: '/project-division/PADO', tooltip: 'Provincial Administrator\'s office '},
       ]
     },
     {
@@ -150,7 +151,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
       isExpanded: false,
       children: [
         { title: 'PEO', icon: faCircle, link: '/project-division/PEO', tooltip: 'Provincial Engineer\'s Office' },
-        { title: 'PAO', icon: faCircle, link: '/project-division/PAO', tooltip: 'Provincial Administrator\'s Office' },
+        { title: 'ARCHITECT', icon: faCircle, link: '/project-division/PAO', tooltip: 'Provincial Architect\'s Office' },
+        { title: 'ICTO', icon: faCircle, link: '/project-division/PAO', tooltip: 'Information and Communication Technology Office' },
       ]
     },
     {

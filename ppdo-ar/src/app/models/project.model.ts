@@ -55,6 +55,7 @@ export interface Project {
   division: Division;
   officeInCharge: string;
   remarks: string;
+  objectives: string;
   projectCategory?: ProjectCategory;
   images: ProjectImage[];
   status: 'planned' | 'ongoing' | 'completed' | 'cancelled';

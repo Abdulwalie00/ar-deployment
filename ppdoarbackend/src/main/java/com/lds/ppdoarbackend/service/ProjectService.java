@@ -60,6 +60,7 @@ public class ProjectService {
         project.setStatus(projectDto.getStatus());
         project.setOfficeInCharge(projectDto.getOfficeInCharge());
         project.setRemarks(projectDto.getRemarks());
+        project.setObjectives(projectDto.getObjectives());
         project.setImages(projectDto.getImages());
         project.setDateCreated(new Date());
         project.setDateUpdated(new Date());
@@ -92,6 +93,7 @@ public class ProjectService {
         project.setStatus(projectDto.getStatus());
         project.setOfficeInCharge(projectDto.getOfficeInCharge());
         project.setRemarks(projectDto.getRemarks());
+        project.setObjectives(projectDto.getObjectives());
         project.setOfficeInCharge(projectDto.getOfficeInCharge());
         project.setImages(projectDto.getImages());
         project.setDateUpdated(new Date());

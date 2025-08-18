@@ -16,17 +16,32 @@
       </div>
     </div>
 
-    <div>
-      <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-      <textarea
-        id="description"
-        formControlName="description"
-        rows="4"
-        class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        [ngClass]="{'border-red-500': projectForm.get('description')?.invalid && projectForm.get('description')?.touched}"
-      ></textarea>
-      <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" class="text-red-500 text-xs mt-1">
-        Description is required.
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          [ngClass]="{'border-red-500': projectForm.get('description')?.invalid && projectForm.get('description')?.touched}"
+        ></textarea>
+        <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" class="text-red-500 text-xs mt-1">
+          Description is required.
+        </div>
+      </div>
+      <div>
+        <label for="objectives" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Objective</label>
+        <textarea
+          id="objectives"
+          formControlName="objectives"
+          rows="4"
+          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          [ngClass]="{'border-red-500': projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched}"
+        ></textarea>
+        <div *ngIf="projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched" class="text-red-500 text-xs mt-1">
+          Objective is required.
+        </div>
       </div>
     </div>
 

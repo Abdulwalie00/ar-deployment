@@ -24,6 +24,7 @@ public class ProjectDto {
     private String status;
     private String officeInCharge;
     private String remarks;
+    private String objectives;
     private List<ProjectImage> images;
     private List<CommentDto> comments;
 }

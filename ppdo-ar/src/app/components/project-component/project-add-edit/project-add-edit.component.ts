@@ -127,6 +127,7 @@ export class ProjectAddEditComponent implements OnInit {
       projectCategoryId: [''],
       status: ['planned', Validators.required],
       remarks: ['', Validators.required],
+      objectives: ['', Validators.required],
       officeInCharge: ['', Validators.required],
       percentCompletion: [0],
       implementationSchedule: [''],
@@ -174,6 +175,7 @@ export class ProjectAddEditComponent implements OnInit {
       projectCategoryId: project.projectCategory?.id,
       status: project.status,
       remarks: project.remarks,
+      objectives: project.objectives,
       officeInCharge: project.officeInCharge
     });
     this.currentProjectImages = project.images || [];
