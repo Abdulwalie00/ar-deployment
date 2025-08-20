@@ -1,4 +1,5 @@
 // src/main/java/com/lds/ppdoarbackend/controller/FileUploadController.java
+
 package com.lds.ppdoarbackend.controller;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -47,11 +47,8 @@ public class FileUploadController {
             Path filePath = uploadPath.resolve(uniqueFileName);
             Files.copy(file.getInputStream(), filePath);
 
-            // *** CHANGE HERE: Build the full URL ***
-            String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/api/files/")
-                    .path(uniqueFileName)
-                    .toUriString();
+            // ✅ FIX: Return a relative path instead of a full URL
+            String fileUrl = "/api/files/" + uniqueFileName;
 
             return ResponseEntity.ok(fileUrl);
 
