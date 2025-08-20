@@ -238,7 +238,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
         projectsByCategory[categoryName].forEach(project => {
           const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A';
           const implementationSchedule = project.implementationSchedule ? new Date(project.implementationSchedule).toLocaleDateString() : 'N/A';
-          const dateOfAccomplishment = project.dateOfAccomplishment ? new Date(project.dateOfAccomplishment).toLocaleDateString() : 'N/A';
+          const endDate = project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A';
 
           projectRows += `
               <tr class="main-row">
@@ -247,7 +247,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
                 <td>${this.safePrintValue(project.targetParticipant)}</td>
                 <td>${this.safePrintValue(implementationSchedule)}</td>
                 <td>${this.safePrintValue(startDate)}</td>
-                <td>${this.safePrintValue(dateOfAccomplishment)}</td>
+                <td>${this.safePrintValue(endDate)}</td>
                 <td>${this.safePrintValue(project.officeInCharge)}</td>
                 <td>${this.safePrintValue(project.budget)}</td>
                 <td>${this.safePrintValue(project.fundSource)}</td>
@@ -284,8 +284,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
           .header-text p { margin: 0; line-height: 1.4; }
           .report-title { font-size: 14pt; font-weight: bold; margin-top: 20px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #000; padding: 6px; text-align: left; }
-          th { background-color: #e0e0e0; font-weight: bold; }
+          th, td { border: 1px solid #000; padding: 6px; text-align: left; vertical-align: top; }
+          th { background-color: #e0e0e0; font-weight: bold; text-align: center; vertical-align: middle; }
           .main-row { border-top: 2px solid #000; }
           tbody tr:first-child.main-row { border-top: none; }
           .category-row td { background-color: rgba(255,219,139,0.78); font-style: italic; padding-left: 20px; border-bottom: 2px solid #000; }
@@ -316,18 +316,21 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
       <table>
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Location</th>
-            <th>Target Participants</th>
-            <th>Implementation Schedule</th>
-            <th>Start Date</th>
-            <th>Date Accomplished</th>
-            <th>Person/s and or Office in Charge</th>
-            <th>Target Budget (Php)</th>
-            <th>Source of Fund</th>
+            <th rowspan="2">Title</th>
+            <th rowspan="2">Location</th>
+            <th rowspan="2">Target Participants</th>
+            <th rowspan="2">Implementation Schedule</th>
+            <th rowspan="2">Start Date</th>
+            <th rowspan="2">Date Accomplished</th>
+            <th rowspan="2">Person/s and or Office in Charge</th>
+            <th rowspan="2">Target Budget (Php)</th>
+            <th rowspan="2">Source of Fund</th>
+            <th colspan="2">Project Status</th>
+            <th rowspan="2">Remarks</th>
+          </tr>
+          <tr>
             <th>% of Completion</th>
             <th>Total Cost Incurred to Date</th>
-            <th>Remarks</th>
           </tr>
         </thead>
         <tbody>

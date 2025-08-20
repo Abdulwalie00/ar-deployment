@@ -41,19 +41,20 @@ export class ProjectListComponent implements OnInit, OnDestroy, OnChanges {
         switchMap(params => {
           this.currentFilterStatus = params.get('status');
           const divisionCode = params.get('division');
-          return this.projectDataService.getProjects(divisionCode ?? undefined, this.currentFilterStatus ?? undefined);
+          const year = params.get('year');
+          return this.projectDataService.getProjects(divisionCode ?? undefined, this.currentFilterStatus ?? undefined, year ?? undefined);
         }),
         takeUntil(this.destroy$)
       ).subscribe(projects => {
-        this.allProjects = this.sortProjects(projects); // Sort projects after fetching
-        this.applyFilter();
+        this.allProjects = this.sortProjects(projects);
+        this.filteredProjects = this.allProjects;
       });
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['inputProjects'] && this.inputProjects) {
-      this.allProjects = this.sortProjects(this.inputProjects); // Sort input projects if they change
+      this.allProjects = this.sortProjects(this.inputProjects);
       this.applyFilter();
     }
     if (changes['viewMode']) {
@@ -95,9 +96,10 @@ export class ProjectListComponent implements OnInit, OnDestroy, OnChanges {
 
   resetFilter(): void {
     const division = this.route.snapshot.queryParamMap.get('division');
+    const year = this.route.snapshot.queryParamMap.get('year');
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { status: null, division: division },
+      queryParams: { status: null, division: division, year: year },
       queryParamsHandling: 'merge'
     });
   }
@@ -115,13 +117,11 @@ export class ProjectListComponent implements OnInit, OnDestroy, OnChanges {
     this.currentViewMode = this.currentViewMode === 'grid' ? 'list' : 'grid';
   }
 
-  // Updated method to sort projects by dateCreated in descending order
   private sortProjects(projects: Project[]): Project[] {
     return [...projects].sort((a, b) => {
-      // Convert Date objects to numbers (timestamps) for reliable comparison
       const dateA = new Date(a.dateCreated).getTime();
       const dateB = new Date(b.dateCreated).getTime();
-      return dateB - dateA; // Sort in descending order (latest date first)
+      return dateB - dateA;
     });
   }
 }

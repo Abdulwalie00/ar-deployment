@@ -15,13 +15,16 @@ export class ProjectDataService {
 
   // --- Project Methods ---
 
-  getProjects(divisionCode?: string, status?: string): Observable<Project[]> {
+  getProjects(divisionCode?: string, status?: string, year?: string): Observable<Project[]> {
     let params = new HttpParams();
     if (divisionCode) {
       params = params.set('divisionCode', divisionCode);
     }
     if (status) {
       params = params.set('status', status);
+    }
+    if (year) {
+      params = params.set('year', year);
     }
     return this.http.get<Project[]>(`${environment.apiUrl}projects`, { params });
   }

@@ -18,8 +18,9 @@ public class ProjectController {
 
     @GetMapping
     public List<Project> getAllProjects(@RequestParam(required = false) String divisionCode,
-                                        @RequestParam(required = false) String status) { // Add status parameter
-        return projectService.getAllProjects(divisionCode, status);
+                                        @RequestParam(required = false) String status,
+                                        @RequestParam(required = false) Integer year) { // Accept year as an Integer
+        return projectService.getAllProjects(divisionCode, status, year);
     }
 
     @GetMapping("/{id}")

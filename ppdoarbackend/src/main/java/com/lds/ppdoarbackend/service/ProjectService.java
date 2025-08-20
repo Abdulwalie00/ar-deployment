@@ -22,16 +22,10 @@ public class ProjectService {
     @Autowired
     private ProjectCategoryRepository projectCategoryRepository;
 
-    public List<Project> getAllProjects(String divisionCode, String status) { // Add status parameter
-        if (divisionCode != null && status != null) {
-            return projectRepository.findByDivisionCodeAndStatus(divisionCode, status);
-        } else if (divisionCode != null) {
-            return projectRepository.findByDivisionCode(divisionCode);
-        } else if (status != null) {
-            return projectRepository.findByStatus(status);
-        } else {
-            return projectRepository.findAll();
-        }
+    // Updated method to accept the year parameter
+    public List<Project> getAllProjects(String divisionCode, String status, Integer year) {
+        // This single method call now handles all filtering combinations
+        return projectRepository.findByFilters(divisionCode, status, year);
     }
 
     public Project getProjectById(String id) {

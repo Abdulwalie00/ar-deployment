@@ -39,7 +39,7 @@
         [class.border-green-500]="status === 'completed'"
         [class.border-red-500]="status === 'cancelled'"
         [routerLink]="['/project-list']"
-        [queryParams]="!authService.isAdmin() && userDivisionCode ? { status: status, division: userDivisionCode } : { status: status }"
+        [queryParams]="!authService.isAdmin() && userDivisionCode ? { status: status, division: userDivisionCode, year: selectedYear } : { status: status, year: selectedYear }"
       >
         <div class="flex items-center justify-between">
           <h3 class="font-medium text-gray-600 dark:text-gray-300 capitalize">{{ status }}</h3>
