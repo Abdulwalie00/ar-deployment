@@ -1,4 +1,3 @@
-// app/components/project-component/project-detail/project-detail.component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
@@ -15,6 +14,7 @@ import { WebsocketService } from '../../../services/websocker.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PasswordVerificationDialogComponent } from '../../password-verification-dialog/password-verification-dialog.component';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -51,7 +51,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
   faEyeSlash = faEyeSlash;
 
   showPasswordDialog = false;
-  // This will determine what to do after password is verified
   actionToPerformAfterVerification: 'viewBudget' | 'deleteProject' | null = null;
 
   private destroy$ = new Subject<void>();
@@ -64,7 +63,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
     private location: Location,
     private authService: AuthService,
     private userService: UserService,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private notificationService: NotificationService
   ) {
     this.project$ = of(undefined);
   }
@@ -76,6 +76,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
       switchMap(params => {
         const projectId = params.get('id');
         if (projectId) {
+          this.notificationService.markProjectNotificationsAsRead(projectId).subscribe();
           this.websocketService.connect(projectId);
           this.listenForNewComments();
           this.loadComments(projectId);

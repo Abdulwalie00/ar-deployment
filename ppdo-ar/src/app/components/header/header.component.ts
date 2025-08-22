@@ -3,12 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBell, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { NotificationService } from '../../services/notification.service';
 import { User } from '../../models/user.model';
+import { Notification } from '../../models/notification.model';
 
 @Component({
   selector: 'app-header',
@@ -23,19 +26,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
   faMoon = faMoon;
   isDarkMode = false;
 
+  notifications: Notification[] = [];
+  unreadCount = 0;
+  notificationMenuOpen = false;
+
   currentTime: string = '';
   menuOpen = false;
   currentUser: User | null = null;
   initials: string = '';
   avatarColor: string = '#000000';
-  divisionLogoUrl: string | null = null; // New property for the logo
+  divisionLogoUrl: string | null = null;
 
   private intervalId: any;
   private authSubscription!: Subscription;
+  private notificationSubscription!: Subscription;
+
 
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
@@ -46,10 +56,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authSubscription = this.authService.isAuthenticated$.subscribe(isAuthenticated => {
       if (isAuthenticated) {
         this.fetchCurrentUserProfile();
+        this.startNotificationPolling();
       } else {
         this.currentUser = null;
         this.initials = '';
-        this.divisionLogoUrl = null; // Clear logo on logout
+        this.divisionLogoUrl = null;
+        this.stopNotificationPolling();
       }
     });
   }
@@ -58,7 +70,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+    this.stopNotificationPolling();
     clearInterval(this.intervalId);
+  }
+
+  startNotificationPolling(): void {
+    this.notificationSubscription = interval(10000) // Poll every 10 seconds
+      .pipe(
+        switchMap(() => this.notificationService.getUnreadNotifications())
+      )
+      .subscribe(notifications => {
+        this.notifications = notifications;
+        this.unreadCount = notifications.length;
+      });
+  }
+
+  stopNotificationPolling(): void {
+    if (this.notificationSubscription) {
+      this.notificationSubscription.unsubscribe();
+    }
   }
 
   fetchCurrentUserProfile(): void {
@@ -77,11 +107,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
             this.currentUser = user;
             this.createAvatar();
 
-            // Set the division logo URL
             if (user.division?.code) {
               this.divisionLogoUrl = `app/assets/logos/${user.division.code}.png`;
             } else {
-              this.divisionLogoUrl = null; // Or a default logo
+              this.divisionLogoUrl = null;
             }
           },
           error: (err) => {
@@ -101,6 +130,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.initials = (this.currentUser.firstName.charAt(0) + this.currentUser.lastName.charAt(0)).toUpperCase();
       this.avatarColor = this.generateColor(this.currentUser.username);
     }
+  }
+
+  onNotificationClick(notification: Notification): void {
+    this.notificationService.markAsRead(notification.id).subscribe(() => {
+      this.notificationMenuOpen = false;
+      this.router.navigate(['/project-detail', notification.project.id]);
+    });
+  }
+
+  toggleNotificationMenu(): void {
+    this.notificationMenuOpen = !this.notificationMenuOpen;
   }
 
   generateColor(str: string): string {
