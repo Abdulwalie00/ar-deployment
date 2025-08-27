@@ -59,4 +59,6 @@ export interface Project {
   projectCategory?: ProjectCategory;
   images: ProjectImage[];
   status: 'planned' | 'ongoing' | 'completed' | 'cancelled';
+  aipYear?: number;
+  typeOfProject?: string;
 }

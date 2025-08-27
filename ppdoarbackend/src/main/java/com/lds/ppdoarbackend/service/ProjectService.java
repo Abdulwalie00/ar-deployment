@@ -23,7 +23,7 @@ public class ProjectService {
     private ProjectCategoryRepository projectCategoryRepository;
 
     // Updated method to accept the year parameter
-    public List<Project> getAllProjects(String divisionCode, String status, Integer year) {
+    public List<Project> getAllProjects(String divisionCode, String status, Integer year, Integer aipYear) {
         // This single method call now handles all filtering combinations
         return projectRepository.findByFilters(divisionCode, status, year);
     }
@@ -55,6 +55,8 @@ public class ProjectService {
         project.setOfficeInCharge(projectDto.getOfficeInCharge());
         project.setRemarks(projectDto.getRemarks());
         project.setObjectives(projectDto.getObjectives());
+        project.setAipYear(projectDto.getAipYear());
+        project.setTypeOfProject(projectDto.getTypeOfProject());
         project.setImages(projectDto.getImages());
         project.setDateCreated(new Date());
         project.setDateUpdated(new Date());
@@ -88,6 +90,8 @@ public class ProjectService {
         project.setOfficeInCharge(projectDto.getOfficeInCharge());
         project.setRemarks(projectDto.getRemarks());
         project.setObjectives(projectDto.getObjectives());
+        project.setAipYear(projectDto.getAipYear());
+        project.setTypeOfProject(projectDto.getTypeOfProject());
         project.setOfficeInCharge(projectDto.getOfficeInCharge());
         project.setImages(projectDto.getImages());
         project.setDateUpdated(new Date());

@@ -28,6 +28,8 @@ public class Project {
     private String officeInCharge;
     private String remarks;
     private String objectives;
+    private Integer aipYear;
+    private String typeOfProject;
     private boolean isArchived = false;
 
     @ManyToOne

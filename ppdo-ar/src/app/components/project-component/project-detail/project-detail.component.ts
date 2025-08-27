@@ -11,7 +11,7 @@ import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models/user.model';
 import { WebsocketService } from '../../../services/websocker.service';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import {faArrowRotateRight, faEye, faEyeSlash, faPenToSquare, faTrash} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PasswordVerificationDialogComponent } from '../../password-verification-dialog/password-verification-dialog.component';
 import { NotificationService } from '../../../services/notification.service';
@@ -49,7 +49,9 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
   isBudgetVisible = false;
   faEye = faEye;
   faEyeSlash = faEyeSlash;
-
+  faArrowsRotate = faArrowRotateRight
+  faEdit = faPenToSquare
+  faDelete = faTrash
   showPasswordDialog = false;
   actionToPerformAfterVerification: 'viewBudget' | 'deleteProject' | null = null;
 
@@ -237,4 +239,5 @@ export class ProjectDetailComponent implements OnInit, OnDestroy, AfterViewCheck
       this.currentImageIndex = (this.currentImageIndex + 1) % this.currentProject.images.length;
     }
   }
+
 }

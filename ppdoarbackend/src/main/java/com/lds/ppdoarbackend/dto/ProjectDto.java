@@ -25,6 +25,8 @@ public class ProjectDto {
     private String officeInCharge;
     private String remarks;
     private String objectives;
+    private Integer aipYear;
+    private String typeOfProject;
     private List<ProjectImage> images;
     private List<CommentDto> comments;
 }

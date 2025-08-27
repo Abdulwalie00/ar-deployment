@@ -43,6 +43,7 @@ export class ProjectAddEditComponent implements OnInit {
   projectForm!: FormGroup;
   isEditMode: boolean = false;
   showMoreFields: boolean = false;
+  showAipYear: boolean = false;
   projectId: string | null = null;
   divisions: Division[] = [];
   projectCategories: ProjectCategory[] = [];
@@ -55,6 +56,9 @@ export class ProjectAddEditComponent implements OnInit {
 
   // Dialog control
   showAddCategoryDialog = false;
+
+  // New property for the AIP years dropdown
+  aipYears: number[] = [];
 
   get images(): FormArray {
     return this.projectForm.get('images') as FormArray;
@@ -71,6 +75,12 @@ export class ProjectAddEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Generate the list of years for the dropdown
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear - 2; i <= currentYear + 3; i++) {
+      this.aipYears.push(i);
+    }
+
     this.isAdmin = this.authService.isAdmin();
     this.isSuperAdmin = this.authService.isSuperAdmin();
     this.initForm();
@@ -86,6 +96,18 @@ export class ProjectAddEditComponent implements OnInit {
         }
       });
     }
+
+    this.projectForm.get('typeOfProject')?.valueChanges.subscribe(type => {
+      this.showAipYear = (type === 'Operational' || type === 'PPA/AIP');
+      // Conditionally apply validators
+      if (this.showAipYear) {
+        this.projectForm.get('aipYear')?.setValidators(Validators.required);
+      } else {
+        this.projectForm.get('aipYear')?.clearValidators();
+        this.projectForm.patchValue({ aipYear: null });
+      }
+      this.projectForm.get('aipYear')?.updateValueAndValidity();
+    });
 
     this.route.paramMap.pipe(
       switchMap(params => {
@@ -112,6 +134,8 @@ export class ProjectAddEditComponent implements OnInit {
             }
           });
         }
+        // Set the default AIP year to the current year when in add mode
+        this.projectForm.patchValue({ aipYear: new Date().getFullYear() });
       }
     });
   }
@@ -129,13 +153,16 @@ export class ProjectAddEditComponent implements OnInit {
       divisionId: ['', Validators.required],
       projectCategoryId: [''],
       status: ['planned', Validators.required],
-      remarks: ['', Validators.required],
+      remarks: [''],
       objectives: ['', Validators.required],
-      officeInCharge: ['', Validators.required],
+      officeInCharge: [''],
       percentCompletion: [0],
       implementationSchedule: [''],
       dateOfAccomplishment: [''],
       images: this.fb.array([]),
+      // Set the default value for aipYear
+      aipYear: [''],
+      typeOfProject: ['', Validators.required],
     }, { validators: dateRangeValidator });
   }
 
@@ -180,7 +207,10 @@ export class ProjectAddEditComponent implements OnInit {
       status: project.status,
       remarks: project.remarks,
       objectives: project.objectives,
-      officeInCharge: project.officeInCharge
+      officeInCharge: project.officeInCharge,
+      // Patch the new fields
+      aipYear: project.aipYear,
+      typeOfProject: project.typeOfProject
     });
 
     if (project.images) {
@@ -189,6 +219,11 @@ export class ProjectAddEditComponent implements OnInit {
 
     if (!this.isSuperAdmin && !this.isAdmin) {
       this.projectForm.get('divisionId')?.disable();
+    }
+
+    this.showAipYear = (project.typeOfProject === 'Operational' || project.typeOfProject === 'PPA/AIP');
+    if (this.showAipYear) {
+      this.projectForm.get('aipYear')?.setValidators(Validators.required);
     }
   }
 
