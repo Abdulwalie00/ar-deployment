@@ -1,0 +1,27 @@
+
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+}
+
+#finisher-header {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}

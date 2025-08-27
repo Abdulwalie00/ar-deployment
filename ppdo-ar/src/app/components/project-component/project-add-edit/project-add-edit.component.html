@@ -1,226 +1,236 @@
-<div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-  <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-6">{{ isEditMode ? 'Edit Project' : 'Add New Project' }}</h2>
+<div class="p-6 bg-white dark:bg-gray-900 rounded-xl shadow-lg">
+  <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8">
+    {{ isEditMode ? 'Edit Project' : 'Add New Project' }}
+  </h2>
 
-  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="space-y-6">
-    <div>
-      <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Title</label>
-      <input
-        type="text"
-        id="title"
-        formControlName="title"
-        class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        [ngClass]="{'border-red-500': projectForm.get('title')?.invalid && projectForm.get('title')?.touched}"
-      />
-      <div *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" class="text-red-500 text-xs mt-1">
-        Project title is required.
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-        <textarea
-          id="description"
-          formControlName="description"
-          rows="4"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('description')?.invalid && projectForm.get('description')?.touched}"
-        ></textarea>
-        <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" class="text-red-500 text-xs mt-1">
-          Description is required.
-        </div>
-      </div>
-      <div>
-        <label for="objectives" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Objective</label>
-        <textarea
-          id="objectives"
-          formControlName="objectives"
-          rows="4"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched}"
-        ></textarea>
-        <div *ngIf="projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched" class="text-red-500 text-xs mt-1">
-          Objective is required.
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="targetParticipant" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Participants</label>
-        <input
-          type="text"
-          id="targetParticipant"
-          formControlName="targetParticipant"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('targetParticipant')?.invalid && projectForm.get('targetParticipant')?.touched}"
-        />
-        <div *ngIf="projectForm.get('targetParticipant')?.invalid && projectForm.get('targetParticipant')?.touched" class="text-red-500 text-xs mt-1">
-          Target Participants are required.
-        </div>
-      </div>
-      <div>
-        <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location</label>
-        <input
-          type="text"
-          id="location"
-          formControlName="location"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('location')?.invalid && projectForm.get('location')?.touched}"
-        />
-        <div *ngIf="projectForm.get('location')?.invalid && projectForm.get('location')?.touched" class="text-red-500 text-xs mt-1">
-          Location is required.
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="startDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-        <input
-          type="date"
-          id="startDate"
-          formControlName="startDate"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched}"
-        />
-        <div *ngIf="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched" class="text-red-500 text-xs mt-1">
-          Start Date is required.
-        </div>
-      </div>
-      <div>
-        <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-        <input
-          type="date"
-          id="endDate"
-          formControlName="endDate"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched || projectForm.hasError('dateRange')}"
-        />
-        <div *ngIf="projectForm.get('endDate')?.hasError('required') && projectForm.get('endDate')?.touched" class="text-red-500 text-xs mt-1">
-          End Date is required.
-        </div>
-        <div *ngIf="projectForm.hasError('dateRange') && (projectForm.get('startDate')?.touched || projectForm.get('endDate')?.touched)" class="text-red-500 text-xs mt-1">
-          The start date must be the same as or earlier than the end date.
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="budget" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Budget</label>
-        <div class="relative mt-1 rounded-md shadow-sm">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <span class="text-gray-500 dark:text-gray-400 sm:text-sm">₱</span>
-          </div>
+  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="space-y-8">
+    <!-- Core Project Info -->
+    <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Project Title</label>
           <input
-            type="number"
-            id="budget"
-            formControlName="budget"
-            class="block w-full rounded-md border border-gray-300 py-2 pl-7 pr-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white"
-            [ngClass]="{'border-red-500': projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched}"
-            placeholder="0.00"
+            type="text"
+            id="title"
+            formControlName="title"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('title')?.invalid && projectForm.get('title')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('title')?.invalid && projectForm.get('title')?.touched)}"
           />
+          <div *ngIf="projectForm.get('title')?.invalid && projectForm.get('title')?.touched" class="text-red-500 text-xs mt-1">
+            Project title is required.
+          </div>
         </div>
-        <div *ngIf="projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched" class="text-red-500 text-xs mt-1">
-          Budget is required and must be a positive number.
+        <div>
+          <label for="location" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Location</label>
+          <input
+            type="text"
+            id="location"
+            formControlName="location"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('location')?.invalid && projectForm.get('location')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('location')?.invalid && projectForm.get('location')?.touched)}"
+          />
+          <div *ngIf="projectForm.get('location')?.invalid && projectForm.get('location')?.touched" class="text-red-500 text-xs mt-1">
+            Location is required.
+          </div>
         </div>
       </div>
-      <div>
-        <label for="fundSource" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fund Source</label>
-        <input
-          type="text"
-          id="fundSource"
-          formControlName="fundSource"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('fundSource')?.invalid && projectForm.get('fundSource')?.touched}"
-        />
-        <div *ngIf="projectForm.get('fundSource')?.invalid && projectForm.get('fundSource')?.touched" class="text-red-500 text-xs mt-1">
-          Fund Source is required.
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div>
+          <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('description')?.invalid && projectForm.get('description')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('description')?.invalid && projectForm.get('description')?.touched)}"
+          ></textarea>
+          <div *ngIf="projectForm.get('description')?.invalid && projectForm.get('description')?.touched" class="text-red-500 text-xs mt-1">
+            Description is required.
+          </div>
+        </div>
+        <div>
+          <label for="objectives" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Objective</label>
+          <textarea
+            id="objectives"
+            formControlName="objectives"
+            rows="4"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched)}"
+          ></textarea>
+          <div *ngIf="projectForm.get('objectives')?.invalid && projectForm.get('objectives')?.touched" class="text-red-500 text-xs mt-1">
+            Objective is required.
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="officeInCharge" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Officer In Charge</label>
-        <input
-          type="text"
-          id="officeInCharge"
-          formControlName="officeInCharge"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('officeInCharge')?.invalid && projectForm.get('officeInCharge')?.touched}"
-        />
-        <div *ngIf="projectForm.get('officeInCharge')?.invalid && projectForm.get('officeInCharge')?.touched" class="text-red-500 text-xs mt-1">
-          Officer in charge is required.
+    <!-- Participants, Dates, Budget -->
+    <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <label for="targetParticipant" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Target Participants</label>
+          <input
+            type="text"
+            id="targetParticipant"
+            formControlName="targetParticipant"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('targetParticipant')?.invalid && projectForm.get('targetParticipant')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('targetParticipant')?.invalid && projectForm.get('targetParticipant')?.touched)}"
+          />
+          <div *ngIf="projectForm.get('targetParticipant')?.invalid && projectForm.get('targetParticipant')?.touched" class="text-red-500 text-xs mt-1">
+            Target Participants are required.
+          </div>
+        </div>
+        <div>
+          <label for="budget" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 dark:text-gray-400">₱</span>
+            <input
+              type="number"
+              id="budget"
+              formControlName="budget"
+              class="block w-full border rounded-lg py-2 pl-8 pr-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+              [ngClass]="{'border-red-500': projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched)}"
+              placeholder="0.00"
+            />
+          </div>
+          <div *ngIf="projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched" class="text-red-500 text-xs mt-1">
+            Budget is required and must be a positive number.
+          </div>
         </div>
       </div>
-      <div>
-        <label for="remarks" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Remarks</label>
-        <input
-          type="text"
-          id="remarks"
-          formControlName="remarks"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('remarks')?.invalid && projectForm.get('remarks')?.touched}"
-        />
-        <div *ngIf="projectForm.get('remarks')?.invalid && projectForm.get('remarks')?.touched" class="text-red-500 text-xs mt-1">
-          Remarks are required.
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div>
+          <label for="startDate" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            formControlName="startDate"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched)}"
+          />
+          <div *ngIf="projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched" class="text-red-500 text-xs mt-1">
+            Start Date is required.
+          </div>
+        </div>
+        <div>
+          <label for="endDate" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">End Date</label>
+          <input
+            type="date"
+            id="endDate"
+            formControlName="endDate"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched || projectForm.hasError('dateRange'), 'border-gray-300 dark:border-gray-600': !(projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched || projectForm.hasError('dateRange'))}"
+          />
+          <div *ngIf="projectForm.get('endDate')?.hasError('required') && projectForm.get('endDate')?.touched" class="text-red-500 text-xs mt-1">
+            End Date is required.
+          </div>
+          <div *ngIf="projectForm.hasError('dateRange') && (projectForm.get('startDate')?.touched || projectForm.get('endDate')?.touched)" class="text-red-500 text-xs mt-1">
+            The start date must be the same as or earlier than the end date.
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div>
-        <label for="division" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Division</label>
-        <select
-          id="division"
-          formControlName="divisionId"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          [ngClass]="{'border-red-500': projectForm.get('divisionId')?.invalid && projectForm.get('divisionId')?.touched}"
-        >
-          <option value="" disabled>Select a division</option>
-          <option *ngFor="let div of divisions" [value]="div.id">{{ div.name }}</option>
-        </select>
-        <div *ngIf="projectForm.get('divisionId')?.invalid && projectForm.get('divisionId')?.touched" class="text-red-500 text-xs mt-1">
-          Division is required.
+    <!-- Fund Source, Office, Remarks -->
+    <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <label for="fundSource" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fund Source</label>
+          <input
+            type="text"
+            id="fundSource"
+            formControlName="fundSource"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('fundSource')?.invalid && projectForm.get('fundSource')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('fundSource')?.invalid && projectForm.get('fundSource')?.touched)}"
+          />
+          <div *ngIf="projectForm.get('fundSource')?.invalid && projectForm.get('fundSource')?.touched" class="text-red-500 text-xs mt-1">
+            Fund Source is required.
+          </div>
         </div>
-        <p *ngIf="!isAdmin && projectForm.get('divisionId')?.disabled" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Your division has been automatically selected.
-        </p>
+        <div>
+          <label for="officeInCharge" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Office In Charge</label>
+          <input
+            type="text"
+            id="officeInCharge"
+            formControlName="officeInCharge"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('officeInCharge')?.invalid && projectForm.get('officeInCharge')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('officeInCharge')?.invalid && projectForm.get('officeInCharge')?.touched)}"
+          />
+          <div *ngIf="projectForm.get('officeInCharge')?.invalid && projectForm.get('officeInCharge')?.touched" class="text-red-500 text-xs mt-1">
+            Office in charge is required.
+          </div>
+        </div>
+        <div>
+          <label for="remarks" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Remarks</label>
+          <input
+            type="text"
+            id="remarks"
+            formControlName="remarks"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('remarks')?.invalid && projectForm.get('remarks')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('remarks')?.invalid && projectForm.get('remarks')?.touched)}"
+          />
+          <div *ngIf="projectForm.get('remarks')?.invalid && projectForm.get('remarks')?.touched" class="text-red-500 text-xs mt-1">
+            Remarks are required.
+          </div>
+        </div>
       </div>
-      <div>
-        <label for="projectCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Category</label>
-        <select
-          id="projectCategory"
-          formControlName="projectCategoryId"
-          (change)="onCategoryChange($event)"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        >
-          <option value="">Select a category (optional)</option>
-          <option *ngFor="let cat of projectCategories" [value]="cat.id">{{ cat.name }}</option>
-          <option value="add-new-category" class="text-blue-600 font-bold border-t-2 mt-2 pt-2">
-            + Add New Category
-          </option>
-        </select>
-      </div>
-      <div>
-        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-        <select
-          id="status"
-          formControlName="status"
-          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-        >
-          <option value="planned">Planned</option>
-          <option value="ongoing">Ongoing</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </div>
-    </div>
+    </section>
 
-    <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Project Images</label>
+    <!-- Division, Category, Status -->
+    <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <label for="division" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Division</label>
+          <select
+            id="division"
+            formControlName="divisionId"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+            [ngClass]="{'border-red-500': projectForm.get('divisionId')?.invalid && projectForm.get('divisionId')?.touched, 'border-gray-300 dark:border-gray-600': !(projectForm.get('divisionId')?.invalid && projectForm.get('divisionId')?.touched)}"
+          >
+            <option value="" disabled>Select a division</option>
+            <option *ngFor="let div of divisions" [value]="div.id">{{ div.name }}</option>
+          </select>
+          <div *ngIf="projectForm.get('divisionId')?.invalid && projectForm.get('divisionId')?.touched" class="text-red-500 text-xs mt-1">
+            Division is required.
+          </div>
+          <p *ngIf="!isAdmin && projectForm.get('divisionId')?.disabled" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Your division has been automatically selected.
+          </p>
+        </div>
+        <div>
+          <label for="projectCategory" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Project Category</label>
+          <select
+            id="projectCategory"
+            formControlName="projectCategoryId"
+            (change)="onCategoryChange($event)"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+          >
+            <option value="">Select a category (optional)</option>
+            <option *ngFor="let cat of projectCategories" [value]="cat.id">{{ cat.name }}</option>
+            <option value="add-new-category" class="text-blue-600 font-bold border-t-2 mt-2 pt-2">
+              + Add New Category
+            </option>
+          </select>
+        </div>
+        <div>
+          <label for="status" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</label>
+          <select
+            id="status"
+            formControlName="status"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
+          >
+            <option value="planned">Planned</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Images -->
+    <section class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Project Images</label>
       <input
         type="file"
         multiple
@@ -231,40 +241,40 @@
 
       <div formArrayName="images" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <div *ngFor="let imageControl of images.controls; let i = index" [formGroupName]="i" class="relative group">
-          <img [src]="imageControl.get('imageUrl')?.value" class="w-full h-32 object-cover rounded-md shadow-sm" alt="Project Image" />
-
+          <img [src]="imageControl.get('imageUrl')?.value" class="w-full h-32 object-cover rounded-lg shadow" alt="Project Image" />
           <button
             type="button"
             (click)="removeImage(i)"
-            class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-150 animate-pulse"
             title="Remove image">
             &#x2715;
           </button>
-
           <input
             type="text"
             formControlName="caption"
             placeholder="Add a caption..."
-            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-1 px-2 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            class="mt-2 block w-full border rounded-lg py-1 px-2 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="mt-6 text-right">
+    <!-- Show More/Less -->
+    <div class="mt-8 text-right">
       <button
         type="button"
         (click)="showMoreFields = !showMoreFields"
-        class="text-blue-600 hover:underline text-sm font-medium focus:outline-none"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
       >
         {{ showMoreFields ? 'Show Less' : 'Show More' }}
       </button>
     </div>
 
-    <div *ngIf="showMoreFields" class="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Additional Fields -->
+    <section *ngIf="showMoreFields" class="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-800 mt-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <label for="percentCompletion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Percent of Completion</label>
+          <label for="percentCompletion" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Percent of Completion</label>
           <input
             type="number"
             id="percentCompletion"
@@ -273,42 +283,43 @@
             max="100"
             step="1"
             (input)="onPercentInput($event)"
-            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
           />
         </div>
         <div>
-          <label for="implementationSchedule" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Implementation Date</label>
+          <label for="implementationSchedule" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Implementation Date</label>
           <input
             type="date"
             id="implementationSchedule"
             formControlName="implementationSchedule"
-            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
           />
         </div>
         <div>
-          <label for="dateOfAccomplishment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date of Accomplishment</label>
+          <label for="dateOfAccomplishment" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Date of Accomplishment</label>
           <input
             type="date"
             id="dateOfAccomplishment"
             formControlName="dateOfAccomplishment"
-            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            class="block w-full border rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition"
           />
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+    <!-- Action Buttons -->
+    <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
       <button
         type="button"
         (click)="onCancel()"
-        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-red-500 transition"
       >
         Cancel
       </button>
       <button
         type="submit"
         [disabled]="projectForm.invalid"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
       >
         {{ isEditMode ? 'Update Project' : 'Add Project' }}
       </button>

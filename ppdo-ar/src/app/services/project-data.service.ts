@@ -73,6 +73,10 @@ export class ProjectDataService {
     return this.http.delete<void>(`${environment.apiUrl}project-categories/${id}`);
   }
 
+  getArchivedProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${environment.apiUrl}projects/archived`);
+  }
+
 
   // --- File Upload Method ---
 
@@ -91,4 +95,6 @@ export class ProjectDataService {
   addComment(projectId: string, content: string): Observable<Comment> {
     return this.http.post<Comment>(`${environment.apiUrl}projects/${projectId}/comments`, { content });
   }
+
+
 }

@@ -73,11 +73,18 @@
         </a>
         <button
           class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 transition-colors duration-300"
-          (click)="logout()"
+          (click)="confirmLogout()"
         >
           Logout
         </button>
       </div>
     </div>
   </div>
+
+  <app-confirm-dialog
+    *ngIf="showDialog"
+    [message]="'Are you sure you want to log out?'"
+    (confirm)="onConfirm($event)"
+  ></app-confirm-dialog>
+
 </header>

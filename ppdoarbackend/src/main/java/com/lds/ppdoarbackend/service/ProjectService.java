@@ -100,6 +100,13 @@ public class ProjectService {
     }
 
     public void deleteProject(String id) {
-        projectRepository.deleteById(id);
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setArchived(true);
+        projectRepository.save(project);
+    }
+
+    public List<Project> getArchivedProjects() {
+        return projectRepository.findArchivedProjects();
     }
 }

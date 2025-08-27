@@ -20,9 +20,18 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
     @Query("SELECT p FROM Project p WHERE " +
             "(:divisionCode IS NULL OR p.division.code = :divisionCode) AND " +
             "(:status IS NULL OR p.status = :status) AND " +
-            "(:year IS NULL OR YEAR(p.startDate) = :year)")
+            "(:year IS NULL OR YEAR(p.startDate) = :year) AND " +
+            "p.isArchived = false")
     List<Project> findByFilters(
             @Param("divisionCode") String divisionCode,
             @Param("status") String status,
             @Param("year") Integer year);
+
+
+    /**
+     * Finds all projects that have been marked as archived.
+     * @return A list of archived projects.
+     */
+    @Query("SELECT p FROM Project p WHERE p.isArchived = true")
+    List<Project> findArchivedProjects();
 }

@@ -28,6 +28,7 @@ public class Project {
     private String officeInCharge;
     private String remarks;
     private String objectives;
+    private boolean isArchived = false;
 
     @ManyToOne
     private Division division;
@@ -40,6 +41,6 @@ public class Project {
     private String status;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    @JsonManagedReference // <-- ADD THIS ANNOTATION
+    @JsonManagedReference
     private List<Comment> comments;
 }

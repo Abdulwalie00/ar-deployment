@@ -1,119 +1,126 @@
-<div class="max-w-4xl mx-auto p-6">
-  <div class="bg-white dark:bg-gray-700 shadow-lg rounded-lg overflow-hidden transition-colors duration-300">
-    <div class="flex flex-col md:flex-row items-center p-6">
+<div class="max-w-3xl mx-auto p-6">
+  <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden transition-colors duration-300">
+    <!-- Card Header -->
+    <div class="flex flex-col md:flex-row items-center gap-6 px-6 py-8 border-b border-gray-100 dark:border-gray-700">
       <div
-        class="w-32 h-32 rounded-full flex items-center justify-center text-white text-4xl font-bold"
+        class="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg"
         [ngStyle]="{ 'background-color': avatarColor }"
+        aria-label="User avatar"
       >
         {{ initials }}
       </div>
-      <div class="md:ml-6 mt-4 md:mt-0 text-center md:text-left">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white transition-colors duration-300">
+      <div class="flex-1 text-center md:text-left">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ user?.firstName }}{{ user?.middleName ? ' ' + user?.middleName : '' }} {{ user?.lastName }}
         </h2>
-        <p class="text-gray-600 dark:text-gray-300 transition-colors duration-300">{{ user?.email }}</p>
-        <p class="mt-2 text-gray-500 dark:text-gray-400 transition-colors duration-300">
-          Welcome back, {{ user?.username }}! You are logged in as <strong>{{ user?.role }}</strong>.
+        <p class="text-gray-500 dark:text-gray-300 text-sm">{{ user?.email }}</p>
+        <span class="inline-block mt-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-medium">
+          {{ user?.role }}
+        </span>
+        <p class="mt-2 text-gray-400 dark:text-gray-500 text-sm">
+          Welcome back, <span class="font-semibold text-blue-700 dark:text-blue-400">{{ user?.username }}</span>!
         </p>
       </div>
     </div>
 
-    <div class="border-t border-gray-200 dark:border-gray-600 px-6 py-4 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-700 dark:text-white transition-colors duration-300">Account Details</h3>
-        <button (click)="toggleEdit()" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-300">
-          {{ editMode ? 'Cancel' : 'Edit' }}
-        </button>
+    <!-- Card Body -->
+    <div class="px-6 py-6 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <div class="flex justify-between items-center mb-5">
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-white">Account Details</h3>
+        <ng-container *ngIf="!editMode; else cancelBtn">
+          <button
+            (click)="toggleEdit()"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-1 rounded shadow transition"
+          >
+            Edit
+          </button>
+        </ng-container>
+        <ng-template #cancelBtn>
+          <button
+            (click)="toggleEdit()"
+            class="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold px-4 py-1 rounded shadow transition"
+          >
+            Cancel
+          </button>
+        </ng-template>
       </div>
 
-      <div *ngIf="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-        <span class="block sm:inline">{{ successMessage }}</span>
+      <div *ngIf="successMessage" class="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded mb-5" role="alert">
+        <span>{{ successMessage }}</span>
       </div>
 
-      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm" autocomplete="off">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">First Name</label>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">First Name</label>
             <input
               type="text"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 dark:border-gray-600 transition-colors duration-300"
-              [ngClass]="{
-                'bg-gray-100 text-gray-500': !editMode,
-                'dark:bg-gray-700 dark:text-gray-400': !editMode,
-                'dark:bg-gray-600 dark:text-white': editMode
-              }"
+              class="block w-full rounded-md px-3 py-2 border bg-gray-100 dark:bg-gray-800 dark:text-white text-gray-700 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
+              [readonly]="!editMode"
+              [ngClass]="{ 'cursor-not-allowed opacity-70': !editMode }"
               formControlName="firstName"
-              [readonly]="!editMode"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">Last Name</label>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Last Name</label>
             <input
               type="text"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 dark:border-gray-600 transition-colors duration-300"
-              [ngClass]="{
-                'bg-gray-100 text-gray-500': !editMode,
-                'dark:bg-gray-700 dark:text-gray-400': !editMode,
-                'dark:bg-gray-600 dark:text-white': editMode
-              }"
-              formControlName="lastName"
+              class="block w-full rounded-md px-3 py-2 border bg-gray-100 dark:bg-gray-800 dark:text-white text-gray-700 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
               [readonly]="!editMode"
+              [ngClass]="{ 'cursor-not-allowed opacity-70': !editMode }"
+              formControlName="lastName"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">Email</label>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Email</label>
             <input
               type="email"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 dark:border-gray-600 transition-colors duration-300"
-              [ngClass]="{
-                'bg-gray-100 text-gray-500': !editMode,
-                'dark:bg-gray-700 dark:text-gray-400': !editMode,
-                'dark:bg-gray-600 dark:text-white': editMode
-              }"
-              formControlName="email"
+              class="block w-full rounded-md px-3 py-2 border bg-gray-100 dark:bg-gray-800 dark:text-white text-gray-700 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
               [readonly]="!editMode"
+              [ngClass]="{ 'cursor-not-allowed opacity-70': !editMode }"
+              formControlName="email"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">Username</label>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Username</label>
             <input
               type="text"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 dark:border-gray-600 transition-colors duration-300"
-              [ngClass]="{
-                'bg-gray-100 text-gray-500': !editMode,
-                'dark:bg-gray-700 dark:text-gray-400': !editMode,
-                'dark:bg-gray-600 dark:text-white': editMode
-              }"
-              formControlName="username"
+              class="block w-full rounded-md px-3 py-2 border bg-gray-100 dark:bg-gray-800 dark:text-white text-gray-700 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
               [readonly]="!editMode"
+              [ngClass]="{ 'cursor-not-allowed opacity-70': !editMode }"
+              formControlName="username"
             />
           </div>
         </div>
 
-        <div *ngIf="editMode">
-          <h3 class="text-lg font-semibold text-gray-700 dark:text-white transition-colors duration-300 mt-6">Change Password</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <!-- Password Change Section -->
+        <div *ngIf="editMode" class="mt-8">
+          <h4 class="text-md font-semibold text-gray-700 dark:text-white mb-3">Change Password</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">New Password</label>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">New Password</label>
               <input
                 type="password"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 dark:border-gray-600 dark:bg-gray-600 dark:text-white transition-colors duration-300"
+                class="block w-full rounded-md px-3 py-2 border bg-gray-100 dark:bg-gray-800 dark:text-white text-gray-700 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
                 formControlName="password"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors duration-300">Confirm New Password</label>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Confirm New Password</label>
               <input
                 type="password"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 dark:border-gray-600 dark:bg-gray-600 dark:text-white transition-colors duration-300"
+                class="block w-full rounded-md px-3 py-2 border bg-gray-100 dark:bg-gray-800 dark:text-white text-gray-700 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition"
                 formControlName="confirmPassword"
               />
             </div>
           </div>
         </div>
 
-        <div *ngIf="editMode" class="mt-4 flex justify-end">
-          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-300">
+        <div *ngIf="editMode" class="mt-7 flex justify-end">
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow transition"
+          >
             Save Changes
           </button>
         </div>

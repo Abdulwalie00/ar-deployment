@@ -23,6 +23,11 @@ public class ProjectController {
         return projectService.getAllProjects(divisionCode, status, year);
     }
 
+    @GetMapping("/archived")
+    public List<Project> getArchivedProjects() {
+        return projectService.getArchivedProjects();
+    }
+
     @GetMapping("/{id}")
     public Project getProjectById(@PathVariable String id) {
         return projectService.getProjectById(id);

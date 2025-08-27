@@ -1,3 +1,4 @@
+// header.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -12,11 +13,12 @@ import { UserService } from '../../services/user.service';
 import { NotificationService } from '../../services/notification.service';
 import { User } from '../../models/user.model';
 import { Notification } from '../../models/notification.model';
+import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, RouterLink],
+  imports: [CommonModule, FontAwesomeModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -25,6 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   faSun = faSun;
   faMoon = faMoon;
   isDarkMode = false;
+  showDialog = false;
 
   notifications: Notification[] = [];
   unreadCount = 0;
@@ -115,12 +118,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             console.error('Failed to fetch user:', err);
-            this.logout();
+            this._performLogout(); // Change 'this.logout()' to 'this._performLogout()'
           }
         });
       } catch (error) {
         console.error('Invalid token:', error);
-        this.logout();
+        this._performLogout(); // Change 'this.logout()' to 'this._performLogout()'
       }
     }
   }
@@ -189,9 +192,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.menuOpen = false;
   }
 
-  logout(): void {
+  // New method to initiate the logout confirmation
+  confirmLogout(): void {
+    this.showDialog = true;
+    this.closeMenu();
+  }
+
+  // Handle the confirmation from the dialog
+  onConfirm(confirmed: boolean): void {
+    if (confirmed) {
+      this._performLogout();
+    }
+    this.showDialog = false;
+  }
+
+  // The actual logout logic, now a private method
+  private _performLogout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-    this.closeMenu();
   }
 }

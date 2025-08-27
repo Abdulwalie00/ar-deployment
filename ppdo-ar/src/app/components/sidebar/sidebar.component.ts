@@ -18,7 +18,7 @@ import {
   faCaretDown,
   faBuilding,
   faBuildingCircleArrowRight,
-  faBuildingColumns, faBuildingCircleExclamation
+  faBuildingColumns, faBuildingCircleExclamation, faLineChart, faSeedling, faPeopleGroup, faBridgeWater
 } from '@fortawesome/free-solid-svg-icons';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Observable } from 'rxjs';
@@ -88,7 +88,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     },
     {
       title: 'Social',
-      icon: faBuildingColumns,
+      icon: faPeopleGroup,
       isExpanded: false,
       children: [
         {title: 'RYDO', icon: faCircle ,link: '/project-division/RYDO', tooltip: 'Ranao Youth and Development Office'},
@@ -126,7 +126,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     },
     {
       title: 'Economic',
-      icon: faBuildingColumns,
+      icon: faLineChart,
       isExpanded: false,
       children: [
         { title: 'PCO', icon: faCircle, link: '/project-division/PCO', tooltip: 'Provincial Cooperative Office' },
@@ -138,7 +138,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     },
     {
       title: 'Environment',
-      icon: faBuildingColumns,
+      icon: faSeedling,
       isExpanded: false,
       children: [
         { title: 'PDRRMO', icon: faCircle, link: '/project-division/PDRRMO', tooltip: 'Provincial Disaster Risk Reduction and Management Office' },
@@ -147,7 +147,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     },
     {
       title: 'Infrastructure',
-      icon: faBuildingColumns,
+      icon: faBridgeWater,
       isExpanded: false,
       children: [
         { title: 'PEO', icon: faCircle, link: '/project-division/PEO', tooltip: 'Provincial Engineer\'s Office' },
