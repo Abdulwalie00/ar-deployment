@@ -152,7 +152,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       children: [
         { title: 'PEO', icon: faCircle, link: '/project-division/PEO', tooltip: 'Provincial Engineer\'s Office' },
         { title: 'ARCHITECT', icon: faCircle, link: '/project-division/PAO', tooltip: 'Provincial Architect\'s Office' },
-        { title: 'ICTO', icon: faCircle, link: '/project-division/PAO', tooltip: 'Information and Communication Technology Office' },
+        { title: 'ICTO', icon: faCircle, link: '/project-division/ICTO', tooltip: 'Information and Communication Technology Office' },
       ]
     },
     {

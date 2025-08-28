@@ -1,6 +1,6 @@
 // src/app/components/project-component/project-summary/project-summary.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import {CommonModule, Location, TitleCasePipe} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -9,11 +9,13 @@ import { ProjectDataService } from '../../../services/project-data.service';
 import { DivisionService } from '../../../services/division.service';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
+import {faPrint, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-project-summary',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, FaIconComponent],
   templateUrl: './project-summary.component.html',
 })
 export class ProjectSummaryComponent implements OnInit, OnDestroy {
@@ -46,6 +48,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 10;
   itemsPerPageOptions: number[] = [10, 20, 50, 100];
   totalPages: number = 0;
+  faPrint = faPrint
 
   // User role and division
   isAdmin: boolean = false;
@@ -58,7 +61,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     private projectDataService: ProjectDataService,
     private divisionService: DivisionService,
     public authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
@@ -194,6 +198,10 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
 
   private safePrintValue(value: any): string {
     return value !== null && value !== undefined ? value.toString() : '';
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   printReport(): void {
@@ -352,4 +360,6 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
       }, 500); // Timeout to ensure content loads
     }
   }
+
+  protected readonly faDelete = faTrash;
 }
