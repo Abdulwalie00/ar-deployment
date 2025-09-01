@@ -25,6 +25,7 @@ import {AdminGuard} from './guards/admin.guard';
 import {DivisionListComponent} from './pages/division/division-list/division-list.component';
 import {DivisionAddEditComponent} from './pages/division/division-add-edit/division-add-edit.component';
 import {SuperAdminGuard} from './guards/super-admin.guard';
+import {ProjectListGuard} from './guards/project-list.guard';
 
 export const routes: Routes = [
   {
@@ -79,7 +80,7 @@ export const routes: Routes = [
         component: ProjectDivisionPageComponent,
         canActivate: [DivisionGuard]
       },
-      { path: 'project-list', component: ProjectListComponent, canActivate: [AdminGuard]},
+      { path: 'project-list', component: ProjectListComponent, canActivate: [ProjectListGuard]},
       { path: 'project-add', component: ProjectAddEditComponent },
       { path: 'project-edit/:id', component: ProjectAddEditComponent },
       { path: 'project-detail/:id', component: ProjectDetailComponent },

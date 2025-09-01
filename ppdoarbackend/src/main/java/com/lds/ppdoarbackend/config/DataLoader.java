@@ -102,7 +102,8 @@ public class DataLoader implements CommandLineRunner {
                 Map.entry("PENRO", "Provincial Environment and Natural Resources Office"),
                 // Infrastructure
                 Map.entry("PEO", "Provincial Engineer's Office"),
-                Map.entry("PAO", "Provincial Administrator's Office")
+                Map.entry("PAO", "Provincial Administrator's Office"),
+                Map.entry("ICTO", "Information and Communication Technology Office")
         );
 
         for (Map.Entry<String, String> entry : divisions.entrySet()) {

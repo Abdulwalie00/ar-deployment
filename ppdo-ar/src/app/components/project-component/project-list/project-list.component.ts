@@ -1,11 +1,12 @@
 import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { Subject, switchMap } from 'rxjs';
+import {of, Subject, switchMap, tap} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Project } from '../../../models/project.model';
 import { ProjectDataService } from '../../../services/project-data.service';
 import { AuthService } from '../../../services/auth.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-project-list',
@@ -30,26 +31,41 @@ export class ProjectListComponent implements OnInit, OnDestroy, OnChanges {
     private router: Router,
     private route: ActivatedRoute,
     private projectDataService: ProjectDataService,
-    public authService: AuthService
+    public authService: AuthService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.currentViewMode = this.viewMode;
+    const isUserAdmin = this.authService.isAdmin() || this.authService.isSuperAdmin();
 
-    if (!this.inputProjects) {
-      this.route.queryParamMap.pipe(
-        switchMap(params => {
-          this.currentFilterStatus = params.get('status');
-          const divisionCode = params.get('division');
-          const year = params.get('year');
-          return this.projectDataService.getProjects(divisionCode ?? undefined, this.currentFilterStatus ?? undefined, year ?? undefined);
-        }),
-        takeUntil(this.destroy$)
-      ).subscribe(projects => {
-        this.allProjects = this.sortProjects(projects);
-        this.filteredProjects = this.allProjects;
-      });
-    }
+    this.route.queryParamMap.pipe(
+      switchMap(params => {
+        this.currentFilterStatus = params.get('status');
+        let divisionCode = params.get('division');
+        const year = params.get('year');
+
+        // Force user to only view their own division's projects
+        if (!isUserAdmin) {
+          return this.userService.getCurrentUserDivision().pipe(
+            switchMap(userDivision => {
+              this.currentDivisionCode = userDivision?.code || null;
+              if (this.currentDivisionCode) {
+                return this.projectDataService.getProjects(this.currentDivisionCode, this.currentFilterStatus ?? undefined, year ?? undefined);
+              }
+              return of([]);
+            })
+          );
+        }
+
+        // Admins and Super Admins can see all
+        return this.projectDataService.getProjects(divisionCode ?? undefined, this.currentFilterStatus ?? undefined, year ?? undefined);
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(projects => {
+      this.allProjects = this.sortProjects(projects);
+      this.filteredProjects = this.allProjects;
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
