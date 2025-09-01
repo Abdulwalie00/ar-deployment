@@ -26,6 +26,7 @@
         Edit Project
       </button>
       <button
+        *ngIf="isAdmin"
         (click)="confirmDelete()"
         class="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap"
       >
