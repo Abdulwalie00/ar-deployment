@@ -3,12 +3,15 @@ package com.lds.ppdoarbackend.service;
 
 import com.lds.ppdoarbackend.dto.ProjectDto;
 import com.lds.ppdoarbackend.model.Project;
+import com.lds.ppdoarbackend.model.User;
 import com.lds.ppdoarbackend.repository.DivisionRepository;
 import com.lds.ppdoarbackend.repository.ProjectCategoryRepository;
 import com.lds.ppdoarbackend.repository.ProjectRepository;
+import com.lds.ppdoarbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +24,12 @@ public class ProjectService {
     private DivisionRepository divisionRepository;
     @Autowired
     private ProjectCategoryRepository projectCategoryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // Updated method to accept the year parameter
     public List<Project> getAllProjects(String divisionCode, String status, Integer year, Integer aipYear) {
@@ -65,7 +74,9 @@ public class ProjectService {
             project.setProjectCategory(projectCategoryRepository.findById(projectDto.getProjectCategoryId()).orElse(null));
         }
 
-        return projectRepository.save(project);
+        Project newProject = projectRepository.save(project);
+        notifyAdminsOfNewProject(newProject); // Call the new method
+        return newProject;
     }
 
     public Project updateProject(String id, ProjectDto projectDto) {
@@ -112,5 +123,18 @@ public class ProjectService {
 
     public List<Project> getArchivedProjects() {
         return projectRepository.findArchivedProjects();
+    }
+
+    /**
+     * Notifies all admin users about a newly created project.
+     * @param newProject The newly created Project object.
+     */
+    private void notifyAdminsOfNewProject(Project newProject) {
+        List<User> adminsToNotify = userRepository.findByRoleIn(Arrays.asList("ROLE_ADMIN", "ROLE_SUPERADMIN"));
+        String divisionName = newProject.getDivision() != null ? newProject.getDivision().getName() : "Unknown Division";
+        String message = String.format("A new project, '%s', has been created by the %s.", newProject.getTitle(), divisionName);
+        for (User admin : adminsToNotify) {
+            notificationService.createNotification(admin, newProject, message);
+        }
     }
 }
