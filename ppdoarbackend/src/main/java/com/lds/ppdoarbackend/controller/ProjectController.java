@@ -1,6 +1,7 @@
 package com.lds.ppdoarbackend.controller;
 
 
+import com.lds.ppdoarbackend.config.AppConstants;
 import com.lds.ppdoarbackend.dto.ProjectDto;
 import com.lds.ppdoarbackend.model.Project;
 import com.lds.ppdoarbackend.model.ProjectImage;
@@ -165,12 +166,11 @@ public class ProjectController {
             return new java.net.URL(imageUrl).openStream();
         } else {
             // Local image in project-images folder
-            String baseDir = "c:/Users/acer/My Workspace/My Projects/2025/Project Accomplishment/ar-deployment/ppdoarbackend/project-images/";
             String fileName = imageUrl;
             if (fileName.startsWith("/api/files/")) {
                 fileName = fileName.substring("/api/files/".length());
             }
-            String filePath = baseDir + fileName;
+            String filePath = AppConstants.PROJECT_IMAGES_DIR + fileName;
             java.io.File file = new java.io.File(filePath);
             if (!file.exists()) throw new java.io.FileNotFoundException("Image not found: " + filePath);
             return new java.io.FileInputStream(file);

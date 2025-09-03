@@ -3,6 +3,7 @@ package com.lds.ppdoarbackend.service;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lds.ppdoarbackend.config.AppConstants;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,8 +15,7 @@ public class OllamaService {
 
 public String generateNarrative(String prompt) {
     try {
-        URL url = new URL("http://localhost:11434/api/generate");
-        // URL url = new URL("http://ollama:11434/api/generate");
+        URL url = new URL(AppConstants.OLLAMA_API_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
