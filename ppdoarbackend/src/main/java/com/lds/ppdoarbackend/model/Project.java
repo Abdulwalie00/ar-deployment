@@ -12,8 +12,13 @@ public class Project {
     @Id
     private String id;
     private String title;
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String objectives;
+
     private String location;
     private Date startDate;
     private Date endDate;
@@ -27,7 +32,6 @@ public class Project {
     private String fundSource;
     private String officeInCharge;
     private String remarks;
-    private String objectives;
     private Integer aipYear;
     private String typeOfProject;
     private boolean isArchived = false;

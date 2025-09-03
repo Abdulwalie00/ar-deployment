@@ -74,18 +74,28 @@ public class CommentService {
         boolean isAdmin = currentUser.getRole().equals("ROLE_ADMIN") || currentUser.getRole().equals("ROLE_SUPERADMIN");
 
         if (isAdmin) {
-            // If an admin comments, notify all other unique users who have commented on the project
-            List<User> usersToNotify = commentRepository.findByProjectId(project.getId()).stream()
-                    .map(Comment::getUser)
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            for (User user : usersToNotify) {
-                if (!user.getId().equals(currentUser.getId())) { // Don't notify the admin who made the comment
-                    String message = String.format("An admin has responded to a comment on project '%s'.", project.getTitle());
-                    notificationService.createNotification(user, project, message);
+            // If an admin comments, notify all users associated with the project's division
+            if (project.getDivision() != null) {
+                List<User> usersToNotify = userRepository.findByDivision(project.getDivision());
+                for (User user : usersToNotify) {
+                    if (!user.getId().equals(currentUser.getId())) { // Don't notify the admin who made the comment
+                        String message = String.format("An admin has commented on project '%s'.", project.getTitle());
+                        notificationService.createNotification(user, project, message);
+                    }
                 }
             }
+
+            // Also notify any other unique users who have previously commented on the project
+            List<User> usersWhoCommented = commentRepository.findByProjectId(project.getId()).stream()
+                    .map(Comment::getUser)
+                    .distinct()
+                    .filter(user -> !user.getId().equals(currentUser.getId()))
+                    .collect(Collectors.toList());
+            for (User user : usersWhoCommented) {
+                String message = String.format("An admin has responded to a comment on project '%s'.", project.getTitle());
+                notificationService.createNotification(user, project, message);
+            }
+
         } else {
             // If a regular user comments, notify all admins/superadmins
             List<User> adminsToNotify = userRepository.findByRoleIn(Arrays.asList("ROLE_ADMIN", "ROLE_SUPERADMIN"));
@@ -96,6 +106,7 @@ public class CommentService {
                             currentUser.getUsername());
                     notificationService.createNotification(admin, project, message);
                 }
+
             }
         }
 

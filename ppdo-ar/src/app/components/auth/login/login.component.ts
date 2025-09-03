@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import {NgClass, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {
   trigger,
   transition,
