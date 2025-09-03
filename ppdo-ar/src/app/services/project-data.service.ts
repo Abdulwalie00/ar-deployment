@@ -2,20 +2,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Project, Division, ProjectCategory, ProjectCategoryDto, Comment } from '../models/project.model'; // Import Comment
+import {
+  Project,
+  Division,
+  ProjectCategory,
+  ProjectCategoryDto,
+  Comment,
+} from '../models/project.model'; // Import Comment
 import { environment } from '../environment/environment';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProjectDataService {
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // --- Project Methods ---
 
-  getProjects(divisionCode?: string, status?: string, year?: string): Observable<Project[]> {
+  getProjects(
+    divisionCode?: string,
+    status?: string,
+    year?: string
+  ): Observable<Project[]> {
     let params = new HttpParams();
     if (divisionCode) {
       params = params.set('divisionCode', divisionCode);
@@ -26,19 +34,54 @@ export class ProjectDataService {
     if (year) {
       params = params.set('year', year);
     }
-    return this.http.get<Project[]>(`${environment.apiUrl}projects`, { params });
+    return this.http.get<Project[]>(`${environment.apiUrl}projects`, {
+      params,
+    });
   }
 
+  generateNarrative(projectId: string): Observable<string> {
+    return this.http.post(
+      `${environment.apiUrl}projects/${projectId}/generate-narrative`,
+      {},
+      { responseType: 'text' }
+    );
+  }
+
+  downloadNarrative(projectId: string): Observable<Blob> {
+    return this.http.get(
+      `${environment.apiUrl}projects/${projectId}/download-narrative`,
+      { responseType: 'blob' }
+    );
+  }
   getProjectById(id: string): Observable<Project> {
     return this.http.get<Project>(`${environment.apiUrl}projects/${id}`);
   }
 
-  addProject(projectData: Omit<Project, 'id' | 'dateCreated' | 'dateUpdated' | 'division' | 'comments'> & { divisionId: string }): Observable<Project> {
-    return this.http.post<Project>(`${environment.apiUrl}projects`, projectData);
+  addProject(
+    projectData: Omit<
+      Project,
+      'id' | 'dateCreated' | 'dateUpdated' | 'division' | 'comments'
+    > & { divisionId: string }
+  ): Observable<Project> {
+    return this.http.post<Project>(
+      `${environment.apiUrl}projects`,
+      projectData
+    );
   }
 
-  updateProject(id: string, projectData: Partial<Omit<Project, 'id' | 'dateCreated' | 'dateUpdated' | 'division' | 'comments'> & { divisionId: string }>): Observable<Project> {
-    return this.http.put<Project>(`${environment.apiUrl}projects/${id}`, projectData);
+  updateProject(
+    id: string,
+    projectData: Partial<
+      Omit<
+        Project,
+        'id' | 'dateCreated' | 'dateUpdated' | 'division' | 'comments'
+      > & { divisionId: string }
+    >
+  ): Observable<Project> {
+    return this.http.put<Project>(
+      `${environment.apiUrl}projects/${id}`,
+      projectData
+    );
   }
 
   deleteProject(id: string): Observable<void> {
@@ -58,43 +101,63 @@ export class ProjectDataService {
     if (divisionId) {
       params = params.set('divisionId', divisionId);
     }
-    return this.http.get<ProjectCategory[]>(`${environment.apiUrl}project-categories`, { params });
+    return this.http.get<ProjectCategory[]>(
+      `${environment.apiUrl}project-categories`,
+      { params }
+    );
   }
 
-  addProjectCategory(categoryData: ProjectCategoryDto): Observable<ProjectCategory> {
-    return this.http.post<ProjectCategory>(`${environment.apiUrl}project-categories`, categoryData);
+  addProjectCategory(
+    categoryData: ProjectCategoryDto
+  ): Observable<ProjectCategory> {
+    return this.http.post<ProjectCategory>(
+      `${environment.apiUrl}project-categories`,
+      categoryData
+    );
   }
 
-  updateProjectCategory(id: string, categoryData: ProjectCategoryDto): Observable<ProjectCategory> {
-    return this.http.put<ProjectCategory>(`${environment.apiUrl}project-categories/${id}`, categoryData);
+  updateProjectCategory(
+    id: string,
+    categoryData: ProjectCategoryDto
+  ): Observable<ProjectCategory> {
+    return this.http.put<ProjectCategory>(
+      `${environment.apiUrl}project-categories/${id}`,
+      categoryData
+    );
   }
 
   deleteProjectCategory(id: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}project-categories/${id}`);
+    return this.http.delete<void>(
+      `${environment.apiUrl}project-categories/${id}`
+    );
   }
 
   getArchivedProjects(): Observable<Project[]> {
     return this.http.get<Project[]>(`${environment.apiUrl}projects/archived`);
   }
 
-
   // --- File Upload Method ---
 
   uploadImage(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post(`${environment.apiUrl}files/upload`, formData, { responseType: 'text' });
+    return this.http.post(`${environment.apiUrl}files/upload`, formData, {
+      responseType: 'text',
+    });
   }
 
   // --- Comment Methods ---
 
   getComments(projectId: string): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${environment.apiUrl}projects/${projectId}/comments`);
+    return this.http.get<Comment[]>(
+      `${environment.apiUrl}projects/${projectId}/comments`
+    );
   }
 
   addComment(projectId: string, content: string): Observable<Comment> {
-    return this.http.post<Comment>(`${environment.apiUrl}projects/${projectId}/comments`, { content });
+    return this.http.post<Comment>(
+      `${environment.apiUrl}projects/${projectId}/comments`,
+      { content }
+    );
   }
-
-
 }

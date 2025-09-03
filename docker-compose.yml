@@ -1,75 +1,96 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app-network
 
-  services:
-    # 1. MariaDB Database Service
-    mariadb:
-      image: mariadb:10.6
-      container_name: ppdo_mariadb
-      restart: unless-stopped
-      environment:
-        # These values are now sourced from the .env file
-        MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-        MARIADB_DATABASE: ${DB_NAME}
-        MARIADB_USER: ${DB_USER}
-        MARIADB_PASSWORD: ${DB_PASSWORD}
-      volumes:
-        - mariadb_data:/var/lib/mysql
-      networks:
-        - app-network
-      healthcheck:
-        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
+  # 1. MariaDB Database Service
+  mariadb:
+    image: mariadb:10.6
+    container_name: ppdo_mariadb
+    restart: unless-stopped
+    environment:
+      # These values are now sourced from the .env file
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "${DB_USER}",
+          "-p${DB_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-    # 2. Spring Boot Backend Service
-    backend:
-      build:
-        context: ./ppdoarbackend
-        dockerfile: Dockerfile
-      image: abdulwalie00/ppdoarbackend # Add your Docker Hub username
-      container_name: ppdo_backend
-      restart: unless-stopped
-      depends_on:
-        # Waits for mariadb to be healthy before starting
-        mariadb:
-          condition: service_healthy
-      ports:
-        - "8080:8080"
-      networks:
-        - app-network
-      environment:
-        # Use variables from .env file for database connection
-        SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${DB_NAME}
-        SPRING_DATASOURCE_USERNAME: ${DB_USER}
-        SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-        SPRING_JPA_HIBERNATE_DDL_AUTO: update
-        # Sourced from .env file
-        JWT_SECRET: ${JWT_SECRET}
-        UPLOAD_DIR: /app/uploads/
-      volumes:
-        - uploads:/app/uploads
+  # 2. Spring Boot Backend Service
+  backend:
+    build:
+      context: ./ppdoarbackend
+      dockerfile: Dockerfile
+    image: abdulwalie00/ppdoarbackend # Add your Docker Hub username
+    container_name: ppdo_backend
+    restart: unless-stopped
+    depends_on:
+      # Waits for mariadb to be healthy before starting
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    environment:
+      # Use variables from .env file for database connection
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Sourced from .env file
+      JWT_SECRET: ${JWT_SECRET}
+      UPLOAD_DIR: /app/uploads/
+    volumes:
+      - uploads:/app/uploads
 
-    # 3. Angular Frontend Service
-    frontend:
-      build:
-        context: ./ppdo-ar
-        dockerfile: Dockerfile
-      image: abdulwalie00/ppdo-ar # Add your Docker Hub username
-      container_name: ppdo_frontend
-      restart: unless-stopped
-      depends_on:
-        - backend
-      ports:
-        - "1000:80"
-      networks:
-        - app-network
+  # 3. Angular Frontend Service
+  frontend:
+    build:
+      context: ./ppdo-ar
+      dockerfile: Dockerfile
+    image: abdulwalie00/ppdo-ar # Add your Docker Hub username
+    container_name: ppdo_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "1000:80"
+    networks:
+      - app-network
 
-  # Define named volumes for data persistence
-  volumes:
-    mariadb_data:
-    uploads:
+# Define named volumes for data persistence
+volumes:
+  mariadb_data:
+  uploads:
+  ollama_data:
 
-  # Define the bridge network
-  networks:
-    app-network:
-      driver: bridge
+# Define the bridge network
+networks:
+  app-network:
+    driver: bridge

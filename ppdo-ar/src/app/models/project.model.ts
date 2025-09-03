@@ -1,5 +1,5 @@
 // src/app/models/project.model.ts
-import {User} from './user.model';
+import { User } from './user.model';
 
 export interface Division {
   id: string;
@@ -36,7 +36,6 @@ export interface Comment {
   user: User;
 }
 
-
 export interface Project {
   id: string;
   title: string;
@@ -61,4 +60,5 @@ export interface Project {
   status: 'planned' | 'ongoing' | 'completed' | 'cancelled';
   aipYear?: number;
   typeOfProject?: string;
+  narrativeReport?: string;
 }

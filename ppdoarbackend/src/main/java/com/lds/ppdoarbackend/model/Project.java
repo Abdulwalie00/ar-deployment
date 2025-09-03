@@ -45,4 +45,8 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Comment> comments;
+
+
+    @Column(columnDefinition = "TEXT")
+    private String narrativeReport;
 }
