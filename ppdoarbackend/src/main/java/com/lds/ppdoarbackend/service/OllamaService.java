@@ -21,14 +21,14 @@ public String generateNarrative(String prompt) {
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
 
-        String jsonInput = String.format("{\"model\":\"deepseek-r1:1.5b\",\"prompt\":%s}", 
+        String jsonInput = String.format("{\"model\":\"tinyllama\",\"prompt\":%s}", 
             new ObjectMapper().writeValueAsString(prompt));
         conn.getOutputStream().write(jsonInput.getBytes());
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String line;
         StringBuilder fullResponse = new StringBuilder();
         ObjectMapper mapper = new ObjectMapper();
+        String line;
         while ((line = reader.readLine()) != null) {
             JsonNode node = mapper.readTree(line);
             if (node.has("response")) {
