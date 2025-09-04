@@ -2,8 +2,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
-import { of } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { of, forkJoin } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Project } from '../../../models/project.model';
 import { ProjectDataService } from '../../../services/project-data.service';
@@ -23,13 +23,13 @@ type ProjectStatusKey = keyof Omit<ProjectStatusCounts, 'total'>;
 @Component({
   selector: 'app-project-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule], // Add FormsModule
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './project-dashboard.component.html',
   styleUrls: ['./project-dashboard.component.css']
 })
 export class ProjectDashboardComponent implements OnInit {
   projects: Project[] = [];
-  filteredProjects: Project[] = []; // Holds the projects for the selected year
+  filteredProjects: Project[] = [];
   statusCounts: ProjectStatusCounts = {
     planned: 0,
     ongoing: 0,
@@ -42,11 +42,11 @@ export class ProjectDashboardComponent implements OnInit {
   userDivisionCode: string | null = null;
   divisionLogoUrl: string | null = null;
   ldsLogoUrl: string = 'app/assets/logos/LDS.png';
+  private newProjectIds: Set<string> = new Set(); // Add this line
 
   // Properties for the year filter
   years: number[] = [];
-  selectedYear: number | string = ''; // Can be number or string from select
-
+  selectedYear: number | string = '';
   constructor(
     private projectDataService: ProjectDataService,
     public authService: AuthService,
@@ -72,10 +72,20 @@ export class ProjectDashboardComponent implements OnInit {
         })
       );
 
-    projectsObservable.subscribe(allProjects => {
-      this.projects = allProjects;
+    // Use forkJoin to get both the main projects and the new projects in one go
+    forkJoin({
+      projects: projectsObservable,
+      newProjects: this.projectDataService.getNewProjects()
+    }).subscribe(({ projects, newProjects }) => {
+      this.newProjectIds = new Set(newProjects.map(p => p.id));
+      const projectsWithNewStatus = projects.map(p => ({
+        ...p,
+        isNew: this.newProjectIds.has(p.id)
+      }));
+
+      this.projects = projectsWithNewStatus;
       this.populateYears();
-      this.applyFilters(); // Apply initial filter
+      this.applyFilters();
     });
   }
 
@@ -83,7 +93,7 @@ export class ProjectDashboardComponent implements OnInit {
     const projectYears = this.projects.map(p => new Date(p.startDate).getFullYear());
     this.years = [...new Set(projectYears)].sort((a, b) => b - a);
     if (this.years.length > 0) {
-      this.selectedYear = this.years[0]; // Default to the most recent year
+      this.selectedYear = this.years[0];
     }
   }
 

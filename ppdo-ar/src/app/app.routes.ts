@@ -4,26 +4,24 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import {LoginComponent} from './components/auth/login/login.component';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
 import {ProfileComponent} from './pages/profile/profile.component';
-import {AuthGuard} from './auth.guard';
 import {NotFoundComponent} from './components/not-found/not-found.component';
 import {ManageAccountsComponent} from './pages/manage-accounts/manage-accounts.component';
 import {AddUserComponent} from './components/add-user/add-user.component';
 import {EditUserComponent} from './components/edit-user/edit-user.component';
-import {
-  ProjectDivisionPageComponent
-} from './components/project-component/project-division-page/project-division-page.component';
+import {ProjectDivisionPageComponent} from './components/project-component/project-division-page/project-division-page.component';
 import {ProjectAddEditComponent} from './components/project-component/project-add-edit/project-add-edit.component';
 import {ProjectDetailComponent} from './components/project-component/project-detail/project-detail.component';
 import {ProjectListComponent} from './components/project-component/project-list/project-list.component';
 import {ProjectDashboardComponent} from './components/project-component/project-dashboard/project-dashboard.component';
-import {
-  ProjectCategoryListComponent
-} from './components/project-component/project-category-list/project-category-list.component';
+import {ProjectCategoryListComponent} from './components/project-component/project-category-list/project-category-list.component';
 import {ProjectSummaryComponent} from './components/project-component/project-summary/project-summary.component';
-import {DivisionGuard} from './guards/division.guard';
-import {AdminGuard} from './guards/admin.guard';
 import {DivisionListComponent} from './pages/division/division-list/division-list.component';
 import {DivisionAddEditComponent} from './pages/division/division-add-edit/division-add-edit.component';
+import { NotificationPageComponent } from './components/notification-page/notification-page.component';
+import {DivisionGuard} from './guards/division.guard';
+
+import {AuthGuard} from './auth.guard';
+import {AdminGuard} from './guards/admin.guard';
 import {SuperAdminGuard} from './guards/super-admin.guard';
 import {ProjectListGuard} from './guards/project-list.guard';
 
@@ -97,7 +95,8 @@ export const routes: Routes = [
       { path: 'divisions/edit/:id', component: DivisionAddEditComponent, canActivate: [AdminGuard, SuperAdminGuard] },
 
       //Other Routes
-
+      { path: 'notifications',component: NotificationPageComponent,
+      },
       { path: 'reports', component: ReportsComponent },
       {
         path: 'settings',

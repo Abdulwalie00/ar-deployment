@@ -160,4 +160,8 @@ export class ProjectDataService {
       { content }
     );
   }
+
+  getNewProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${environment.apiUrl}projects/new`);
+  }
 }

@@ -34,4 +34,8 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
      */
     @Query("SELECT p FROM Project p WHERE p.isArchived = true")
     List<Project> findArchivedProjects();
+
+    // Add this new query to find projects with unread notifications for a user
+    @Query("SELECT n.project FROM Notification n WHERE n.user.id = :userId AND n.isRead = false AND n.project IS NOT NULL")
+    List<Project> findProjectsWithUnreadNotificationsByUserId(@Param("userId") Long userId);
 }

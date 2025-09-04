@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -76,6 +78,8 @@ public class ProjectService {
 
         Project newProject = projectRepository.save(project);
         notifyAdminsOfNewProject(newProject); // Call the new method
+        // Also notify users in the same division
+        notifyDivisionUsersOfNewProject(newProject);
         return newProject;
     }
 
@@ -136,5 +140,46 @@ public class ProjectService {
         for (User admin : adminsToNotify) {
             notificationService.createNotification(admin, newProject, message);
         }
+    }
+
+    /**
+     * Notifies users in the same division about a newly created project.
+     * @param newProject The newly created Project object.
+     */
+    private void notifyDivisionUsersOfNewProject(Project newProject) {
+        if (newProject.getDivision() != null) {
+            List<User> usersToNotify = userRepository.findByDivision(newProject.getDivision());
+            String divisionName = newProject.getDivision().getName();
+            String message = String.format("A new project, '%s', has been created in your division, the %s.", newProject.getTitle(), divisionName);
+            for (User user : usersToNotify) {
+                // Ensure the user is not an admin, as they were already notified.
+                if (!"ROLE_ADMIN".equals(user.getRole()) && !"ROLE_SUPERADMIN".equals(user.getRole())) {
+                    notificationService.createNotification(user, newProject, message);
+                }
+            }
+        }
+    }
+
+    /**
+     * Finds projects with unread notifications for a specific user and returns them as DTOs.
+     * @param userId The ID of the user.
+     * @return A list of ProjectDtos with the isNew field set to true.
+     */
+    public List<ProjectDto> getUnreadProjects(Long userId) {
+        List<Project> unreadProjects = projectRepository.findProjectsWithUnreadNotificationsByUserId(userId);
+        Set<String> unreadProjectIds = unreadProjects.stream()
+                .map(Project::getId)
+                .collect(Collectors.toSet());
+
+        return unreadProjects.stream()
+                .map(project -> {
+                    ProjectDto dto = new ProjectDto();
+                    dto.setId(project.getId());
+                    dto.setTitle(project.getTitle());
+                    // ... (populate other fields as needed)
+                    dto.setNew(unreadProjectIds.contains(project.getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -2,7 +2,7 @@
 import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute, ParamMap } from '@angular/router'; // Add ParamMap here
-import {of, Subject, switchMap, tap} from 'rxjs';
+import {of, Subject, switchMap, tap, forkJoin} from 'rxjs'; // Import forkJoin here
 import { takeUntil } from 'rxjs/operators';
 import { Project } from '../../../models/project.model';
 import { ProjectDataService } from '../../../services/project-data.service';
@@ -27,6 +27,7 @@ export class ProjectListComponent implements OnInit, OnDestroy, OnChanges {
   currentFilterStatus: string | null = null;
   currentViewMode: 'list' | 'grid' = 'grid';
   private destroy$ = new Subject<void>();
+  private newProjectIds: Set<string> = new Set(); // Add this line
 
   constructor(
     private router: Router,
@@ -70,16 +71,34 @@ export class ProjectListComponent implements OnInit, OnDestroy, OnChanges {
           })
         );
       }),
+      switchMap(projects => {
+        // Fetch new projects and combine the observables
+        return forkJoin({
+          projects: of(projects),
+          newProjects: this.projectDataService.getNewProjects()
+        });
+      }),
       takeUntil(this.destroy$)
-    ).subscribe(projects => {
-      this.allProjects = this.sortProjects(projects);
+    ).subscribe(({ projects, newProjects }) => {
+      this.newProjectIds = new Set(newProjects.map(p => p.id));
+      const projectsWithNewStatus = projects.map(p => ({
+        ...p,
+        isNew: this.newProjectIds.has(p.id)
+      }));
+
+      this.allProjects = this.sortProjects(projectsWithNewStatus);
       this.filteredProjects = this.allProjects;
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['inputProjects'] && this.inputProjects) {
-      this.allProjects = this.sortProjects(this.inputProjects);
+      // Re-apply the new status if the input projects change
+      const projectsWithNewStatus = this.inputProjects.map(p => ({
+        ...p,
+        isNew: this.newProjectIds.has(p.id)
+      }));
+      this.allProjects = this.sortProjects(projectsWithNewStatus);
       this.applyFilter();
     }
     if (changes['viewMode']) {

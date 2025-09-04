@@ -29,4 +29,5 @@ public class ProjectDto {
     private String typeOfProject;
     private List<ProjectImage> images;
     private List<CommentDto> comments;
+    private boolean isNew;
 }

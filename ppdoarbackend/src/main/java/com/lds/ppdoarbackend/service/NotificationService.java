@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -44,5 +45,18 @@ public class NotificationService {
             notification.setRead(true);
         }
         notificationRepository.saveAll(notifications);
+    }
+
+    /**
+     * Gets a list of unique projects that have unread notifications for a specific user.
+     * @param userId The ID of the user.
+     * @return A list of Projects that the user has unread notifications for.
+     */
+    public List<Project> getUnreadProjectsByUserId(Long userId) {
+        List<Notification> unreadNotifications = notificationRepository.findByUserIdAndIsRead(userId, false);
+        return unreadNotifications.stream()
+                .map(Notification::getProject)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

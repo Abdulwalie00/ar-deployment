@@ -1,6 +1,7 @@
 package com.lds.ppdoarbackend.controller;
 
 import com.lds.ppdoarbackend.model.Notification;
+import com.lds.ppdoarbackend.model.Project;
 import com.lds.ppdoarbackend.model.User;
 import com.lds.ppdoarbackend.service.NotificationService;
 import com.lds.ppdoarbackend.service.UserService;
@@ -45,5 +46,13 @@ public class NotificationController {
         User currentUser = userService.getUserByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Current user not found in database"));
         notificationService.markProjectNotificationsAsRead(currentUser, projectId);
+    }
+
+    // New endpoint to get projects that have unread notifications for a user
+    @GetMapping("/projects/unread")
+    public List<Project> getUnreadProjects(@AuthenticationPrincipal UserDetails userDetails) {
+        User currentUser = userService.getUserByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Current user not found in database"));
+        return notificationService.getUnreadProjectsByUserId(currentUser.getId());
     }
 }

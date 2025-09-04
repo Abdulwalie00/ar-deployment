@@ -8,6 +8,9 @@ import com.lds.ppdoarbackend.model.ProjectImage;
 import com.lds.ppdoarbackend.repository.ProjectRepository;
 import com.lds.ppdoarbackend.service.OllamaService;
 import com.lds.ppdoarbackend.service.ProjectService;
+import com.lds.ppdoarbackend.service.UserService;
+import com.lds.ppdoarbackend.model.User;
+
 
 import io.jsonwebtoken.io.IOException;
 
@@ -20,6 +23,8 @@ import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.io.InputStream;
@@ -36,6 +41,10 @@ public class ProjectController {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private UserService userService;
+
 
     @Autowired
     private OllamaService ollamaService;
@@ -72,6 +81,13 @@ public class ProjectController {
     public void deleteProject(@PathVariable String id) {
         projectService.deleteProject(id);
     }
+
+     @GetMapping("/new")
+        public List<ProjectDto> getNewProjects(@AuthenticationPrincipal UserDetails userDetails) {
+            User currentUser = userService.getUserByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("Current user not found in database"));
+            return projectService.getUnreadProjects(currentUser.getId());
+        }
 
     // In ProjectController.java
     @PostMapping("/{id}/generate-narrative")
