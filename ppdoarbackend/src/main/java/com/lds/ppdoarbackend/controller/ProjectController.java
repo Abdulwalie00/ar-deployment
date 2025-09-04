@@ -1,6 +1,5 @@
 package com.lds.ppdoarbackend.controller;
 
-
 import com.lds.ppdoarbackend.config.AppConstants;
 import com.lds.ppdoarbackend.dto.ProjectDto;
 import com.lds.ppdoarbackend.model.Project;
@@ -11,9 +10,7 @@ import com.lds.ppdoarbackend.service.ProjectService;
 import com.lds.ppdoarbackend.service.UserService;
 import com.lds.ppdoarbackend.model.User;
 
-
 import io.jsonwebtoken.io.IOException;
-
 
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -21,16 +18,20 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URL;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -45,9 +46,11 @@ public class ProjectController {
     @Autowired
     private UserService userService;
 
-
     @Autowired
     private OllamaService ollamaService;
+
+    @Value("${upload.dir}")
+    private String uploadDir;
 
     @GetMapping
     public List<Project> getAllProjects(@RequestParam(required = false) String divisionCode,
@@ -82,12 +85,12 @@ public class ProjectController {
         projectService.deleteProject(id);
     }
 
-     @GetMapping("/new")
-        public List<ProjectDto> getNewProjects(@AuthenticationPrincipal UserDetails userDetails) {
-            User currentUser = userService.getUserByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Current user not found in database"));
-            return projectService.getUnreadProjects(currentUser.getId());
-        }
+    @GetMapping("/new")
+    public List<ProjectDto> getNewProjects(@AuthenticationPrincipal UserDetails userDetails) {
+        User currentUser = userService.getUserByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Current user not found in database"));
+        return projectService.getUnreadProjects(currentUser.getId());
+    }
 
     // In ProjectController.java
     @PostMapping("/{id}/generate-narrative")
@@ -98,16 +101,16 @@ public class ProjectController {
         String prompt = buildNarrativePrompt(project); // Compose your prompt as described
         String narrative = ollamaService.generateNarrative(prompt); // Call Ollama
 
-        
+
         project.setNarrativeReport(narrative);
 
-       projectRepository.save(project);
+        projectRepository.save(project);
 
         return ResponseEntity.ok(narrative);
     }
 
     @GetMapping("/{id}/download-narrative")
-    public ResponseEntity<byte[]> downloadNarrative(@PathVariable String id) throws IOException, java.io.IOException {
+    public ResponseEntity<byte[]> downloadNarrative(@PathVariable String id) throws java.io.IOException {
         Project project = projectService.getProjectById(id);
         XWPFDocument doc = new XWPFDocument();
 
@@ -123,14 +126,23 @@ public class ProjectController {
         Pattern thinkPattern = Pattern.compile("<think>.*?</think>", Pattern.DOTALL);
         Matcher matcher = thinkPattern.matcher(narrative);
         String cleanedNarrative = matcher.replaceAll("");
-
+        cleanedNarrative = cleanedNarrative.replace("#", "");
+        cleanedNarrative = cleanedNarrative.replace("*", "");
+        cleanedNarrative = cleanedNarrative.replace("---", "");
         // Now split and add paragraphs as before
-        String[] paragraphs = cleanedNarrative.split("\\n\\n");
+        String[] paragraphs = cleanedNarrative.split("\\n");
         for (String paraText : paragraphs) {
-            XWPFParagraph para = doc.createParagraph();
-            XWPFRun run = para.createRun();
-            run.setText(paraText.trim());
-            para.setSpacingAfter(100);
+            String trimmedText = paraText.trim();
+            if (!trimmedText.isEmpty()) {
+                if (trimmedText.matches("^\\d+\\..*")) {
+                    XWPFParagraph spacingPara = doc.createParagraph();
+                    spacingPara.setSpacingAfter(100);
+                }
+                XWPFParagraph para = doc.createParagraph();
+                XWPFRun run = para.createRun();
+                run.setText(trimmedText);
+                para.setSpacingAfter(100);
+            }
         }
 
         for (ProjectImage img : project.getImages()) {
@@ -144,10 +156,10 @@ public class ProjectController {
                 XWPFParagraph imgPara = doc.createParagraph();
                 XWPFRun imgRun = imgPara.createRun();
                 imgRun.addPicture(
-                    imgStream,
-                    pictureType,
-                    img.getId(),
-                    Units.toEMU(400), Units.toEMU(300)
+                        imgStream,
+                        pictureType,
+                        img.getId(),
+                        Units.toEMU(400), Units.toEMU(300)
                 );
                 imgPara.setSpacingAfter(50);
 
@@ -171,25 +183,23 @@ public class ProjectController {
         headers.setContentDisposition(ContentDisposition.attachment().filename("NarrativeReport.docx").build());
 
         return new ResponseEntity<>(out.toByteArray(), headers, HttpStatus.OK);
-
-
     }
 
     private InputStream getImageInputStream(String imageUrl) throws java.io.IOException {
         if (imageUrl == null) throw new java.io.FileNotFoundException("Image URL is null");
         if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
             // Remote image
-            return new java.net.URL(imageUrl).openStream();
+            return new URL(imageUrl).openStream();
         } else {
-            // Local image in project-images folder
+            // Local image in the upload directory
             String fileName = imageUrl;
             if (fileName.startsWith("/api/files/")) {
                 fileName = fileName.substring("/api/files/".length());
             }
-            String filePath = AppConstants.PROJECT_IMAGES_DIR + fileName;
-            java.io.File file = new java.io.File(filePath);
-            if (!file.exists()) throw new java.io.FileNotFoundException("Image not found: " + filePath);
-            return new java.io.FileInputStream(file);
+            String filePath = uploadDir + fileName;
+            File file = new File(filePath);
+            if (!file.exists()) throw new FileNotFoundException("Image not found: " + filePath);
+            return new FileInputStream(file);
         }
     }
 
@@ -208,23 +218,23 @@ public class ProjectController {
         sb.append("7. Conclusion and Next Steps – End with a summary and, if applicable, proposed recommendations or follow-up actions.\n\n");
         sb.append("________________________________________\n");
         sb.append("Structured Inputs:\n");
-        sb.append("• Title of the Activity: ").append(project.getTitle()).append("\n");
-        sb.append("• Date of Implementation: ").append(project.getStartDate() != null ? project.getStartDate() : "").append("\n");
-        sb.append("• Venue: ").append(project.getLocation() != null ? project.getLocation() : "").append("\n");
-        sb.append("• Office/Division Involved: ").append(project.getDivision() != null ? project.getDivision().getName() : "").append("\n");
-        sb.append("• Brief Background and Objectives: ").append(project.getObjectives() != null ? project.getObjectives() : "").append("\n");
-        sb.append("• Summary of Actual Implementation: ").append(project.getDescription() != null ? project.getDescription() : "").append("\n");
-        sb.append("• Participants/Stakeholders Involved: ").append(project.getTargetParticipant() != null ? project.getTargetParticipant() : "").append("\n");
-        sb.append("• Outcomes/Achievements: ").append(project.getRemarks() != null ? project.getRemarks() : "").append("\n");
-        sb.append("• Challenges and Recommendations: ").append(project.getStatus() != null ? project.getStatus() : "").append("\n");
+        sb.append("Title of the Activity: ").append(project.getTitle()).append("\n");
+        sb.append("Date of Implementation: ").append(project.getStartDate() != null ? project.getStartDate() : "").append("\n");
+        sb.append("Venue: ").append(project.getLocation() != null ? project.getLocation() : "").append("\n");
+        sb.append("Office/Division Involved: ").append(project.getDivision() != null ? project.getDivision().getName() : "").append("\n");
+        sb.append("Brief Background and Objectives: ").append(project.getObjectives() != null ? project.getObjectives() : "").append("\n");
+        sb.append("Summary of Actual Implementation: ").append(project.getDescription() != null ? project.getDescription() : "").append("\n");
+        sb.append("Participants/Stakeholders Involved: ").append(project.getTargetParticipant() != null ? project.getTargetParticipant() : "").append("\n");
+        sb.append("Outcomes/Achievements: ").append(project.getRemarks() != null ? project.getRemarks() : "").append("\n");
+        sb.append("Challenges and Recommendations: ").append(project.getStatus() != null ? project.getStatus() : "").append("\n");
         sb.append("________________________________________\n");
         sb.append("Guidelines:\n");
-        sb.append("• Write in formal and objective tone, with clarity and coherence.\n");
-        sb.append("• Structure it like a government report – concise but detailed.\n");
-        sb.append("• Emphasize impact and relevance to the community/agency’s goals.\n");
-        sb.append("• Ensure that the narrative flows logically from introduction to conclusion.\n");
-        sb.append("• Avoid repeating exact user inputs; instead, rephrase and expand to sound like a full narrative written by a communications professional.\n");
+        sb.append("Write in formal and objective tone, with clarity and coherence.\n");
+        sb.append("Structure it like a government report – concise but detailed.\n");
+        sb.append("Emphasize impact and relevance to the community/agency’s goals.\n");
+        sb.append("Ensure that the narrative flows logically from introduction to conclusion.\n");
+        sb.append("Avoid repeating exact user inputs; instead, rephrase and expand to sound like a full narrative written by a communications professional.\n");
+        sb.append("Avoid using hashtag or asterisk.\n");
         return sb.toString();
     }
-// ...existing
 }
