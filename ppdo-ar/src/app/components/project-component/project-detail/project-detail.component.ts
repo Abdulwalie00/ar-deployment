@@ -13,7 +13,7 @@ import { ProjectConfirmationDialogComponent } from '../project-confirmation-dial
 import { ProjectDataService } from '../../../services/project-data.service';
 import { Project, Comment } from '../../../models/project.model';
 import { Observable, Subject, of } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap, finalize } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models/user.model';
@@ -29,6 +29,9 @@ import {
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PasswordVerificationDialogComponent } from '../../password-verification-dialog/password-verification-dialog.component';
 import { NotificationService } from '../../../services/notification.service';
+import { LoadingDialogComponent } from '../../loading-dialog/loading-dialog.component';
+import { DownloadDialogComponent } from '../../download-dialog/download-dialog.component';
+
 
 @Component({
   selector: 'app-project-detail',
@@ -40,6 +43,8 @@ import { NotificationService } from '../../../services/notification.service';
     ProjectConfirmationDialogComponent,
     FontAwesomeModule,
     PasswordVerificationDialogComponent,
+    LoadingDialogComponent,
+    DownloadDialogComponent,
   ],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css'],
@@ -74,6 +79,10 @@ export class ProjectDetailComponent
   showPasswordDialog = false;
   actionToPerformAfterVerification: 'viewBudget' | 'deleteProject' | null =
     null;
+
+  // New properties to manage dialogs
+  showLoadingDialog = false;
+  showDownloadDialog = false;
 
   private destroy$ = new Subject<void>();
   private shouldScrollToBottom = false;
@@ -120,20 +129,29 @@ export class ProjectDetailComponent
 
   generateNarrative(): void {
     if (!this.currentProject) return;
+
+    this.showLoadingDialog = true; // Show the loading dialog
     this.isGeneratingNarrative = true;
+
     this.projectDataService
       .generateNarrative(this.currentProject.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.showLoadingDialog = false; // Hide the loading dialog on completion or error
+          this.isGeneratingNarrative = false;
+        })
+      )
       .subscribe({
         next: (narrative: string) => {
           if (this.currentProject) {
             this.currentProject.narrativeReport = narrative;
+            this.showDownloadDialog = true; // Show the download dialog on success
           }
-          this.isGeneratingNarrative = false;
         },
         error: (err) => {
           console.error('Failed to generate narrative', err);
-          this.isGeneratingNarrative = false;
+          // You could show an error dialog here if needed
         },
       });
   }
@@ -151,6 +169,11 @@ export class ProjectDetailComponent
         window.URL.revokeObjectURL(url);
       });
   }
+
+  onDownloadDialogClose(): void {
+    this.showDownloadDialog = false;
+  }
+
   // --- Password and Action Handling ---
 
   toggleBudgetVisibility(): void {

@@ -48,15 +48,6 @@
       </button>
 
       <button
-        *ngIf="project.status === 'completed' && !isGeneratingNarrative"
-        (click)="downloadNarrative()"
-        class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap"
-      >
-        <fa-icon [icon]="faDownload" class="h-5 w-5 mr-2"></fa-icon>
-        Download Narrative (Word)
-      </button>
-
-      <button
         (click)="editProject()"
         class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap"
       >
@@ -590,3 +581,6 @@
   (confirmed)="onPasswordVerified()"
   (closed)="onPasswordDialogClosed()"
 ></app-password-verification-dialog>
+
+<app-loading-dialog *ngIf="showLoadingDialog" message="Generating narrative report..."></app-loading-dialog>
+<app-download-dialog *ngIf="showDownloadDialog" (download)="downloadNarrative()" (close)="onDownloadDialogClose()"></app-download-dialog>
