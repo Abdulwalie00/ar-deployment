@@ -1,6 +1,6 @@
 // src/app/components/project-component/project-summary/project-summary.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {CommonModule, Location, TitleCasePipe} from '@angular/common';
+import { CommonModule, Location, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -9,8 +9,9 @@ import { ProjectDataService } from '../../../services/project-data.service';
 import { DivisionService } from '../../../services/division.service';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
-import {faPrint, faTrash} from '@fortawesome/free-solid-svg-icons';
-import {FaIconComponent} from '@fortawesome/angular-fontawesome';
+import { faPrint, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { environment } from '../../../environment/environment';
 
 @Component({
   selector: 'app-project-summary',
@@ -27,8 +28,18 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   divisions: Division[] = [];
   statuses: string[] = ['planned', 'ongoing', 'completed', 'cancelled'];
   months: string[] = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   years: number[] = [];
 
@@ -37,7 +48,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     planned: false,
     ongoing: false,
     completed: false,
-    cancelled: false
+    cancelled: false,
   };
   selectedDivision: string = '';
   selectedMonth: string = '';
@@ -48,8 +59,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 10;
   itemsPerPageOptions: number[] = [10, 20, 50, 100];
   totalPages: number = 0;
-  faPrint = faPrint
-
+  faPrint = faPrint;
+  logoPath = environment.assetsPath;
   // User role and division
   isAdmin: boolean = false;
   isSuperAdmin: boolean = false;
@@ -62,7 +73,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     private divisionService: DivisionService,
     public authService: AuthService,
     private userService: UserService,
-    private location: Location,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -75,7 +86,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     } else {
       const username = this.authService.getUsername();
       if (username) {
-        this.userService.getUserByUsername(username).subscribe(user => {
+        this.userService.getUserByUsername(username).subscribe((user) => {
           if (user?.division) {
             this.userDivisionName = user.division.name; // Store division name
             this.userDivisionCode = user.division.code; // Store division code
@@ -91,7 +102,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   }
 
   loadProjectsForAdmin(): void {
-    this.projectDataService.getProjects().subscribe(allProjects => {
+    this.projectDataService.getProjects().subscribe((allProjects) => {
       this.projects = allProjects;
       this.filterProjects(); // Apply initial filter (which shows all)
       this.populateYears();
@@ -104,22 +115,24 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
       this.filterProjects();
       return;
     }
-    this.projectDataService.getProjects().subscribe(allProjects => {
-      this.projects = allProjects.filter(p => p.division.id === divisionId);
+    this.projectDataService.getProjects().subscribe((allProjects) => {
+      this.projects = allProjects.filter((p) => p.division.id === divisionId);
       this.filterProjects();
       this.populateYears();
     });
   }
 
   loadDivisions(): void {
-    this.divisionService.getDivisions().subscribe(data => {
+    this.divisionService.getDivisions().subscribe((data) => {
       this.divisions = data;
     });
   }
 
   populateYears(): void {
     if (this.projects.length > 0) {
-      const projectYears = this.projects.map(p => new Date(p.startDate).getFullYear());
+      const projectYears = this.projects.map((p) =>
+        new Date(p.startDate).getFullYear()
+      );
       // Use Set to get unique years and then sort them
       this.years = [...new Set(projectYears)].sort((a, b) => b - a); // Sort descending
     } else {
@@ -131,26 +144,38 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     let tempProjects = [...this.projects]; // Start with a fresh copy of all relevant projects
 
     // Apply Status Filter
-    const selectedStatuses = Object.keys(this.selectedStatus).filter(status => this.selectedStatus[status]);
+    const selectedStatuses = Object.keys(this.selectedStatus).filter(
+      (status) => this.selectedStatus[status]
+    );
     if (selectedStatuses.length > 0) {
-      tempProjects = tempProjects.filter(p => selectedStatuses.includes(p.status));
+      tempProjects = tempProjects.filter((p) =>
+        selectedStatuses.includes(p.status)
+      );
     }
 
     // Apply Year Filter
     if (this.selectedYear) {
-      tempProjects = tempProjects.filter(p => new Date(p.startDate).getFullYear() === parseInt(this.selectedYear, 10));
+      tempProjects = tempProjects.filter(
+        (p) =>
+          new Date(p.startDate).getFullYear() ===
+          parseInt(this.selectedYear, 10)
+      );
     }
 
     // Apply Division Filter (only for Admins)
     if (this.isAdmin && this.selectedDivision) {
-      tempProjects = tempProjects.filter(p => p.division.id === this.selectedDivision);
+      tempProjects = tempProjects.filter(
+        (p) => p.division.id === this.selectedDivision
+      );
     }
 
     // Apply Month Filter
     if (this.selectedMonth) {
       const monthIndex = this.months.indexOf(this.selectedMonth);
       if (monthIndex !== -1) {
-        tempProjects = tempProjects.filter(p => new Date(p.startDate).getMonth() === monthIndex);
+        tempProjects = tempProjects.filter(
+          (p) => new Date(p.startDate).getMonth() === monthIndex
+        );
       }
     }
 
@@ -164,7 +189,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
       planned: false,
       ongoing: false,
       completed: false,
-      cancelled: false
+      cancelled: false,
     };
     this.selectedDivision = '';
     this.selectedMonth = '';
@@ -174,10 +199,15 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
 
   updatePagination(): void {
     if (this.filteredProjects.length > 0) {
-      this.totalPages = Math.ceil(this.filteredProjects.length / this.itemsPerPage);
+      this.totalPages = Math.ceil(
+        this.filteredProjects.length / this.itemsPerPage
+      );
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      this.paginatedProjects = this.filteredProjects.slice(startIndex, endIndex);
+      this.paginatedProjects = this.filteredProjects.slice(
+        startIndex,
+        endIndex
+      );
     } else {
       this.totalPages = 0;
       this.paginatedProjects = [];
@@ -212,22 +242,24 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
 
     if (this.isAdmin) {
       if (this.selectedDivision) {
-        const division = this.divisions.find(d => d.id === this.selectedDivision);
+        const division = this.divisions.find(
+          (d) => d.id === this.selectedDivision
+        );
         divisionName = division ? division.name : 'All Divisions';
         if (division) {
-          divisionLogoUrl = `app/assets/logos/${division.code}.png`;
+          divisionLogoUrl = `${this.logoPath}logos/${division.code}.png`;
         }
       }
     } else {
       divisionName = this.userDivisionName || 'N/A';
       if (this.userDivisionCode) {
-        divisionLogoUrl = `app/assets/logos/${this.userDivisionCode}.png`;
+        divisionLogoUrl = `${this.logoPath}logos/${this.userDivisionCode}.png`;
       }
     }
 
     const projectsByCategory: { [key: string]: Project[] } = {};
 
-    this.filteredProjects.forEach(project => {
+    this.filteredProjects.forEach((project) => {
       const categoryName = project.projectCategory?.name || 'Uncategorized';
       if (!projectsByCategory[categoryName]) {
         projectsByCategory[categoryName] = [];
@@ -237,16 +269,26 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
 
     let projectRows = '';
     for (const categoryName in projectsByCategory) {
-      if (Object.prototype.hasOwnProperty.call(projectsByCategory, categoryName)) {
+      if (
+        Object.prototype.hasOwnProperty.call(projectsByCategory, categoryName)
+      ) {
         projectRows += `
         <tr class="category-row">
-          <td colspan="12"><strong>${this.safePrintValue(categoryName)}</strong></td>
+          <td colspan="12"><strong>${this.safePrintValue(
+            categoryName
+          )}</strong></td>
         </tr>
       `;
-        projectsByCategory[categoryName].forEach(project => {
-          const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A';
-          const implementationSchedule = project.implementationSchedule ? new Date(project.implementationSchedule).toLocaleDateString() : 'N/A';
-          const endDate = project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A';
+        projectsByCategory[categoryName].forEach((project) => {
+          const startDate = project.startDate
+            ? new Date(project.startDate).toLocaleDateString()
+            : 'N/A';
+          const implementationSchedule = project.implementationSchedule
+            ? new Date(project.implementationSchedule).toLocaleDateString()
+            : 'N/A';
+          const endDate = project.endDate
+            ? new Date(project.endDate).toLocaleDateString()
+            : 'N/A';
 
           projectRows += `
               <tr class="main-row">
@@ -269,7 +311,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     }
 
     if (this.filteredProjects.length === 0) {
-      projectRows = '<tr><td colspan="12" style="text-align: center;">No data available for the selected filters.</td></tr>';
+      projectRows =
+        '<tr><td colspan="12" style="text-align: center;">No data available for the selected filters.</td></tr>';
     }
 
     const printHtml = `
@@ -304,7 +347,9 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
       <table class="header-table">
         <tr>
           <td style="width: 15%; text-align: center;">
-            <img src="app/assets/logos/LDS.png" alt="Lanao del Sur Logo" class="logo">
+            <img src="${
+              this.logoPath
+            }logos/LDS.png" alt="Lanao del Sur Logo" class="logo">
           </td>
           <td class="header-text">
             <p>Republic of the Philippines</p>
@@ -316,7 +361,11 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
             <p>Office: ${divisionName}</p>
           </td>
           <td style="width: 15%; text-align: center;">
-            ${divisionLogoUrl ? `<img src="${divisionLogoUrl}" alt="Division Logo" class="logo">` : ''}
+            ${
+              divisionLogoUrl
+                ? `<img src="${divisionLogoUrl}" alt="Division Logo" class="logo">`
+                : ''
+            }
           </td>
         </tr>
       </table>

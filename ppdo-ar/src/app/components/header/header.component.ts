@@ -13,14 +13,20 @@ import { UserService } from '../../services/user.service';
 import { NotificationService } from '../../services/notification.service';
 import { User } from '../../models/user.model';
 import { Notification } from '../../models/notification.model';
-import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { environment } from '../../environment/environment';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, RouterLink, ConfirmDialogComponent],
+  imports: [
+    CommonModule,
+    FontAwesomeModule,
+    RouterLink,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   faBell = faBell;
@@ -39,11 +45,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   initials: string = '';
   avatarColor: string = '#000000';
   divisionLogoUrl: string | null = null;
+  logoPath = environment.assetsPath;
 
   private intervalId: any;
   private authSubscription!: Subscription;
   private notificationSubscription!: Subscription;
-
+  ictoLogoUrl: string = this.logoPath + 'logos/ICTO.png';
 
   constructor(
     private authService: AuthService,
@@ -56,17 +63,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.loadTheme();
     this.startTimeUpdater();
 
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(isAuthenticated => {
-      if (isAuthenticated) {
-        this.fetchCurrentUserProfile();
-        this.startNotificationPolling();
-      } else {
-        this.currentUser = null;
-        this.initials = '';
-        this.divisionLogoUrl = null;
-        this.stopNotificationPolling();
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(
+      (isAuthenticated) => {
+        if (isAuthenticated) {
+          this.fetchCurrentUserProfile();
+          this.startNotificationPolling();
+        } else {
+          this.currentUser = null;
+          this.initials = '';
+          this.divisionLogoUrl = null;
+          this.stopNotificationPolling();
+        }
       }
-    });
+    );
   }
 
   ngOnDestroy(): void {
@@ -79,10 +88,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   startNotificationPolling(): void {
     this.notificationSubscription = interval(10000) // Poll every 10 seconds
-      .pipe(
-        switchMap(() => this.notificationService.getUnreadNotifications())
-      )
-      .subscribe(notifications => {
+      .pipe(switchMap(() => this.notificationService.getUnreadNotifications()))
+      .subscribe((notifications) => {
         this.notifications = notifications;
         this.unreadCount = notifications.length;
       });
@@ -119,7 +126,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           error: (err) => {
             console.error('Failed to fetch user:', err);
             this._performLogout(); // Change 'this.logout()' to 'this._performLogout()'
-          }
+          },
         });
       } catch (error) {
         console.error('Invalid token:', error);
@@ -130,7 +137,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   createAvatar() {
     if (this.currentUser) {
-      this.initials = (this.currentUser.firstName.charAt(0) + this.currentUser.lastName.charAt(0)).toUpperCase();
+      this.initials = (
+        this.currentUser.firstName.charAt(0) +
+        this.currentUser.lastName.charAt(0)
+      ).toUpperCase();
       this.avatarColor = this.generateColor(this.currentUser.username);
     }
   }
@@ -153,7 +163,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     let color = '#';
     for (let i = 0; i < 3; i++) {
-      const value = (hash >> (i * 8)) & 0xFF;
+      const value = (hash >> (i * 8)) & 0xff;
       color += ('00' + value.toString(16)).substr(-2);
     }
     return color;

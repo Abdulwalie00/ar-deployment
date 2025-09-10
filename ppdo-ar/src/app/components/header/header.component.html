@@ -1,64 +1,100 @@
-<header class="bg-white text-gray-900 shadow-md dark:bg-gray-900 dark:text-white transition-colors duration-300">
+<header
+  class="bg-white text-gray-900 shadow-md dark:bg-gray-900 dark:text-white transition-colors duration-300"
+>
   <div class="flex items-center justify-between px-4 py-1">
-    <a routerLink="/project-dashboard"
-       class="text-xl font-semibold text-blue-700 font-sans hover:text-blue-800 dark:hover:text-blue-400 cursor-pointer transition-colors duration-300">
+    <a
+      routerLink="/project-dashboard"
+      class="text-xl font-semibold text-blue-700 font-sans hover:text-blue-800 dark:hover:text-blue-400 cursor-pointer transition-colors duration-300"
+    >
       Project Management Report
     </a>
 
     <div class="relative flex items-center space-x-3">
       <div class="flex items-center space-x-2">
         <div class="text-right leading-tight">
-          <p class="text-xs text-gray-500 mb-[-5px] dark:text-gray-400">powered by</p>
+          <p class="text-xs text-gray-500 mb-[-5px] dark:text-gray-400">
+            powered by
+          </p>
           <p class="text-md font-bold text-gray-800 dark:text-gray-100">ICTO</p>
         </div>
-        <img src="app/assets/logos/ICTO.png" alt="ICTO Logo" class="h-7 w-auto">
+        <img src="{{ ictoLogoUrl }}" alt="ICTO Logo" class="h-7 w-auto" />
       </div>
 
-
-      <button (click)="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
+      <button
+        (click)="toggleDarkMode()"
+        class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
+      >
         <fa-icon [icon]="isDarkMode ? faSun : faMoon"></fa-icon>
       </button>
 
       <div class="relative">
-        <button (click)="toggleNotificationMenu()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
+        <button
+          (click)="toggleNotificationMenu()"
+          class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300"
+        >
           <fa-icon [icon]="faBell"></fa-icon>
-          <span *ngIf="unreadCount > 0" class="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ unreadCount }}</span>
+          <span
+            *ngIf="unreadCount > 0"
+            class="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+            >{{ unreadCount }}</span
+          >
         </button>
-        <div *ngIf="notificationMenuOpen" class="absolute right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-20 dark:bg-gray-700 dark:border-gray-600">
-          <div class="p-2 font-bold border-b dark:border-gray-600">Notifications</div>
+        <div
+          *ngIf="notificationMenuOpen"
+          class="absolute right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-20 dark:bg-gray-700 dark:border-gray-600"
+        >
+          <div class="p-2 font-bold border-b dark:border-gray-600">
+            Notifications
+          </div>
           <div *ngIf="notifications.length > 0; else noNotifications">
-            <a *ngFor="let notification of notifications" (click)="onNotificationClick(notification)"
-               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 cursor-pointer">
+            <a
+              *ngFor="let notification of notifications"
+              (click)="onNotificationClick(notification)"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 cursor-pointer"
+            >
               {{ notification.message }}
             </a>
           </div>
           <ng-template #noNotifications>
-            <p class="p-4 text-sm text-gray-500 dark:text-gray-400">No new notifications.</p>
+            <p class="p-4 text-sm text-gray-500 dark:text-gray-400">
+              No new notifications.
+            </p>
           </ng-template>
           <!-- Update the routerLink to the new notifications page -->
-          <a routerLink="/notifications" (click)="toggleNotificationMenu()" class="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 dark:text-blue-400 dark:hover:bg-gray-600 border-t dark:border-gray-600">
+          <a
+            routerLink="/notifications"
+            (click)="toggleNotificationMenu()"
+            class="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 dark:text-blue-400 dark:hover:bg-gray-600 border-t dark:border-gray-600"
+          >
             View All Notifications
           </a>
         </div>
       </div>
 
-      <span class="pr-4 ml-4 font-semibold text-gray-600 dark:text-gray-300 transition-colors duration-300">{{ currentTime }}</span>
+      <span
+        class="pr-4 ml-4 font-semibold text-gray-600 dark:text-gray-300 transition-colors duration-300"
+        >{{ currentTime }}</span
+      >
 
       <div
         class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded-md transition-colors duration-300"
         (click)="toggleMenu()"
       >
-        <div *ngIf="currentUser"
-             class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
-             [ngStyle]="{ 'background-color': avatarColor }">
+        <div
+          *ngIf="currentUser"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+          [ngStyle]="{ 'background-color': avatarColor }"
+        >
           {{ initials }}
         </div>
 
-        <span class="text-gray-700 dark:text-gray-200 transition-colors duration-300">
+        <span
+          class="text-gray-700 dark:text-gray-200 transition-colors duration-300"
+        >
           {{
             currentUser
-              ? currentUser.firstName + ' ' + currentUser.lastName
-              : 'User'
+              ? currentUser.firstName + " " + currentUser.lastName
+              : "User"
           }}
         </span>
       </div>
@@ -66,7 +102,7 @@
       <div
         *ngIf="menuOpen"
         class="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg z-10 dark:bg-gray-700 dark:border-gray-600 transition-colors duration-300"
-        style="top: 100%;"
+        style="top: 100%"
       >
         <a
           routerLink="/profile"
@@ -90,5 +126,4 @@
     [message]="'Are you sure you want to log out?'"
     (confirm)="onConfirm($event)"
   ></app-confirm-dialog>
-
 </header>

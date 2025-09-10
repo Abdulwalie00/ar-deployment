@@ -17,10 +17,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+// src/main/java/com/lds/ppdoarbackend/config/SecurityConfig.java
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Enable @PreAuthorize, @Secured, etc.
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -41,10 +42,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // *** ADD THIS LINE TO ALLOW WEBSOCKET CONNECTIONS ***
+                        // Allow access to static resources and frontend routes
+                        .requestMatchers("/", "/index.html", "/browser/**", "/assets/**",
+                                "/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg",
+                                "/*.jpeg", "/*.gif", "/*.svg", "/*.woff", "/*.woff2",
+                                "/*.ttf", "/*.eot").permitAll()
+
+                        // Allow WebSocket connections
                         .requestMatchers("/ws/**").permitAll()
+
                         // Allow public auth routes
-                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/api/project-categories/**").permitAll()
@@ -62,11 +69,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/manage-users/**").hasRole("SUPERADMIN")
 
                         // Only ADMINS and SUPERADMINS can access project endpoints
-                        .requestMatchers( "/api/projects/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER")
+                        .requestMatchers("/api/projects/**").hasAnyRole("ADMIN", "SUPERADMIN", "USER")
 
                         // Allow authenticated users to comment
                         .requestMatchers("/api/projects/{projectId}/comments/**").authenticated()
-
 
                         // All other requests require authentication
                         .anyRequest().authenticated()
