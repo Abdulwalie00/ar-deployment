@@ -96,8 +96,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
         { title: 'PSWDO', icon: faCircle, link: '/project-division/PSWDO', tooltip: 'Provincial Social Welfare and Development Office' },
         { title: 'PHO', icon: faCircle, link: '/project-division/PHO', tooltip: 'Provincial Health Office' },
         { title: 'PYSDO', icon: faCircle, link: '/project-division/PYSDO', tooltip: 'Provincial Youth, Sports and Development Office' },
-        { title: 'PCPC', icon: faCircle, link: '/project-division/PCPC', tooltip: 'Provincial Council for the Protection of Children' },
-        { title: 'PCAT', icon: faCircle, link: '/project-division/PCAT', tooltip: 'Provincial Council Against Trafficking' },
+        // { title: 'PCPC', icon: faCircle, link: '/project-division/PCPC', tooltip: 'Provincial Council for the Protection of Children' },
+        // { title: 'PCAT', icon: faCircle, link: '/project-division/PCAT', tooltip: 'Provincial Council Against Trafficking' },
       ]
     },
     {
@@ -105,12 +105,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
       icon: faBuildingColumns,
       isExpanded: false,
       children: [
-        { title: 'PDO', icon: faCircle, link: '/project-division/PDO', tooltip: 'Provincial Development Office' },
+        { title: 'PDO', icon: faCircle, link: '/project-division/PDO', tooltip: 'Provincial Peace and Development Office' },
         { title: 'PPDO', icon: faCircle, link: '/project-division/PPDO', tooltip: 'Provincial Planning and Development Office' },
-        { title: 'PSF', icon: faCircle, link: '/project-division/PSF', tooltip: 'Public Safety Force' },
+        { title: 'PSF', icon: faCircle, link: '/project-division/PSF', tooltip: 'Public Security Force' },
         { title: 'PASSO', icon: faCircle, link: '/project-division/PASSO', tooltip: 'Provincial Assessor\'s Office' },
-        { title: 'LPPPL', icon: faCircle, link: '/project-division/LPPPL', tooltip: 'Lanao del Sur People\'s Provincial Library' },
-        { title: 'PIO', icon: faCircle, link: '/project-division/PIO', tooltip: 'Public Information Office' },
+        { title: 'LPPPL', icon: faCircle, link: '/project-division/LPPPL', tooltip: 'Lanao People\'s Park and Public Library' },
+        { title: 'PIO', icon: faCircle, link: '/project-division/PIO', tooltip: 'Provincial Information Office' },
         { title: 'PGO', icon: faCircle, link: '/project-division/PGO', tooltip: 'Provincial Governor\'s Office' },
         { title: 'PWO', icon: faCircle, link: '/project-division/PWO', tooltip: 'Provincial Warden\'s Office' },
         { title: 'PHRMO', icon: faCircle, link: '/project-division/PHRMO', tooltip: 'Provincial Human Resource Management Office' },
@@ -130,10 +130,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       isExpanded: false,
       children: [
         { title: 'PCO', icon: faCircle, link: '/project-division/PCO', tooltip: 'Provincial Cooperative Office' },
-        { title: 'PTLDC', icon: faCircle, link: '/project-division/PTLDC', tooltip: 'Provincial Tourism, Livelihood, and Development Center' },
+        { title: 'PTLDC', icon: faCircle, link: '/project-division/PTLDC', tooltip: 'Provincial Technology and Livelihood Development Office' },
         { title: 'OPAG', icon: faCircle, link: '/project-division/OPAG', tooltip: 'Office of the Provincial Agriculturist' },
         { title: 'PVO', icon: faCircle, link: '/project-division/PVO', tooltip: 'Provincial Veterinary Office' },
-        { title: 'PTCAO', icon: faCircle, link: '/project-division/PTCAO', tooltip: 'Provincial Tourism and Cultural Affairs Office' },
+        { title: 'PTCAO', icon: faCircle, link: '/project-division/PTCAO', tooltip: 'Provincial Tourism and Cultural Affairs Division' },
       ]
     },
     {

@@ -60,6 +60,7 @@ export class ProjectDetailComponent
   newComment = '';
   currentUser: User | null = null;
   isAdmin = false;
+  canDeleteProject = false;
 
   showConfirmationDialog = false;
   dialogMessage = '';
@@ -101,8 +102,6 @@ export class ProjectDetailComponent
   }
 
   ngOnInit(): void {
-    this.loadCurrentUser();
-
     this.project$ = this.route.paramMap.pipe(
       switchMap((params) => {
         const projectId = params.get('id');
@@ -119,7 +118,9 @@ export class ProjectDetailComponent
       }),
       tap((project) => {
         this.currentProject = project;
-        if (!project) {
+        if (project) {
+          this.loadCurrentUser();
+        } else {
           this.router.navigate(['/project-list']);
         }
       }),
@@ -252,6 +253,7 @@ export class ProjectDetailComponent
           this.isAdmin =
             this.currentUser?.role === 'ROLE_ADMIN' ||
             this.currentUser?.role === 'ROLE_SUPERADMIN';
+          this.canDeleteProject = this.isAdmin || (this.currentUser?.division?.id === this.currentProject?.division.id);
         });
     }
   }

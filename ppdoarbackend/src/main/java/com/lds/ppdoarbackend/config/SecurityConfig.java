@@ -43,10 +43,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Allow access to static resources and frontend routes
-                        .requestMatchers("/", "/index.html", "/browser/**", "/assets/**",
+                        // In your SecurityConfig.java, update the requestMatchers:
+                        // In SecurityConfig.java, update the requestMatchers:
+                        .requestMatchers(
+                                "/", "/browser/**", "/assets/**", "/images/**", "/tests/**",
                                 "/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg",
                                 "/*.jpeg", "/*.gif", "/*.svg", "/*.woff", "/*.woff2",
-                                "/*.ttf", "/*.eot").permitAll()
+                                "/*.ttf", "/*.eot", "/assets/logos/**",
+                                // Add all frontend routes
+                                "/login", "/project-list", "/project-add", "/project-edit/**",
+                                "/project-detail/**", "/project-dashboard", "/project-summary",
+                                "/project-categories", "/project-archive", "/project-division/**",
+                                "/divisions", "/divisions/add", "/divisions/edit/**",
+                                "/notifications", "/reports", "/settings", "/profile", "/profile/**",
+                                "/accounts", "/accounts/add", "/accounts/edit/**",
+                                "/error"
+                        ).permitAll()
 
                         // Allow WebSocket connections
                         .requestMatchers("/ws/**").permitAll()

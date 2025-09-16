@@ -32,6 +32,8 @@ export interface ProjectCategoryDto {
 export interface Comment {
   id: string;
   content: string;
+  projectId: string;
+  userId: string;
   dateCreated: Date;
   user: User;
 }
@@ -62,4 +64,5 @@ export interface Project {
   typeOfProject?: string;
   isNew?: boolean;
   narrativeReport?: string;
+  comments?: Comment[];
 }
