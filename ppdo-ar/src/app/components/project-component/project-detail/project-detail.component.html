@@ -8,7 +8,7 @@
     <div class="flex items-center gap-3 w-full lg:w-auto">
       <button
         (click)="goBack()"
-        class="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 font-medium py-2.5 px-4 rounded-lg flex items-center transition duration-200 whitespace-nowrap"
+        class="app-btn app-btn-secondary whitespace-nowrap"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -31,6 +31,11 @@
       >
         {{ project.title }}
       </h1>
+
+      <div class="detail-quick-meta">
+        <span class="app-chip">{{ project.division.name }}</span>
+        <span class="app-chip">{{ project.location }}</span>
+      </div>
     </div>
 
     <div
@@ -228,7 +233,7 @@
               [href]="getProjectOpenStreetMapLink(project)"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              class="app-btn app-btn-secondary map-link-btn"
             >
               Open in OpenStreetMap
             </a>
@@ -237,7 +242,7 @@
 
         <ng-template #noCoordinatesSaved>
           <div
-            class="bg-gray-200 dark:bg-gray-800 h-80 flex flex-col items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-600 px-6 text-center"
+            class="empty-map bg-gray-200 dark:bg-gray-800 h-80 flex flex-col items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-600 px-6 text-center"
           >
             <p class="text-lg font-medium mb-1">No exact map pin saved</p>
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -303,7 +308,7 @@
 
         <div
           #commentSection
-          class="space-y-4 mb-6"
+          class="comment-stream space-y-4 mb-6"
           style="max-height: 400px; overflow-y: auto"
         >
           <div
@@ -405,7 +410,7 @@
         <div class="pt-4 border-t border-gray-200 dark:border-gray-600">
           <textarea
             [(ngModel)]="newComment"
-            class="w-full p-4 text-sm bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            class="app-input comment-input"
             rows="3"
             placeholder="Write a comment..."
           >
@@ -415,7 +420,7 @@
             <button
               (click)="postComment()"
               [disabled]="!newComment.trim()"
-              class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="app-btn app-btn-primary"
             >
               Post Comment
             </button>
@@ -426,7 +431,7 @@
   </div>
 
   <div
-    class="pt-6 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row justify-between gap-4"
+    class="detail-footer pt-6 text-sm text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row justify-between gap-4"
   >
     <div>
       <span class="font-medium">Date Created:</span>
@@ -441,7 +446,7 @@
 
 <ng-template #projectNotFound>
   <div
-    class="flex flex-col items-center justify-center py-16 px-6 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-lg max-w-2xl mx-auto mt-8"
+    class="not-found-shell app-card flex flex-col items-center justify-center py-16 px-6 text-center max-w-2xl mx-auto mt-8"
   >
     <div class="bg-blue-50 dark:bg-blue-900/30 rounded-full p-5 mb-5">
       <svg
@@ -468,7 +473,7 @@
     </p>
     <button
       (click)="goBack()"
-      class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-md transition duration-200 flex items-center"
+      class="app-btn app-btn-primary"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -498,21 +503,21 @@
 <div
   *ngIf="showCarousel && currentProject"
   @fade
-  class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+  class="carousel-overlay fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
 >
   <div
-    class="relative w-full max-w-5xl h-full flex items-center justify-center"
+    class="carousel-shell relative w-full max-w-5xl h-full flex items-center justify-center"
   >
     <button
       (click)="closeCarousel()"
-      class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold z-20 transition-all duration-200 transform hover:scale-110"
+      class="carousel-close absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold z-20 transition-all duration-200 transform hover:scale-110"
     >
       &times;
     </button>
 
     <button
       (click)="prevImage()"
-      class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 text-2xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105"
+      class="carousel-nav absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 text-2xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105"
     >
       &#8249;
     </button>
@@ -524,19 +529,19 @@
       [alt]="
         currentProject.images[currentImageIndex].caption || 'Carousel Image'
       "
-      class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
+      class="carousel-image max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl"
     />
 
     <button
       (click)="nextImage()"
-      class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 text-2xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105"
+      class="carousel-nav absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 text-2xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105"
     >
       &#8250;
     </button>
 
     <div
       *ngIf="currentProject.images[currentImageIndex]?.caption"
-      class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 text-white text-center text-base px-4 py-2 rounded-full shadow-lg"
+      class="carousel-caption absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 text-white text-center text-base px-4 py-2 rounded-full shadow-lg"
     >
       <p>{{ currentProject.images[currentImageIndex].caption }}</p>
     </div>
