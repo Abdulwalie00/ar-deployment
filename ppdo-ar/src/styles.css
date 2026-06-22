@@ -21,8 +21,8 @@
   --app-accent: #f18f01;
   --app-accent-rgb: 241, 143, 1;
   --app-danger: #b91c1c;
-  --app-shadow: 0 16px 40px rgba(19, 111, 99, 0.12);
-  --app-shadow-soft: 0 8px 20px rgba(15, 42, 36, 0.08);
+  --app-shadow: 0 12px 28px rgba(19, 111, 99, 0.08);
+  --app-shadow-soft: 0 4px 12px rgba(15, 42, 36, 0.06);
   --app-radius-xl: 1.25rem;
   --app-radius-lg: 0.9rem;
 }
@@ -41,8 +41,8 @@
   --app-accent: #f6a623;
   --app-accent-rgb: 246, 166, 35;
   --app-danger: #ef4444;
-  --app-shadow: 0 20px 44px rgba(0, 0, 0, 0.35);
-  --app-shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.28);
+  --app-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  --app-shadow-soft: 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 
 * {

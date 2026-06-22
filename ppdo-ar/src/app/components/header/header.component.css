@@ -72,11 +72,11 @@
 	gap: 0.5rem;
 	padding: 0.38rem 0.62rem;
 	border-radius: 999px;
-	border: 1px solid var(--app-border);
-	background: var(--app-surface-soft);
+	border: 1px solid color-mix(in srgb, var(--app-primary) 45%, var(--app-border));
+	background: color-mix(in srgb, var(--app-primary) 12%, var(--app-surface-soft));
 	font-size: 0.72rem;
 	font-weight: 600;
-	color: var(--app-muted);
+	color: var(--app-primary);
 }
 
 .time-chip {

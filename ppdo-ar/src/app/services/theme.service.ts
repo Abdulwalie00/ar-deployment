@@ -139,8 +139,8 @@ export class ThemeService {
     const palette = this.isDarkModeValue ? DARK_PALETTES[theme] : LIGHT_PALETTES[theme];
     const primaryRgb = this.hexToRgb(palette.primary);
     const accentRgb = this.hexToRgb(palette.accent);
-    const shadowOpacity = this.isDarkModeValue ? 0.34 : 0.22;
-    const shadowSoftOpacity = this.isDarkModeValue ? 0.28 : 0.16;
+    const shadowOpacity = this.isDarkModeValue ? 0.18 : 0.1;
+    const shadowSoftOpacity = this.isDarkModeValue ? 0.14 : 0.08;
 
     document.documentElement.style.setProperty('--app-primary', palette.primary);
     document.documentElement.style.setProperty('--app-primary-strong', palette.primaryStrong);
@@ -149,11 +149,11 @@ export class ThemeService {
     document.documentElement.style.setProperty('--app-accent-rgb', accentRgb);
     document.documentElement.style.setProperty(
       '--app-shadow',
-      `0 16px 40px rgba(${primaryRgb}, ${shadowOpacity})`
+      `0 12px 28px rgba(${primaryRgb}, ${shadowOpacity})`
     );
     document.documentElement.style.setProperty(
       '--app-shadow-soft',
-      `0 8px 20px rgba(${primaryRgb}, ${shadowSoftOpacity})`
+      `0 4px 12px rgba(${primaryRgb}, ${shadowSoftOpacity})`
     );
 
     if (persist) {
