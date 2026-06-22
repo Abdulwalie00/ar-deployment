@@ -17,7 +17,9 @@
   --app-muted: #5f7470;
   --app-primary: #136f63;
   --app-primary-strong: #0f5a50;
+  --app-primary-rgb: 19, 111, 99;
   --app-accent: #f18f01;
+  --app-accent-rgb: 241, 143, 1;
   --app-danger: #b91c1c;
   --app-shadow: 0 16px 40px rgba(19, 111, 99, 0.12);
   --app-shadow-soft: 0 8px 20px rgba(15, 42, 36, 0.08);
@@ -35,7 +37,9 @@
   --app-muted: #a8beb9;
   --app-primary: #1f9d8b;
   --app-primary-strong: #157769;
+  --app-primary-rgb: 31, 157, 139;
   --app-accent: #f6a623;
+  --app-accent-rgb: 246, 166, 35;
   --app-danger: #ef4444;
   --app-shadow: 0 20px 44px rgba(0, 0, 0, 0.35);
   --app-shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.28);
@@ -55,8 +59,8 @@ body {
   font-family: 'Poppins', sans-serif;
   color: var(--app-text);
   background:
-    radial-gradient(circle at 12% -10%, rgba(19, 111, 99, 0.16) 0%, rgba(19, 111, 99, 0) 38%),
-    radial-gradient(circle at 92% 8%, rgba(241, 143, 1, 0.18) 0%, rgba(241, 143, 1, 0) 40%),
+    radial-gradient(circle at 12% -10%, rgba(var(--app-primary-rgb), 0.16) 0%, rgba(var(--app-primary-rgb), 0) 38%),
+    radial-gradient(circle at 92% 8%, rgba(var(--app-accent-rgb), 0.18) 0%, rgba(var(--app-accent-rgb), 0) 40%),
     linear-gradient(165deg, var(--app-bg) 0%, var(--app-bg-secondary) 100%);
 }
 
@@ -66,7 +70,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   opacity: 0.24;
-  background-image: radial-gradient(circle at 1px 1px, rgba(19, 111, 99, 0.26) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(var(--app-primary-rgb), 0.26) 1px, transparent 0);
   background-size: 24px 24px;
   z-index: -1;
 }
