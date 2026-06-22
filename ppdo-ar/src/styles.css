@@ -1,5 +1,6 @@
 /* Import Poppins */
 @import '@fontsource/poppins/index.css';
+@import 'leaflet/dist/leaflet.css';
 
 /* Tailwind Base */
 @tailwind base;

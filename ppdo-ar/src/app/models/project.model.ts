@@ -41,6 +41,8 @@ export interface Project {
   title: string;
   description: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   startDate: Date;
   endDate: Date;
   dateCreated: Date;

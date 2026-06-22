@@ -17,19 +17,17 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.jsonwebtoken.security.Keys;
-import javax.crypto.SecretKey;
-
 @Component
 public class JwtUtil {
-
-    private static final String SECRET = "a4IaFKF5NKCmCk5Ehe9uwoPrHDnnwT8GCYyX+xqtLgI="; // Example key
-    private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     @Value("${jwt.secret}")
     private String secret;
 
     private SecretKey getSigningKey() {
+        if (secret == null || secret.isEmpty()) {
+            // Fallback to default secret if not configured
+            return Keys.hmacShaKeyFor("a4IaFKF5NKCmCk5Ehe9uwoPrHDnnwT8GCYyX+xqtLgI=".getBytes());
+        }
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 

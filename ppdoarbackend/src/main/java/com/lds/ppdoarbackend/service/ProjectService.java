@@ -49,6 +49,8 @@ public class ProjectService {
         project.setTitle(projectDto.getTitle());
         project.setDescription(projectDto.getDescription());
         project.setLocation(projectDto.getLocation());
+        project.setLatitude(projectDto.getLatitude());
+        project.setLongitude(projectDto.getLongitude());
         project.setStartDate(projectDto.getStartDate());
         project.setImplementationSchedule(projectDto.getImplementationSchedule());
         project.setDateOfAccomplishment(projectDto.getDateOfAccomplishment());
@@ -88,6 +90,8 @@ public class ProjectService {
         project.setTitle(projectDto.getTitle());
         project.setDescription(projectDto.getDescription());
         project.setLocation(projectDto.getLocation());
+        project.setLatitude(projectDto.getLatitude());
+        project.setLongitude(projectDto.getLongitude());
         project.setStartDate(projectDto.getStartDate());
         project.setEndDate(projectDto.getEndDate());
         project.setImplementationSchedule(projectDto.getImplementationSchedule());

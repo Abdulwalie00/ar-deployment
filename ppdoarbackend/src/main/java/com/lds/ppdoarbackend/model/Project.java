@@ -20,6 +20,8 @@ public class Project {
     private String objectives;
 
     private String location;
+    private Double latitude;
+    private Double longitude;
     private Date startDate;
     private Date endDate;
     private Date implementationSchedule;

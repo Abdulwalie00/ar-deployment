@@ -11,6 +11,8 @@ public class ProjectDto {
     private String title;
     private String description;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private Date startDate;
     private Date endDate;
     private Date implementationSchedule;

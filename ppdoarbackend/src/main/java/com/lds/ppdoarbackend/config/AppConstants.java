@@ -8,7 +8,7 @@ public class AppConstants {
 
     public static final String BACKEND_API_URL =  "http://localhost:1000/api/";
 
-    public static final String FRONTEND_API_URL =  "http://localhost:1000";
+    public static final String FRONTEND_API_URL =  "http://localhost:4200";
     
     // Add other constants here
 }
