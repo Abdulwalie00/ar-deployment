@@ -1,84 +1,95 @@
 <ng-container *ngIf="isAdmin$ | async">
-  <div class="flex min-h-screen">
-    <aside
-      [@sidebarSlide]="isCollapsed() ? 'collapsed' : 'expanded'"
-      class="bg-white dark:bg-gray-900 text-black dark:text-white transition-all duration-300 overflow-hidden"
-    >
-      <div class="py-2.5 p-2 justify-between flex items-center">
-        <h1 *ngIf="!isCollapsed()" class="text-xl font-bold">PGLDS-AR</h1>
-        <div [ngClass]="{ 'justify-center': isCollapsed(), 'justify-end': !isCollapsed() }" class="flex items-center p-0 m-0 gap-0">
-          <button (click)="toggleSidebar()" class="text-black dark:text-white hover:bg-blue-300 dark:hover:bg-blue-600 p-0.5 px-4 rounded-lg">
-            <fa-icon [icon]="isCollapsed() ? faCaretRight : faCaretLeft"></fa-icon>
-          </button>
-        </div>
+  <aside
+    [@sidebarSlide]="isCollapsed() ? 'collapsed' : 'expanded'"
+    class="sidebar-shell"
+  >
+    <div class="sidebar-head">
+      <div class="head-copy" *ngIf="!isCollapsed()">
+        <p class="head-kicker">LDS Province</p>
+        <h2>PGLDS-AR</h2>
       </div>
 
-      <nav class="p-1 relative">
-        <ul>
-          <li *ngFor="let item of menuItems()" class="mb-1 relative text-sm font-medium">
-            <ng-container *ngIf="item.title === 'SEPARATOR'">
-              <div class="flex items-center px-3 mt-2 mb-1">
-                <hr class="flex-1 border-gray-300 dark:border-gray-600">
-                <span *ngIf="!isCollapsed()" class="px-2 text-xs font-semibold text-gray-500 uppercase dark:text-gray-400">sector</span>
-                <hr class="flex-1 border-gray-300 dark:border-gray-600">
-              </div>
-            </ng-container>
+      <button (click)="toggleSidebar()" class="toggle-btn" [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+        <fa-icon [icon]="isCollapsed() ? faCaretRight : faCaretLeft"></fa-icon>
+      </button>
+    </div>
 
-            <ng-container *ngIf="item.title !== 'SEPARATOR' && (!item.requiredRole || (item.requiredRole === 'ROLE_SUPERADMIN' && (isSuperAdmin$ | async)))">
-              <div *ngIf="!item.children">
-                <a [routerLink]="item.link" routerLinkActive="bg-blue-500 text-white"
-                   [ngClass]="{ 'justify-center': isCollapsed(), 'justify-start': !isCollapsed() }"
-                   class="flex items-center p-3 rounded-lg hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
-                  <fa-icon [icon]="item.icon" [ngClass]="{ 'mx-auto': isCollapsed(), 'mr-3': !isCollapsed() }"></fa-icon>
-                  <span *ngIf="!isCollapsed()">{{ item.title }}</span>
-                </a>
-              </div>
+    <nav class="sidebar-nav">
+      <ul class="menu-stack">
+        <li *ngFor="let item of menuItems()" class="menu-line">
+          <ng-container *ngIf="item.title === 'SEPARATOR'">
+            <div class="menu-separator" [class.centered]="isCollapsed()">
+              <span *ngIf="!isCollapsed()">Sectors</span>
+            </div>
+          </ng-container>
 
-              <div *ngIf="item.children" class="relative">
-                <button (click)="handleMenuClick(item, $event)"
-                        [ngClass]="{ 'justify-center': isCollapsed(), 'justify-between': !isCollapsed() }"
-                        class="w-full flex items-center p-3 rounded-lg hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
-                  <div class="flex items-center" [ngClass]="{ 'justify-center w-full': isCollapsed() }">
-                    <fa-icon [icon]="item.icon" [ngClass]="{ 'mx-auto': isCollapsed(), 'mr-3': !isCollapsed() }"></fa-icon>
-                    <span *ngIf="!isCollapsed()">{{ item.title }}</span>
-                  </div>
-                  <fa-icon *ngIf="!isCollapsed()" [icon]="item.isExpanded ? faCaretDown : faCaretRight" class="ml-2"></fa-icon>
-                </button>
+          <ng-container *ngIf="item.title !== 'SEPARATOR' && (!item.requiredRole || (item.requiredRole === 'ROLE_SUPERADMIN' && (isSuperAdmin$ | async)))">
+            <div *ngIf="!item.children">
+              <a
+                [routerLink]="item.link"
+                routerLinkActive="active"
+                class="menu-link"
+                [class.collapsed]="isCollapsed()"
+              >
+                <fa-icon [icon]="item.icon" class="menu-icon"></fa-icon>
+                <span *ngIf="!isCollapsed()" class="menu-text">{{ item.title }}</span>
+              </a>
+            </div>
 
-                <ul
-                  *ngIf="!isCollapsed()"
-                  [@slideDownUp]="item.isExpanded ? 'open' : 'closed'"
-                  class="ml-4 mt-1 space-y-1"
-                >
-                  <li *ngFor="let child of item.children">
-                    <a (click)="handleSubmenuClick(); $event.stopPropagation()"
-                       [routerLink]="child.link" routerLinkActive="bg-blue-500 text-white"
-                       [title]="child.tooltip"
-                       class="flex items-center p-2 rounded-lg hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
-                      <fa-icon [icon]="child.icon" class="mr-3 text-sm"></fa-icon>
-                      <span>{{ child.title }}</span>
-                    </a>
-                  </li>
-                </ul>
+            <div *ngIf="item.children" class="relative">
+              <button
+                (click)="handleMenuClick(item, $event)"
+                class="menu-link menu-trigger"
+                [class.collapsed]="isCollapsed()"
+              >
+                <div class="menu-left" [class.center-only]="isCollapsed()">
+                  <fa-icon [icon]="item.icon" class="menu-icon"></fa-icon>
+                  <span *ngIf="!isCollapsed()" class="menu-text">{{ item.title }}</span>
+                </div>
+                <fa-icon *ngIf="!isCollapsed()" [icon]="item.isExpanded ? faCaretDown : faCaretRight" class="menu-caret"></fa-icon>
+              </button>
 
-                <ul *ngIf="isCollapsed() && item.isExpanded"
-                    class="fixed w-48 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg mt-1 z-50"
-                    [style.top.px]="currentMenuTopPosition"
-                    [style.left.px]="56">
-                  <li *ngFor="let child of item.children">
-                    <a [routerLink]="child.link" routerLinkActive="bg-blue-500 text-white"
-                       [title]="child.tooltip"
-                       class="flex items-center p-2 rounded-lg hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 transition-colors">
-                      <fa-icon [icon]="child.icon" class="mr-3 text-sm"></fa-icon>
-                      <span>{{ child.title }}</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </ng-container>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-  </div>
+              <ul
+                *ngIf="!isCollapsed()"
+                [@slideDownUp]="item.isExpanded ? 'open' : 'closed'"
+                class="submenu"
+              >
+                <li *ngFor="let child of item.children">
+                  <a
+                    (click)="handleSubmenuClick(); $event.stopPropagation()"
+                    [routerLink]="child.link"
+                    routerLinkActive="active"
+                    [title]="child.tooltip"
+                    class="submenu-link"
+                  >
+                    <fa-icon [icon]="child.icon" class="submenu-icon"></fa-icon>
+                    <span>{{ child.title }}</span>
+                  </a>
+                </li>
+              </ul>
+
+              <ul
+                *ngIf="isCollapsed() && item.isExpanded"
+                class="submenu-popup"
+                [style.top.px]="currentMenuTopPosition"
+                [style.left.px]="56"
+              >
+                <li *ngFor="let child of item.children">
+                  <a
+                    [routerLink]="child.link"
+                    routerLinkActive="active"
+                    [title]="child.tooltip"
+                    class="submenu-link"
+                  >
+                    <fa-icon [icon]="child.icon" class="submenu-icon"></fa-icon>
+                    <span>{{ child.title }}</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </ng-container>
+        </li>
+      </ul>
+    </nav>
+  </aside>
 </ng-container>

@@ -1,0 +1,26 @@
+:host {
+	display: block;
+}
+
+.project-form-shell {
+	background: var(--app-surface);
+}
+
+.form-block {
+	border-radius: 0.95rem;
+	border: 1px solid color-mix(in srgb, var(--app-border) 85%, transparent);
+	background: color-mix(in srgb, var(--app-surface-soft) 88%, transparent);
+}
+
+.cancel-btn {
+	color: #ffffff;
+	background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+	border-color: color-mix(in srgb, #7f1d1d 58%, white);
+}
+
+@media (max-width: 760px) {
+	.project-form-shell {
+		padding-left: 0.9rem;
+		padding-right: 0.9rem;
+	}
+}

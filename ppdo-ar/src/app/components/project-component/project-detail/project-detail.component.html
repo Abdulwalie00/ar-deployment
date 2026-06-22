@@ -1,9 +1,9 @@
 <div
   *ngIf="project$ | async as project; else projectNotFound"
-  class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 lg:p-8 w-full"
+  class="project-detail-shell app-card p-6 lg:p-8 w-full fade-up"
 >
   <div
-    class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 pb-6 border-b border-gray-200 dark:border-gray-700 gap-4"
+    class="detail-header flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 pb-6 gap-4"
   >
     <div class="flex items-center gap-3 w-full lg:w-auto">
       <button
@@ -40,7 +40,7 @@
         *ngIf="project.status === 'completed'"
         (click)="generateNarrative()"
         [disabled]="isGeneratingNarrative"
-        class="bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap"
+        class="app-btn app-btn-primary narrative-btn whitespace-nowrap"
       >
         <fa-icon [icon]="faArrowsRotate" class="h-5 w-5 mr-2"></fa-icon>
         <span *ngIf="!isGeneratingNarrative">Generate Narrative</span>
@@ -49,7 +49,7 @@
 
       <button
         (click)="editProject()"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap"
+        class="app-btn app-btn-primary whitespace-nowrap"
       >
         <fa-icon [icon]="faEdit" class="h-5 w-5 mr-2"></fa-icon>
         Edit Project
@@ -57,7 +57,7 @@
       <button
         *ngIf="isAdmin"
         (click)="confirmDelete()"
-        class="bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 text-sm whitespace-nowrap"
+        class="app-btn app-btn-secondary danger-btn whitespace-nowrap"
       >
         <fa-icon [icon]="faDelete" class="h-5 w-5 mr-2"></fa-icon>
         Delete Project
@@ -67,9 +67,7 @@
 
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
     <div class="xl:col-span-1 space-y-6">
-      <div
-        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
-      >
+      <div class="detail-block p-6 rounded-xl">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
           Project Description
         </h2>
@@ -78,7 +76,7 @@
         </p>
       </div>
 
-      <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600">
+      <div class="detail-block p-6 rounded-xl">
         <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Project Objectives</h2>
         <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{{ project.objectives }}</p>
       </div>
@@ -96,9 +94,7 @@
         </p>
       </div> -->
 
-      <div
-        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
-      >
+      <div class="detail-block p-6 rounded-xl">
         <h3
           class="text-xl font-semibold text-gray-800 dark:text-white mb-5 pb-3 border-b border-gray-200 dark:border-gray-600"
         >
@@ -218,9 +214,7 @@
     </div>
 
     <div class="xl:col-span-2 space-y-6">
-      <div
-        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
-      >
+      <div class="detail-block p-6 rounded-xl">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
           Project Location
         </h3>
@@ -253,10 +247,7 @@
         </ng-template>
       </div>
 
-      <div
-        *ngIf="project.images && project.images.length > 0"
-        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
-      >
+      <div *ngIf="project.images && project.images.length > 0" class="detail-block p-6 rounded-xl">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
           Project Gallery
         </h3>
@@ -305,9 +296,7 @@
         </div>
       </div>
 
-      <div
-        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
-      >
+      <div class="detail-block p-6 rounded-xl">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
           Project Discussion
         </h3>

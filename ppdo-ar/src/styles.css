@@ -7,9 +7,206 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Apply Poppins as the default font */
+:root {
+  --app-bg: #f2f7f5;
+  --app-bg-secondary: #e7efeb;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f7fbf9;
+  --app-border: #d4e2db;
+  --app-text: #1f2d2a;
+  --app-muted: #5f7470;
+  --app-primary: #136f63;
+  --app-primary-strong: #0f5a50;
+  --app-accent: #f18f01;
+  --app-danger: #b91c1c;
+  --app-shadow: 0 16px 40px rgba(19, 111, 99, 0.12);
+  --app-shadow-soft: 0 8px 20px rgba(15, 42, 36, 0.08);
+  --app-radius-xl: 1.25rem;
+  --app-radius-lg: 0.9rem;
+}
+
+.dark {
+  --app-bg: #0f1514;
+  --app-bg-secondary: #111d1b;
+  --app-surface: #1a2321;
+  --app-surface-soft: #16201e;
+  --app-border: #2f4742;
+  --app-text: #e6f2ef;
+  --app-muted: #a8beb9;
+  --app-primary: #1f9d8b;
+  --app-primary-strong: #157769;
+  --app-accent: #f6a623;
+  --app-danger: #ef4444;
+  --app-shadow: 0 20px 44px rgba(0, 0, 0, 0.35);
+  --app-shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
   font-family: 'Poppins', sans-serif;
+  color: var(--app-text);
+  background:
+    radial-gradient(circle at 12% -10%, rgba(19, 111, 99, 0.16) 0%, rgba(19, 111, 99, 0) 38%),
+    radial-gradient(circle at 92% 8%, rgba(241, 143, 1, 0.18) 0%, rgba(241, 143, 1, 0) 40%),
+    linear-gradient(165deg, var(--app-bg) 0%, var(--app-bg-secondary) 100%);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.24;
+  background-image: radial-gradient(circle at 1px 1px, rgba(19, 111, 99, 0.26) 1px, transparent 0);
+  background-size: 24px 24px;
+  z-index: -1;
+}
+
+.app-glass {
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.app-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--app-primary) 26%, var(--app-border));
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  color: var(--app-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.78rem;
+  padding: 0.58rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: 180ms ease;
+  cursor: pointer;
+}
+
+.app-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.app-btn-primary {
+  color: #f8fffd;
+  border-color: color-mix(in srgb, var(--app-primary-strong) 68%, white);
+  background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-primary-strong) 100%);
+  box-shadow: 0 10px 22px rgba(19, 111, 99, 0.25);
+}
+
+.app-btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.app-btn-secondary {
+  color: var(--app-text);
+  border-color: var(--app-border);
+  background: var(--app-surface-soft);
+}
+
+.app-btn-secondary:hover {
+  border-color: color-mix(in srgb, var(--app-primary) 35%, var(--app-border));
+  background: color-mix(in srgb, var(--app-surface-soft) 74%, var(--app-primary) 12%);
+}
+
+.app-icon-btn {
+  height: 2.2rem;
+  width: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  transition: 160ms ease;
+}
+
+.app-icon-btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--app-primary) 40%, var(--app-border));
+  color: var(--app-primary);
+}
+
+.app-input {
+  width: 100%;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  border-radius: 0.7rem;
+  font-size: 0.9rem;
+  padding: 0.58rem 0.72rem;
+  outline: none;
+  transition: 160ms ease;
+}
+
+.app-input:focus {
+  border-color: color-mix(in srgb, var(--app-primary) 65%, white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-primary) 18%, transparent);
+}
+
+.fade-up {
+  animation: fadeUp 360ms ease both;
+}
+
+.stagger > * {
+  animation: fadeUp 460ms ease both;
+}
+
+.stagger > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.stagger > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.stagger > *:nth-child(4) {
+  animation-delay: 170ms;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 

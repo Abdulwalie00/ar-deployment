@@ -1,10 +1,10 @@
-<div class="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-md">
+<div class="project-form-shell app-card p-4 fade-up">
   <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">
     {{ isEditMode ? 'Edit Project' : 'Add New Project' }}
   </h2>
 
   <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="space-y-6">
-    <section class="rounded-md border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+    <section class="form-block p-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label for="title" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Project Title</label>
@@ -117,7 +117,7 @@
       </div>
     </section>
 
-    <section class="rounded-md border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+    <section class="form-block p-4">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <label for="targetParticipant" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Target Participants</label>
@@ -214,7 +214,7 @@
       </div>
     </section>
 
-    <section class="rounded-md border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+    <section class="form-block p-4">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <label for="projectCategory" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Project Category</label>
@@ -275,7 +275,7 @@
       </div>
     </section>
 
-    <section class="rounded-md border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+    <section class="form-block p-4">
       <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Project Images</label>
       <input
         type="file"
@@ -308,13 +308,13 @@
       <button
         type="button"
         (click)="showMoreFields = !showMoreFields"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 text-sm rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        class="app-btn app-btn-secondary"
       >
         {{ showMoreFields ? 'Show Less' : 'Show More' }}
       </button>
     </div>
 
-    <section *ngIf="showMoreFields" class="rounded-md border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800 mt-6">
+    <section *ngIf="showMoreFields" class="form-block p-4 mt-6">
       <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div>
           <label for="percentCompletion" class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Percent of Completion</label>
@@ -380,14 +380,14 @@
       <button
         type="button"
         (click)="onCancel()"
-        class="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition text-sm"
+        class="app-btn app-btn-secondary cancel-btn"
       >
         Cancel
       </button>
       <button
         type="submit"
         [disabled]="projectForm.invalid"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
+        class="app-btn app-btn-primary"
       >
         {{ isEditMode ? 'Update Project' : 'Add Project' }}
       </button>

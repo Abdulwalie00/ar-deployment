@@ -1,0 +1,37 @@
+:host {
+	display: block;
+}
+
+.project-list-wrap {
+	background: transparent;
+}
+
+.list-head {
+	backdrop-filter: blur(6px);
+}
+
+.project-card {
+	transition: 180ms ease;
+}
+
+.project-card:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--app-shadow);
+}
+
+.list-table-shell {
+	backdrop-filter: blur(6px);
+}
+
+.empty-shell {
+	text-align: center;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+@media (max-width: 780px) {
+	.project-list-wrap {
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
+	}
+}

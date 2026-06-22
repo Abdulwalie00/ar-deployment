@@ -5,3 +5,34 @@
 .max-h-4\/5 {
   max-height: 80%;
 }
+
+.project-detail-shell {
+  background: var(--app-surface);
+}
+
+.detail-header {
+  border-bottom: 1px solid var(--app-border);
+}
+
+.detail-block {
+  background: color-mix(in srgb, var(--app-surface-soft) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-border) 85%, transparent);
+}
+
+.narrative-btn {
+  background: linear-gradient(135deg, #0d8b67, #0f6a51);
+  border-color: color-mix(in srgb, #0f6a51 68%, white);
+}
+
+.danger-btn {
+  color: #ffffff;
+  background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+  border-color: color-mix(in srgb, #7f1d1d 62%, white);
+}
+
+@media (max-width: 768px) {
+  .project-detail-shell {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
