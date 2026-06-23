@@ -14,6 +14,7 @@ import { NotificationService } from '../../services/notification.service';
 import { User } from '../../models/user.model';
 import { Notification } from '../../models/notification.model';
 import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -49,11 +50,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private userService: UserService,
     private notificationService: NotificationService,
+    private themeService: ThemeService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadTheme();
+    this.themeService.applySavedPreferences();
+    this.isDarkMode = this.themeService.isDarkMode();
     this.startTimeUpdater();
 
     this.authSubscription = this.authService.isAuthenticated$.subscribe(isAuthenticated => {
@@ -159,12 +162,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return color;
   }
 
-  loadTheme(): void {
-    const savedTheme = localStorage.getItem('theme');
-    this.isDarkMode = savedTheme === 'dark';
-    document.documentElement.classList.toggle('dark', this.isDarkMode);
-  }
-
   startTimeUpdater(): void {
     this.updateTime();
     this.intervalId = setInterval(() => this.updateTime(), 1000);
@@ -179,9 +176,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleDarkMode(): void {
-    this.isDarkMode = !this.isDarkMode;
-    document.documentElement.classList.toggle('dark', this.isDarkMode);
-    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+    this.isDarkMode = this.themeService.toggleDarkMode();
   }
 
   toggleMenu(): void {

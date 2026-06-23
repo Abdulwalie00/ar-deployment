@@ -31,6 +31,7 @@ import { PasswordVerificationDialogComponent } from '../../password-verification
 import { NotificationService } from '../../../services/notification.service';
 import { LoadingDialogComponent } from '../../loading-dialog/loading-dialog.component';
 import { DownloadDialogComponent } from '../../download-dialog/download-dialog.component';
+import type { CircleMarker, Map } from 'leaflet';
 
 
 @Component({
@@ -53,6 +54,14 @@ export class ProjectDetailComponent
   implements OnInit, OnDestroy, AfterViewChecked
 {
   @ViewChild('commentSection') private commentSection!: ElementRef;
+  private projectMapElement?: ElementRef<HTMLDivElement>;
+  @ViewChild('projectMap')
+  set projectMapContainer(element: ElementRef<HTMLDivElement> | undefined) {
+    this.projectMapElement = element;
+    if (element && this.currentProject && this.hasProjectCoordinates(this.currentProject)) {
+      void this.renderProjectMap(this.currentProject);
+    }
+  }
 
   project$: Observable<Project | undefined>;
   currentProject: Project | undefined;
@@ -83,6 +92,9 @@ export class ProjectDetailComponent
   // New properties to manage dialogs
   showLoadingDialog = false;
   showDownloadDialog = false;
+  private leafletLib?: typeof import('leaflet');
+  private projectMap?: Map;
+  private projectMarker?: CircleMarker;
 
   private destroy$ = new Subject<void>();
   private shouldScrollToBottom = false;
@@ -120,7 +132,9 @@ export class ProjectDetailComponent
       tap((project) => {
         this.currentProject = project;
         if (!project) {
+          this.destroyProjectMap();
           this.router.navigate(['/project-list']);
+          return;
         }
       }),
       takeUntil(this.destroy$)
@@ -291,7 +305,72 @@ export class ProjectDetailComponent
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.destroyProjectMap();
     this.websocketService.disconnect();
+  }
+
+  hasProjectCoordinates(project: Project): boolean {
+    return Number.isFinite(project.latitude) && Number.isFinite(project.longitude);
+  }
+
+  getProjectOpenStreetMapLink(project: Project): string {
+    if (!this.hasProjectCoordinates(project)) {
+      return '#';
+    }
+
+    return `https://www.openstreetmap.org/?mlat=${project.latitude}&mlon=${project.longitude}#map=16/${project.latitude}/${project.longitude}`;
+  }
+
+  private async renderProjectMap(project: Project): Promise<void> {
+    if (!this.hasProjectCoordinates(project) || !this.projectMapElement) {
+      this.destroyProjectMap();
+      return;
+    }
+
+    if (!this.leafletLib) {
+      this.leafletLib = await import('leaflet');
+    }
+
+    const L = this.leafletLib;
+
+    const latitude = Number(project.latitude);
+    const longitude = Number(project.longitude);
+
+    if (!this.projectMap) {
+      this.projectMap = L.map(this.projectMapElement.nativeElement, {
+        zoomControl: true,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(this.projectMap);
+    }
+
+    this.projectMap.setView([latitude, longitude], 15);
+
+    if (!this.projectMarker) {
+      this.projectMarker = L.circleMarker([latitude, longitude], {
+        radius: 8,
+        color: '#1d4ed8',
+        weight: 2,
+        fillColor: '#3b82f6',
+        fillOpacity: 0.85,
+      }).addTo(this.projectMap);
+    } else {
+      this.projectMarker.setLatLng([latitude, longitude]);
+    }
+
+    this.projectMarker.bindPopup(project.title);
+    this.projectMap.invalidateSize();
+  }
+
+  private destroyProjectMap(): void {
+    if (this.projectMap) {
+      this.projectMap.remove();
+      this.projectMap = undefined;
+      this.projectMarker = undefined;
+    }
   }
 
   scrollToBottom(): void {

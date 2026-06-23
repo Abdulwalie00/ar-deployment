@@ -2,12 +2,61 @@ import { Project } from '../models/project.model';
 import { v4 as uuidv4 } from 'uuid';
 import { divisions } from './divisions';
 
-export const dummyProjects: Project[] = [
+type DummyProjectSeed = Omit<
+  Project,
+  | 'implementationSchedule'
+  | 'dateOfAccomplishment'
+  | 'percentCompletion'
+  | 'targetParticipant'
+  | 'officeInCharge'
+  | 'remarks'
+  | 'objectives'
+  | 'projectCategory'
+  | 'aipYear'
+  | 'typeOfProject'
+  | 'isNew'
+  | 'narrativeReport'
+> & Required<Pick<Project, 'latitude' | 'longitude'>>;
+
+const completionByStatus: Record<Project['status'], number> = {
+  planned: 0,
+  ongoing: 55,
+  completed: 100,
+  cancelled: 0
+};
+
+const hydrateDummyProject = (project: DummyProjectSeed): Project => {
+  const year = new Date(project.startDate).getFullYear();
+
+  return {
+    ...project,
+    implementationSchedule: new Date(project.startDate),
+    dateOfAccomplishment:
+      project.status === 'completed'
+        ? new Date(project.endDate)
+        : new Date(project.startDate),
+    percentCompletion: completionByStatus[project.status],
+    targetParticipant: 'Community residents and stakeholders',
+    officeInCharge: `${project.division.code} Office`,
+    remarks:
+      project.status === 'cancelled'
+        ? 'Deferred pending policy review'
+        : 'Monitoring ongoing implementation milestones',
+    objectives: `Deliver ${project.title.toLowerCase()} outcomes aligned with ${project.division.name} priorities.`,
+    typeOfProject: 'Operational',
+    aipYear: year,
+    narrativeReport: `${project.title} is currently ${project.status}.`
+  };
+};
+
+const dummyProjectSeeds: DummyProjectSeed[] = [
   {
     id: uuidv4(),
     title: 'Project Community Assistance Program',
     description: 'PGO-led outreach program.',
     location: 'Marawi City',
+    latitude: 8.0034,
+    longitude: 124.2839,
     startDate: new Date('2024-01-10'),
     endDate: new Date('2024-12-10'),
     dateCreated: new Date(),
@@ -23,6 +72,8 @@ export const dummyProjects: Project[] = [
     title: 'Tourism Road Map Planning',
     description: 'Strategic planning for local tourism.',
     location: 'Marawi Tourism Office',
+    latitude: 8.0045,
+    longitude: 124.2865,
     startDate: new Date('2024-06-01'),
     endDate: new Date('2024-08-01'),
     dateCreated: new Date(),
@@ -38,6 +89,8 @@ export const dummyProjects: Project[] = [
     title: 'Barangay Dev Support',
     description: 'Development projects for barangays.',
     location: 'Lanao del Sur',
+    latitude: 7.95,
+    longitude: 124.23,
     startDate: new Date('2023-11-01'),
     endDate: new Date('2024-03-15'),
     dateCreated: new Date(),
@@ -53,6 +106,8 @@ export const dummyProjects: Project[] = [
     title: 'Network Upgrade Initiative',
     description: 'ICTO server infrastructure upgrade.',
     location: 'Capitol IT Room',
+    latitude: 8.0016,
+    longitude: 124.289,
     startDate: new Date('2024-01-20'),
     endDate: new Date('2024-05-20'),
     dateCreated: new Date(),
@@ -68,6 +123,8 @@ export const dummyProjects: Project[] = [
     title: 'Youth Agri Camp',
     description: 'Youth development through agriculture.',
     location: 'Saguiaran',
+    latitude: 8.1083,
+    longitude: 124.2667,
     startDate: new Date('2024-07-15'),
     endDate: new Date('2024-07-25'),
     dateCreated: new Date(),
@@ -83,6 +140,8 @@ export const dummyProjects: Project[] = [
     title: 'Livelihood Starter Kits',
     description: 'Starter kits for vulnerable families.',
     location: 'Marantao',
+    latitude: 7.95,
+    longitude: 124.15,
     startDate: new Date('2024-04-10'),
     endDate: new Date('2024-06-10'),
     dateCreated: new Date(),
@@ -98,6 +157,8 @@ export const dummyProjects: Project[] = [
     title: 'Community Business Grants',
     description: 'Small business support.',
     location: 'Wao',
+    latitude: 7.68,
+    longitude: 124.73,
     startDate: new Date('2024-02-15'),
     endDate: new Date('2024-09-15'),
     dateCreated: new Date(),
@@ -113,6 +174,8 @@ export const dummyProjects: Project[] = [
     title: 'Skills Enhancement for Women',
     description: 'Livelihood skills training.',
     location: 'Training Center',
+    latitude: 8.003,
+    longitude: 124.285,
     startDate: new Date('2024-03-01'),
     endDate: new Date('2024-03-30'),
     dateCreated: new Date(),
@@ -128,6 +191,8 @@ export const dummyProjects: Project[] = [
     title: 'LEDIP Forum',
     description: 'Investment promotion event.',
     location: 'Capitol Convention Hall',
+    latitude: 8.0019,
+    longitude: 124.2884,
     startDate: new Date('2024-06-01'),
     endDate: new Date('2024-06-05'),
     dateCreated: new Date(),
@@ -143,6 +208,8 @@ export const dummyProjects: Project[] = [
     title: 'Women Empowerment Workshop',
     description: 'GAD initiative for community women.',
     location: 'Municipal Hall',
+    latitude: 8.02,
+    longitude: 124.27,
     startDate: new Date('2024-03-08'),
     endDate: new Date('2024-03-09'),
     dateCreated: new Date(),
@@ -158,6 +225,8 @@ export const dummyProjects: Project[] = [
     title: 'Youth Governance Summit',
     description: 'Policy training for youth leaders.',
     location: 'Marawi City Hall',
+    latitude: 8.0011,
+    longitude: 124.2862,
     startDate: new Date('2024-04-01'),
     endDate: new Date('2024-04-03'),
     dateCreated: new Date(),
@@ -173,6 +242,8 @@ export const dummyProjects: Project[] = [
     title: 'Bridge Repair Project',
     description: 'Bridge rehab in Wato',
     location: 'Wato Bridge',
+    latitude: 7.97,
+    longitude: 124.16,
     startDate: new Date('2024-01-05'),
     endDate: new Date('2024-06-30'),
     dateCreated: new Date(),
@@ -188,6 +259,8 @@ export const dummyProjects: Project[] = [
     title: 'Public Service Updates',
     description: 'Media updates on government services.',
     location: 'Radio/TV',
+    latitude: 8.005,
+    longitude: 124.287,
     startDate: new Date('2024-02-01'),
     endDate: new Date('2024-02-28'),
     dateCreated: new Date(),
@@ -203,6 +276,8 @@ export const dummyProjects: Project[] = [
     title: 'Coop Development Plan',
     description: 'Strategic planning for cooperatives.',
     location: 'Marawi Co-op Office',
+    latitude: 8.003,
+    longitude: 124.285,
     startDate: new Date('2024-05-01'),
     endDate: new Date('2024-05-30'),
     dateCreated: new Date(),
@@ -218,6 +293,8 @@ export const dummyProjects: Project[] = [
     title: 'Agri Tech Farming Initiative',
     description: 'Promoting new agriculture techniques.',
     location: 'Balindong',
+    latitude: 7.92,
+    longitude: 124.18,
     startDate: new Date('2024-03-01'),
     endDate: new Date('2024-06-01'),
     dateCreated: new Date(),
@@ -233,6 +310,8 @@ export const dummyProjects: Project[] = [
     title: 'Reforestation Project',
     description: 'Reforestation in upland areas.',
     location: 'Lumba-Bayabao',
+    latitude: 7.93,
+    longitude: 124.27,
     startDate: new Date('2024-04-15'),
     endDate: new Date('2024-10-15'),
     dateCreated: new Date(),
@@ -248,6 +327,8 @@ export const dummyProjects: Project[] = [
     title: '4Ps Family Training',
     description: 'Capacity building for 4Ps beneficiaries.',
     location: 'Various Municipalities',
+    latitude: 7.95,
+    longitude: 124.25,
     startDate: new Date('2024-02-10'),
     endDate: new Date('2024-03-10'),
     dateCreated: new Date(),
@@ -263,6 +344,8 @@ export const dummyProjects: Project[] = [
     title: 'Provincial Health Fair',
     description: 'Free health services in rural areas.',
     location: 'Lumba-Bayabao',
+    latitude: 7.93,
+    longitude: 124.27,
     startDate: new Date('2024-08-01'),
     endDate: new Date('2024-08-10'),
     dateCreated: new Date(),
@@ -278,6 +361,8 @@ export const dummyProjects: Project[] = [
     title: 'Animal Vaccination Drive',
     description: 'Livestock immunization in farming areas.',
     location: 'Malabang',
+    latitude: 7.6183,
+    longitude: 124.065,
     startDate: new Date('2024-03-01'),
     endDate: new Date('2024-03-31'),
     dateCreated: new Date(),
@@ -293,6 +378,8 @@ export const dummyProjects: Project[] = [
     title: 'Comprehensive Dev Plan Update',
     description: 'PPDO strategic planning activity.',
     location: 'Provincial Capitol',
+    latitude: 8.0018,
+    longitude: 124.2883,
     startDate: new Date('2024-01-01'),
     endDate: new Date('2024-12-31'),
     dateCreated: new Date(),
@@ -308,6 +395,8 @@ export const dummyProjects: Project[] = [
     title: 'HRIS Upgrade',
     description: 'Update HR systems and digitize records.',
     location: 'HR Office',
+    latitude: 8.0015,
+    longitude: 124.288,
     startDate: new Date('2024-06-01'),
     endDate: new Date('2024-08-01'),
     dateCreated: new Date(),
@@ -323,6 +412,8 @@ export const dummyProjects: Project[] = [
     title: 'Inventory System Enhancement',
     description: 'System for tracking government assets.',
     location: 'PGSO Warehouse',
+    latitude: 8.0022,
+    longitude: 124.2876,
     startDate: new Date('2024-07-01'),
     endDate: new Date('2024-09-01'),
     dateCreated: new Date(),
@@ -338,6 +429,8 @@ export const dummyProjects: Project[] = [
     title: 'Tax Revenue Tracking System',
     description: 'Modern system for revenue management.',
     location: 'Treasurer\'s Office',
+    latitude: 8.0017,
+    longitude: 124.2881,
     startDate: new Date('2024-04-15'),
     endDate: new Date('2024-10-15'),
     dateCreated: new Date(),
@@ -353,6 +446,8 @@ export const dummyProjects: Project[] = [
     title: 'Financial Transparency Dashboard',
     description: 'Public accounting visualization tool.',
     location: 'Capitol Finance Office',
+    latitude: 8.0019,
+    longitude: 124.2882,
     startDate: new Date('2024-05-01'),
     endDate: new Date('2024-07-01'),
     dateCreated: new Date(),
@@ -368,6 +463,8 @@ export const dummyProjects: Project[] = [
     title: 'Provincial Budget Orientation',
     description: 'Annual budget planning sessions.',
     location: 'Capitol Conference Room',
+    latitude: 8.0014,
+    longitude: 124.2885,
     startDate: new Date('2024-08-01'),
     endDate: new Date('2024-08-15'),
     dateCreated: new Date(),
@@ -383,6 +480,8 @@ export const dummyProjects: Project[] = [
     title: 'Legal Clinic Caravan',
     description: 'Mobile legal services in rural areas.',
     location: 'Various Municipalities',
+    latitude: 7.95,
+    longitude: 124.25,
     startDate: new Date('2024-03-15'),
     endDate: new Date('2024-05-15'),
     dateCreated: new Date(),
@@ -398,6 +497,8 @@ export const dummyProjects: Project[] = [
     title: 'Security Equipment Upgrade',
     description: 'Upgrading equipment for Capitol guards.',
     location: 'Capitol Compound',
+    latitude: 8.0018,
+    longitude: 124.288,
     startDate: new Date('2024-06-10'),
     endDate: new Date('2024-09-10'),
     dateCreated: new Date(),
@@ -408,6 +509,6 @@ export const dummyProjects: Project[] = [
     images: [],
     status: 'ongoing'
   }
-  // ...copy the rest of your dummy projects here,
-  // and update each to use `divisions.find(...)` instead of `divisions.find(...)`
 ];
+
+export const dummyProjects: Project[] = dummyProjectSeeds.map(hydrateDummyProject);

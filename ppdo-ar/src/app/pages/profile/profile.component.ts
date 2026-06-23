@@ -5,6 +5,14 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { jwtDecode } from 'jwt-decode';
+import { AppColorTheme, ThemeService } from '../../services/theme.service';
+
+interface ThemeChoice {
+  key: AppColorTheme;
+  label: string;
+  primary: string;
+  accent: string;
+}
 
 @Component({
   selector: 'app-profile',
@@ -20,11 +28,21 @@ export class ProfileComponent implements OnInit {
   successMessage: string | null = null;
   initials: string = '';
   avatarColor: string = '#000000';
+  selectedColorTheme: AppColorTheme = 'green';
+  colorChoices: ThemeChoice[] = [
+    { key: 'yellow', label: 'Yellow', primary: '#b7791f', accent: '#f6e05e' },
+    { key: 'red', label: 'Red', primary: '#b4232f', accent: '#f97373' },
+    { key: 'blue', label: 'Blue', primary: '#1d4ed8', accent: '#38bdf8' },
+    { key: 'orange', label: 'Orange', primary: '#c2410c', accent: '#fb923c' },
+    { key: 'green', label: 'Green', primary: '#136f63', accent: '#34d399' },
+    { key: 'purple', label: 'Purple', primary: '#7e22ce', accent: '#c084fc' }
+  ];
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private themeService: ThemeService
   ) {
     this.profileForm = this.fb.group({
       firstName: [''],
@@ -37,6 +55,9 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.themeService.applySavedPreferences();
+    this.selectedColorTheme = this.themeService.getColorTheme();
+
     const token = this.authService.getToken();
     if (token) {
       try {
@@ -59,6 +80,15 @@ export class ProfileComponent implements OnInit {
         this.authService.logout();
       }
     }
+  }
+
+  setColorTheme(theme: AppColorTheme): void {
+    this.selectedColorTheme = theme;
+    this.themeService.setColorTheme(theme);
+  }
+
+  isThemeSelected(theme: AppColorTheme): boolean {
+    return this.selectedColorTheme === theme;
   }
 
   createAvatar() {

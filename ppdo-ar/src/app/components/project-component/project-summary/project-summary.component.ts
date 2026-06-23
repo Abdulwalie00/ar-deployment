@@ -1,6 +1,6 @@
 // src/app/components/project-component/project-summary/project-summary.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {CommonModule, Location, TitleCasePipe} from '@angular/common';
+import {CommonModule, Location} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -9,7 +9,7 @@ import { ProjectDataService } from '../../../services/project-data.service';
 import { DivisionService } from '../../../services/division.service';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
-import {faPrint, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faPrint} from '@fortawesome/free-solid-svg-icons';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 
 @Component({
@@ -17,6 +17,7 @@ import {FaIconComponent} from '@fortawesome/angular-fontawesome';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, FaIconComponent],
   templateUrl: './project-summary.component.html',
+  styleUrls: ['./project-summary.component.css']
 })
 export class ProjectSummaryComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
@@ -361,5 +362,4 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected readonly faDelete = faTrash;
 }

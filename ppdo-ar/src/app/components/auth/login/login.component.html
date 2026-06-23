@@ -1,113 +1,97 @@
-<!-- Background animation canvas -->
-<div id="finisher-header"></div>
+<div id="finisher-header" class="login-fx"></div>
 
-<!-- Main Login Container: Should NOT be inside #finisher-header -->
-<div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 relative z-10">
-  <div class="flex w-full max-w-5xl mx-auto rounded-3xl shadow-2xl overflow-hidden h-[600px]">
-    <!-- Left Panel -->
-    <div class="relative hidden lg:flex items-center justify-center w-2/5 gradient-bg p-8">
-      <div class="flex flex-col items-center justify-center relative z-10 text-white text-center">
-        <h1 class="text-4xl font-bold leading-tight mb-4">
-          Project Report Managements
-        </h1>
-        <p class="text-lg opacity-90 max-w-md">
-          Streamline your project reporting with our comprehensive management system
-        </p>
-        <div class="mt-12 w-64 h-64 bg-white/20 rounded-full flex items-center justify-center">
-          <div class="w-48 h-48 bg-white/30 rounded-full flex items-center justify-center">
-            <div class="w-32 h-32 bg-white/40 rounded-full flex items-center justify-center">
-              <i class="fas fa-chart-line text-5xl text-white"></i>
-            </div>
-          </div>
-        </div>
+<div class="login-page" @fadeInAnimation>
+  <div class="login-shell app-glass">
+    <aside class="login-story">
+      <span class="app-chip">Provincial Workspace</span>
+      <h1>Strategic Project Intelligence Portal</h1>
+      <p>
+        Monitor execution, track impact, and keep every division aligned inside one modern control platform.
+      </p>
+
+      <div class="story-metrics stagger">
+        <article>
+          <strong>360°</strong>
+          <span>Project Visibility</span>
+        </article>
+        <article>
+          <strong>Realtime</strong>
+          <span>Progress Monitoring</span>
+        </article>
+        <article>
+          <strong>Unified</strong>
+          <span>Division Collaboration</span>
+        </article>
       </div>
-    </div>
+    </aside>
 
-    <!-- Right Panel -->
-    <div class="w-full lg:w-3/5 p-6 sm:p-10 bg-white flex items-center justify-center relative">
-      <div class="w-full max-w-sm" *ngIf="!success">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome</h2>
-          <p class="text-gray-600">Sign in to access your account</p>
-        </div>
+    <section class="login-panel">
+      <div class="logo-row">
+        <img [src]="ldsLogoUrl" alt="LDS Logo" class="main-logo" />
+        <img [src]="ictoLogoUrl" alt="ICTO Logo" class="partner-logo" />
+      </div>
 
-        <form (ngSubmit)="login()" class="space-y-6">
-          <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-            <div class="flex items-center">
-              <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
-              <p class="text-red-700 text-sm font-medium">Invalid username or password. Please try again.</p>
-            </div>
+      <div *ngIf="!success" class="panel-content">
+        <header class="panel-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to continue to your project command center.</p>
+        </header>
+
+        <form (ngSubmit)="login()" class="login-form">
+          <div *ngIf="error" class="login-error">
+            <p>{{ error }}</p>
           </div>
 
-          <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fas fa-user text-gray-400"></i>
-              </div>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                [(ngModel)]="username"
-                placeholder="Enter your username"
-                class="block w-full rounded-lg border-gray-300 pl-10 py-3 pr-4 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              >
-            </div>
-          </div>
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="username"
+            placeholder="Enter your username"
+            class="app-input"
+            required
+          />
 
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <div class="mt-1 relative rounded-md shadow-sm">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fas fa-lock text-gray-400"></i>
-              </div>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                [(ngModel)]="password"
-                placeholder="Enter your password"
-                class="block w-full rounded-lg border-gray-300 pl-10 py-3 pr-4 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              >
-            </div>
-          </div>
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+            class="app-input"
+            required
+          />
 
           <button
             type="submit"
             [disabled]="loading"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
+            class="app-btn app-btn-primary submit-btn"
           >
-            <span *ngIf="!loading">Sign in</span>
-            <span *ngIf="loading">
-              <i class="fas fa-circle-notch animate-spin mr-2"></i> Signing in...
+            <span *ngIf="!loading">Sign In</span>
+            <span *ngIf="loading" class="submit-loading">
+              <span class="spinner-dot"></span>
+              Signing In...
             </span>
           </button>
-
-          <!-- Logo images below sign in button -->
-          <div class="flex justify-center items-center gap-8 mt-8">
-            <img [src]="ldsLogoUrl" alt="LDS Logo" class="h-16 w-auto object-contain hover:scale-105 transition-transform duration-200" />
-            <img [src]="ictoLogoUrl" alt="ICTO Logo" class="h-14 w-auto object-contain hover:scale-105 transition-transform duration-200" />
-          </div>
         </form>
       </div>
 
-      <div *ngIf="loading" class="absolute inset-0 z-10 bg-white/80 backdrop-blur-sm flex items-center justify-center">
-        <div class="text-center">
-          <div class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p class="mt-4 text-gray-700 font-medium">Logging in...</p>
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-box">
+          <div class="ring"></div>
+          <p>Authenticating session...</p>
         </div>
       </div>
 
-      <div *ngIf="success" class="text-center w-full max-w-sm">
-        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <fa-icon [icon]="icon" class="text-green-600 text-3xl"></fa-icon>
+      <div *ngIf="success" class="success-box">
+        <div class="success-icon-wrap">
+          <fa-icon [icon]="icon" class="success-icon"></fa-icon>
         </div>
-        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Login successful!</h3>
-        <p class="text-gray-600">Redirecting to your dashboard...</p>
+        <h3>Login Successful</h3>
+        <p>Routing you to the dashboard.</p>
       </div>
-    </div>
+    </section>
   </div>
 </div>

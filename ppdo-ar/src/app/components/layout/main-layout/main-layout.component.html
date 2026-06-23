@@ -1,11 +1,15 @@
-<div class="flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300" [@fadeInAnimation]>
-  <app-sidebar></app-sidebar>
+<div class="app-shell" [@fadeInAnimation]>
+  <div class="shell-frame app-glass fade-up">
+    <app-sidebar></app-sidebar>
 
-  <div class="flex-1 flex flex-col overflow-hidden transition-colors duration-300">
-    <app-header></app-header>
+    <div class="shell-content">
+      <app-header></app-header>
 
-    <main class="flex-1 overflow-y-auto p-4 bg-gray-200 dark:bg-gray-800 transition-colors duration-300">
-      <router-outlet></router-outlet>
-    </main>
+      <main class="shell-main">
+        <div class="route-stage">
+          <router-outlet></router-outlet>
+        </div>
+      </main>
+    </div>
   </div>
 </div>
