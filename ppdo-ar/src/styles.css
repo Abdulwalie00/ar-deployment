@@ -41,8 +41,8 @@
   --app-accent: #f6a623;
   --app-accent-rgb: 246, 166, 35;
   --app-danger: #ef4444;
-  --app-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
-  --app-shadow-soft: 0 6px 14px rgba(0, 0, 0, 0.2);
+  --app-shadow: none;
+  --app-shadow-soft: none;
 }
 
 * {
@@ -73,6 +73,14 @@ body::before {
   background-image: radial-gradient(circle at 1px 1px, rgba(var(--app-primary-rgb), 0.26) 1px, transparent 0);
   background-size: 24px 24px;
   z-index: -1;
+}
+
+.dark body {
+  background: linear-gradient(165deg, var(--app-bg) 0%, var(--app-bg-secondary) 100%);
+}
+
+.dark body::before {
+  opacity: 0;
 }
 
 .app-glass {
@@ -128,6 +136,14 @@ body::before {
   border-color: color-mix(in srgb, var(--app-primary-strong) 68%, white);
   background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-primary-strong) 100%);
   box-shadow: 0 10px 22px rgba(19, 111, 99, 0.25);
+}
+
+.dark .app-btn-primary,
+.dark .app-btn-secondary,
+.dark .app-icon-btn,
+.dark .app-glass,
+.dark .app-card {
+  box-shadow: none;
 }
 
 .app-btn-primary:hover {
