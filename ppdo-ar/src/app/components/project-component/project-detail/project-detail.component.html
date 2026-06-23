@@ -302,7 +302,7 @@
       </div>
 
       <div class="detail-block p-6 rounded-xl">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+        <h3 class="text-xl font-semibold detail-title mb-4">
           Project Discussion
         </h3>
 
@@ -321,21 +321,21 @@
             }"
           >
             <div
-              class="max-w-xl rounded-xl p-4"
+              class="comment-bubble max-w-xl rounded-xl p-4"
               [ngClass]="{
-                'bg-blue-600 text-white':
+                'comment-bubble-self':
                   currentUser && comment.user.id === currentUser.id,
-                'bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500':
+                'comment-bubble-other':
                   !currentUser || comment.user.id !== currentUser.id
               }"
             >
               <div class="flex items-start space-x-3">
                 <div
-                  class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center"
+                  class="comment-avatar flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center"
                   [ngClass]="{
-                    'bg-blue-500 text-blue-50':
+                    'comment-avatar-self':
                       currentUser && comment.user.id === currentUser.id,
-                    'bg-gray-200 dark:bg-gray-500 text-gray-600 dark:text-gray-300':
+                    'comment-avatar-other':
                       !currentUser || comment.user.id !== currentUser.id
                   }"
                 >
@@ -347,49 +347,17 @@
 
                 <div class="flex-1">
                   <div class="flex justify-between items-baseline">
-                    <p
-                      class="font-semibold text-sm"
-                      [ngClass]="{
-                        'text-white':
-                          currentUser && comment.user.id === currentUser.id,
-                        'text-gray-900 dark:text-white':
-                          !currentUser || comment.user.id !== currentUser.id
-                      }"
-                    >
+                    <p class="comment-author font-semibold text-sm">
                       {{ comment.user.firstName }} {{ comment.user.lastName }}
-                      <span
-                        class="ml-2 text-xs font-normal"
-                        [ngClass]="{
-                          'text-blue-200':
-                            currentUser && comment.user.id === currentUser.id,
-                          'text-gray-500 dark:text-gray-400':
-                            !currentUser || comment.user.id !== currentUser.id
-                        }"
-                      >
+                      <span class="comment-division ml-2 text-xs font-normal">
                         {{ comment.user.division?.code | uppercase }}
                       </span>
                     </p>
-                    <span
-                      class="text-xs ml-3 flex-shrink-0"
-                      [ngClass]="{
-                        'text-blue-200':
-                          currentUser && comment.user.id === currentUser.id,
-                        'text-gray-500 dark:text-gray-400':
-                          !currentUser || comment.user.id !== currentUser.id
-                      }"
-                    >
+                    <span class="comment-time text-xs ml-3 flex-shrink-0">
                       {{ comment.dateCreated | date : "short" }}
                     </span>
                   </div>
-                  <p
-                    class="mt-1 text-sm"
-                    [ngClass]="{
-                      'text-blue-50':
-                        currentUser && comment.user.id === currentUser.id,
-                      'text-gray-700 dark:text-gray-300':
-                        !currentUser || comment.user.id !== currentUser.id
-                    }"
-                  >
+                  <p class="comment-copy mt-1 text-sm">
                     {{ comment.content }}
                   </p>
                 </div>
@@ -399,15 +367,15 @@
 
           <div
             *ngIf="comments.length === 0"
-            class="text-center py-6 bg-white dark:bg-gray-600 rounded-lg border border-dashed border-gray-300 dark:border-gray-500"
+            class="comment-empty text-center py-6 rounded-lg"
           >
-            <p class="text-gray-500 dark:text-gray-400">
+            <p class="comment-empty-copy">
               No comments yet. Be the first to start the discussion!
             </p>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-gray-200 dark:border-gray-600">
+        <div class="comment-compose pt-4">
           <textarea
             [(ngModel)]="newComment"
             class="app-input comment-input"

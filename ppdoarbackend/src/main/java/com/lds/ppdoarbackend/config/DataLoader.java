@@ -150,6 +150,8 @@ public class DataLoader implements CommandLineRunner {
                 sampleProject.setTitle("Sample Project for " + code);
                 sampleProject.setDescription("This is a sample project for " + name);
                 sampleProject.setLocation("City Hall");
+                sampleProject.setLatitude(8.0011);
+                sampleProject.setLongitude(124.2862);
                 sampleProject.setStartDate(new Date());
                 sampleProject.setEndDate(new Date());
                 sampleProject.setImplementationSchedule(new Date());

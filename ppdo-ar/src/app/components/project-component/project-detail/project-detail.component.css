@@ -37,6 +37,10 @@
   letter-spacing: -0.01em;
 }
 
+.detail-title {
+  color: var(--app-text);
+}
+
 .narrative-btn {
   background: linear-gradient(135deg, #0d8b67, #0f6a51);
   border-color: color-mix(in srgb, #0f6a51 68%, white);
@@ -57,6 +61,67 @@
   padding-right: 0.35rem;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--app-primary) 48%, transparent) transparent;
+}
+
+.comment-bubble {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.comment-bubble-self {
+  border: 1px solid color-mix(in srgb, var(--app-primary-strong) 52%, white);
+  background: linear-gradient(138deg, var(--app-primary), var(--app-primary-strong));
+  color: #f8fffd;
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--app-primary) 26%, transparent);
+}
+
+.comment-bubble-other {
+  border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 96%, transparent);
+  color: var(--app-text);
+}
+
+.comment-avatar {
+  border: 1px solid transparent;
+}
+
+.comment-avatar-self {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.34);
+  background: color-mix(in srgb, #ffffff 18%, transparent);
+}
+
+.comment-avatar-other {
+  color: var(--app-primary-strong);
+  border-color: color-mix(in srgb, var(--app-primary) 22%, var(--app-border));
+  background: color-mix(in srgb, var(--app-primary) 12%, var(--app-surface-soft));
+}
+
+.comment-author {
+  color: inherit;
+}
+
+.comment-division,
+.comment-time {
+  color: color-mix(in srgb, currentColor 68%, transparent);
+}
+
+.comment-copy {
+  color: color-mix(in srgb, currentColor 90%, transparent);
+}
+
+.comment-empty {
+  border: 1px dashed color-mix(in srgb, var(--app-primary) 34%, var(--app-border));
+  background:
+    radial-gradient(circle at 9% -35%, color-mix(in srgb, var(--app-primary) 11%, transparent), transparent 62%),
+    color-mix(in srgb, var(--app-surface-soft) 88%, transparent);
+}
+
+.comment-empty-copy {
+  color: var(--app-muted);
+}
+
+.comment-compose {
+  border-top: 1px solid color-mix(in srgb, var(--app-border) 84%, transparent);
 }
 
 .comment-stream::-webkit-scrollbar {
