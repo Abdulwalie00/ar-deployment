@@ -1,14 +1,12 @@
 <div
   *ngIf="project$ | async as project; else projectNotFound"
-  class="project-detail-shell app-card p-6 lg:p-8 w-full fade-up"
+  class="project-detail-shell app-card fade-up"
 >
-  <div
-    class="detail-header flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 pb-6 gap-4"
-  >
-    <div class="flex items-center gap-3 w-full lg:w-auto">
+  <section class="detail-hero">
+    <div class="hero-main">
       <button
         (click)="goBack()"
-        class="app-btn app-btn-secondary whitespace-nowrap"
+        class="app-btn app-btn-secondary hero-back-btn"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -26,26 +24,38 @@
         </svg>
         Back to Projects
       </button>
-      <h1
-        class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white truncate max-w-2xl"
-      >
+
+      <p class="hero-kicker">Project Brief</p>
+      <h1 class="hero-title">
         {{ project.title }}
       </h1>
+      <p class="hero-description">
+        {{ project.description }}
+      </p>
 
-      <div class="detail-quick-meta">
+      <div class="hero-chips">
         <span class="app-chip">{{ project.division.name }}</span>
         <span class="app-chip">{{ project.location }}</span>
+        <span
+          class="status-pill"
+          [ngClass]="{
+            'status-pill--planned': project.status === 'planned',
+            'status-pill--ongoing': project.status === 'ongoing',
+            'status-pill--completed': project.status === 'completed',
+            'status-pill--cancelled': project.status === 'cancelled'
+          }"
+        >
+          {{ project.status | titlecase }}
+        </span>
       </div>
     </div>
 
-    <div
-      class="flex flex-wrap gap-3 w-full lg:w-auto justify-start lg:justify-end"
-    >
+    <div class="hero-actions">
       <button
         *ngIf="project.status === 'completed'"
         (click)="generateNarrative()"
         [disabled]="isGeneratingNarrative"
-        class="app-btn app-btn-primary narrative-btn whitespace-nowrap"
+        class="app-btn app-btn-primary narrative-btn"
       >
         <fa-icon [icon]="faArrowsRotate" class="h-5 w-5 mr-2"></fa-icon>
         <span *ngIf="!isGeneratingNarrative">Generate Narrative</span>
@@ -54,7 +64,7 @@
 
       <button
         (click)="editProject()"
-        class="app-btn app-btn-primary whitespace-nowrap"
+        class="app-btn app-btn-primary"
       >
         <fa-icon [icon]="faEdit" class="h-5 w-5 mr-2"></fa-icon>
         Edit Project
@@ -62,178 +72,43 @@
       <button
         *ngIf="isAdmin"
         (click)="confirmDelete()"
-        class="app-btn app-btn-secondary danger-btn whitespace-nowrap"
+        class="app-btn app-btn-secondary danger-btn"
       >
         <fa-icon [icon]="faDelete" class="h-5 w-5 mr-2"></fa-icon>
         Delete Project
       </button>
     </div>
-  </div>
+  </section>
 
-  <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-    <div class="xl:col-span-1 space-y-6">
-      <div class="detail-block p-6 rounded-xl">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          Project Description
-        </h2>
-        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-          {{ project.description }}
-        </p>
-      </div>
-
-      <div class="detail-block p-6 rounded-xl">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Project Objectives</h2>
-        <p class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{{ project.objectives }}</p>
-      </div>
-
-      <!-- <div
-        class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
-      >
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          Project Objectives
-        </h2>
-        <p
-          class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap"
-        >
+  <div class="detail-layout">
+    <main class="detail-main">
+      <section class="detail-block objectives-block">
+        <header class="block-head">
+          <h2>Objectives</h2>
+          <p>Primary outcomes and intended impact.</p>
+        </header>
+        <p class="objectives-copy">
           {{ project.objectives }}
         </p>
-      </div> -->
+      </section>
 
-      <div class="detail-block p-6 rounded-xl">
-        <h3
-          class="text-xl font-semibold text-gray-800 dark:text-white mb-5 pb-3 border-b border-gray-200 dark:border-gray-600"
-        >
-          Project Details
-        </h3>
-        <div class="space-y-5">
-          <div>
-            <h4
-              class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-            >
-              Division
-            </h4>
-            <p class="text-lg font-medium text-gray-800 dark:text-gray-200">
-              {{ project.division.name }}
-            </p>
-          </div>
+      <section class="detail-block map-block">
+        <header class="block-head">
+          <h2>Map Overview</h2>
+          <p>Geographic context of this project site.</p>
+        </header>
 
-          <div>
-            <h4
-              class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-            >
-              Location
-            </h4>
-            <p class="text-lg font-medium text-gray-800 dark:text-gray-200">
-              {{ project.location }}
-            </p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <h4
-                class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-              >
-                Start Date
-              </h4>
-              <p class="text-lg font-medium text-gray-800 dark:text-gray-200">
-                {{ project.startDate | date : "mediumDate" }}
-              </p>
-            </div>
-            <div>
-              <h4
-                class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-              >
-                End Date
-              </h4>
-              <p class="text-lg font-medium text-gray-800 dark:text-gray-200">
-                {{ project.endDate | date : "mediumDate" }}
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h4
-              class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-            >
-              Budget
-            </h4>
-            <div class="flex items-center gap-x-3">
-              <p
-                *ngIf="isBudgetVisible"
-                class="text-xl font-semibold text-blue-600 dark:text-blue-400"
-              >
-                {{ project.budget | currency : "PHP" : "symbol" : "1.2-2" }}
-              </p>
-              <p
-                *ngIf="!isBudgetVisible"
-                class="text-xl font-semibold text-gray-400 dark:text-gray-500 tracking-widest"
-              >
-                ********
-              </p>
-              <button
-                (click)="toggleBudgetVisibility()"
-                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <fa-icon
-                  [icon]="isBudgetVisible ? faEyeSlash : faEye"
-                ></fa-icon>
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <h4
-              class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-            >
-              Funding Source
-            </h4>
-            <p class="text-lg font-medium text-gray-800 dark:text-gray-200">
-              {{ project.fundSource }}
-            </p>
-          </div>
-
-          <div>
-            <h4
-              class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1"
-            >
-              Status
-            </h4>
-            <span
-              class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold"
-              [ngClass]="{
-                'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300':
-                  project.status === 'planned',
-                'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300':
-                  project.status === 'ongoing',
-                'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300':
-                  project.status === 'completed',
-                'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300':
-                  project.status === 'cancelled'
-              }"
-            >
-              {{ project.status | titlecase }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="xl:col-span-2 space-y-6">
-      <div class="detail-block p-6 rounded-xl">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-          Project Location
-        </h3>
         <div *ngIf="hasProjectCoordinates(project); else noCoordinatesSaved">
-          <div #projectMap class="h-80 rounded-lg border border-gray-300 dark:border-gray-600"></div>
-          <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-              Coordinates: {{ project.latitude | number : '1.6-6' }}, {{ project.longitude | number : '1.6-6' }}
+          <div #projectMap class="project-map"></div>
+          <div class="map-meta-row">
+            <p class="map-coordinates">
+              {{ project.latitude | number : '1.6-6' }}, {{ project.longitude | number : '1.6-6' }}
             </p>
             <a
               [href]="getProjectOpenStreetMapLink(project)"
               target="_blank"
               rel="noopener noreferrer"
-              class="app-btn app-btn-secondary map-link-btn"
+              class="app-btn app-btn-secondary"
             >
               Open in OpenStreetMap
             </a>
@@ -241,46 +116,42 @@
         </div>
 
         <ng-template #noCoordinatesSaved>
-          <div
-            class="empty-map bg-gray-200 dark:bg-gray-800 h-80 flex flex-col items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-300 dark:border-gray-600 px-6 text-center"
-          >
+          <div class="empty-map">
             <p class="text-lg font-medium mb-1">No exact map pin saved</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
+            <p class="text-sm">
               Edit this project and click the map to save exact coordinates.
             </p>
           </div>
         </ng-template>
-      </div>
+      </section>
 
-      <div *ngIf="project.images && project.images.length > 0" class="detail-block p-6 rounded-xl">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-          Project Gallery
-        </h3>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <section *ngIf="project.images && project.images.length > 0" class="detail-block gallery-block">
+        <header class="block-head">
+          <h2>Project Gallery</h2>
+          <p>Visual documentation from implementation.</p>
+        </header>
+
+        <div class="gallery-grid">
           <div
             *ngFor="let image of project.images; let i = index"
-            class="group relative overflow-hidden rounded-lg shadow-md border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-shadow duration-300"
+            class="gallery-item group"
             (click)="openCarousel(i)"
           >
             <img
               [src]="image.imageUrl"
               alt="{{ image.caption || project.title }}"
-              class="w-full h-40 object-cover transform group-hover:scale-105 transition-transform duration-300"
+              class="gallery-image"
             />
             <div
               *ngIf="image.caption"
-              class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3"
+              class="gallery-caption"
             >
-              <p class="text-white text-sm font-medium truncate">
+              <p class="caption-copy">
                 {{ image.caption }}
               </p>
             </div>
-            <div
-              class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-            >
-              <button
-                class="bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg"
-              >
+            <div class="gallery-overlay">
+              <button class="gallery-zoom" type="button">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5"
@@ -299,12 +170,16 @@
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="detail-block p-6 rounded-xl">
-        <h3 class="text-xl font-semibold detail-title mb-4">
-          Project Discussion
-        </h3>
+      <section class="detail-block discussion-block">
+        <header class="discussion-head">
+          <div>
+            <h2>Discussion</h2>
+            <p>Coordination notes and updates.</p>
+          </div>
+          <span class="app-chip">{{ comments.length }} comments</span>
+        </header>
 
         <div
           #commentSection
@@ -375,7 +250,7 @@
           </div>
         </div>
 
-        <div class="comment-compose pt-4">
+        <div class="comment-compose">
           <textarea
             [(ngModel)]="newComment"
             class="app-input comment-input"
@@ -394,22 +269,87 @@
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
+
+    <aside class="detail-side">
+      <section class="detail-block info-block">
+        <header class="block-head">
+          <h2>Quick Facts</h2>
+          <p>Core metadata at a glance.</p>
+        </header>
+
+        <div class="fact-list">
+          <div class="fact-item">
+            <span>Division</span>
+            <strong>{{ project.division.name }}</strong>
+          </div>
+          <div class="fact-item">
+            <span>Location</span>
+            <strong>{{ project.location }}</strong>
+          </div>
+          <div class="fact-item">
+            <span>Start Date</span>
+            <strong>{{ project.startDate | date : "mediumDate" }}</strong>
+          </div>
+          <div class="fact-item">
+            <span>End Date</span>
+            <strong>{{ project.endDate | date : "mediumDate" }}</strong>
+          </div>
+          <div class="fact-item">
+            <span>Fund Source</span>
+            <strong>{{ project.fundSource }}</strong>
+          </div>
+          <div class="fact-item">
+            <span>Status</span>
+            <strong>{{ project.status | titlecase }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-block budget-block">
+        <header class="block-head">
+          <h2>Budget</h2>
+          <p>Protected financial value.</p>
+        </header>
+
+        <div class="budget-value-row">
+          <p *ngIf="isBudgetVisible" class="budget-value">
+            {{ project.budget | currency : "PHP" : "symbol" : "1.2-2" }}
+          </p>
+          <p *ngIf="!isBudgetVisible" class="budget-mask">
+            ********
+          </p>
+
+          <button
+            (click)="toggleBudgetVisibility()"
+            class="budget-toggle"
+            type="button"
+          >
+            <fa-icon [icon]="isBudgetVisible ? faEyeSlash : faEye"></fa-icon>
+          </button>
+        </div>
+      </section>
+
+      <section class="detail-block timeline-block">
+        <header class="block-head">
+          <h2>Record Timeline</h2>
+          <p>Audit and update stamps.</p>
+        </header>
+        <div class="fact-list">
+          <div class="fact-item">
+            <span>Date Created</span>
+            <strong>{{ project.dateCreated | date : "medium" }}</strong>
+          </div>
+          <div class="fact-item">
+            <span>Last Updated</span>
+            <strong>{{ project.dateUpdated | date : "medium" }}</strong>
+          </div>
+        </div>
+      </section>
+    </aside>
   </div>
 
-  <div
-    class="detail-footer pt-6 text-sm text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row justify-between gap-4"
-  >
-    <div>
-      <span class="font-medium">Date Created:</span>
-      {{ project.dateCreated | date : "medium" }}
-    </div>
-    <div>
-      <span class="font-medium">Last Updated:</span>
-      {{ project.dateUpdated | date : "medium" }}
-    </div>
-  </div>
 </div>
 
 <ng-template #projectNotFound>
