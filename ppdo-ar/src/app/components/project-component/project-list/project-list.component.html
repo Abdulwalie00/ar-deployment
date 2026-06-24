@@ -1,27 +1,11 @@
-<div class="container mx-auto p-4 md:p-6 min-h-screen bg-gray-50 dark:bg-gray-900 project-list-wrap fade-up">
-  <div class="list-head app-card p-6 mb-6">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div class="flex items-center gap-3">
-        <button (click)="goBack()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-        </button>
-        <div>
-          <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-white">
-            {{ currentFilterStatus ? (getStatusDisplayName(currentFilterStatus)) + ' Projects' : 'All Projects' }}
-          </h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {{ filteredProjects.length }} project{{ filteredProjects.length !== 1 ? 's' : '' }} found
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
+<div class="project-list-wrap fade-up">
+  <div class="list-head">
+    <div class="list-toolbar">
+      <div class="toolbar-actions">
         <button (click)="toggleView()"
-                class="p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                [class.bg-gray-100]="currentViewMode === 'grid'"
-                [class.dark:bg-gray-700]="currentViewMode === 'grid'">
+                class="view-toggle-btn"
+                [class.is-grid]="currentViewMode === 'grid'"
+                [attr.aria-label]="currentViewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'">
           <svg *ngIf="currentViewMode === 'grid'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
@@ -33,7 +17,7 @@
         <a *ngIf="showAddButton"
            [routerLink]="currentDivisionCode ? ['/project-add'] : ['/project-add']"
            [queryParams]="currentDivisionCode ? { division: currentDivisionCode } : {}"
-           class="app-btn app-btn-primary shadow-sm">
+           class="app-btn app-btn-primary add-project-btn">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
           </svg>
@@ -42,14 +26,14 @@
       </div>
     </div>
 
-    <div *ngIf="currentFilterStatus" class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-3 border border-blue-100 dark:border-blue-800/50">
-      <p class="text-gray-700 dark:text-gray-200 flex items-center gap-2">
+    <div *ngIf="currentFilterStatus" class="active-filter-strip">
+      <p class="active-filter-copy">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
         </svg>
         Showing <span class="font-medium text-blue-700 dark:text-blue-400">{{ getStatusDisplayName(currentFilterStatus) }}</span> projects
       </p>
-      <button (click)="resetFilter()" class="text-sm px-3 py-1.5 bg-white dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-gray-600 text-blue-600 dark:text-blue-300 rounded-md transition-colors duration-200 flex items-center gap-1">
+      <button (click)="resetFilter()" class="clear-filter-btn">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -112,8 +96,8 @@
                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Progress</span>
                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ project.percentCompletion }}%</span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="project.percentCompletion"></div>
+              <div class="progress-track w-full">
+                <div class="progress-fill" [style.width.%]="project.percentCompletion"></div>
               </div>
             </div>
           </div>
@@ -167,8 +151,8 @@
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <div class="w-16 bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                  <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="project.percentCompletion"></div>
+                <div class="progress-track w-16">
+                  <div class="progress-fill" [style.width.%]="project.percentCompletion"></div>
                 </div>
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ project.percentCompletion }}%</span>
               </div>

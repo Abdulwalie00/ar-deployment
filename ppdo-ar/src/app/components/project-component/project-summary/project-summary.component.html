@@ -1,29 +1,72 @@
 <div class="summary-wrap fade-up">
   <section class="summary-hero app-card no-print">
-    <div class="hero-main">
-      <button (click)="goBack()" class="app-btn app-btn-secondary">
+    <div class="hero-glow hero-glow-a"></div>
+    <div class="hero-glow hero-glow-b"></div>
+
+    <div class="hero-top">
+      <button (click)="goBack()" class="app-btn app-btn-secondary hero-back-btn">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Return to Projects
       </button>
 
-      <div>
-        <span class="app-chip">Summary Report</span>
-        <h1>Project Summary</h1>
-        <p>Overview of all registered projects.</p>
-      </div>
+      <button (click)="printReport()" class="app-btn app-btn-primary hero-print-btn">
+        <fa-icon [icon]="faPrint"></fa-icon>
+        Print Report
+      </button>
     </div>
 
-    <button (click)="printReport()" class="app-btn app-btn-primary">
-      <fa-icon [icon]="faPrint"></fa-icon>
-      Print
-    </button>
+    <div class="hero-content">
+      <span class="app-chip">Portfolio Intelligence</span>
+      <h1>Project Summary Studio</h1>
+      <p>Monitor program delivery in real time with quick signals on progress, momentum, and completion trends.</p>
+    </div>
+
+    <div class="hero-meta">
+      <span>Active filters <strong>{{ activeFilterCount }}</strong></span>
+      <span>Scope <strong>{{ selectedMonth || 'All Months' }} {{ selectedYear || '' }}</strong></span>
+    </div>
+
+    <div class="kpi-strip stagger">
+      <article class="kpi-card kpi-total">
+        <p>Total Projects</p>
+        <h2>{{ summaryStats.total }}</h2>
+        <small>matching current filters</small>
+      </article>
+
+      <article class="kpi-card kpi-ongoing">
+        <p>In Progress</p>
+        <h2>{{ summaryStats.ongoing }}</h2>
+        <small>ongoing initiatives</small>
+      </article>
+
+      <article class="kpi-card kpi-completed">
+        <p>Completed</p>
+        <h2>{{ summaryStats.completed }}</h2>
+        <small>delivered projects</small>
+      </article>
+
+      <article class="kpi-card kpi-rate">
+        <p>Completion Rate</p>
+        <h2>{{ summaryStats.completionRate }}%</h2>
+        <small>of filtered portfolio</small>
+      </article>
+    </div>
   </section>
 
   <section class="filters-card app-card no-print">
-    <div class="filters-grid">
+    <div class="filters-head">
       <div>
+        <h2>Filter Deck</h2>
+        <p>Refine the report by period, status, and division scope.</p>
+      </div>
+
+      <button (click)="resetFilters()" class="app-btn app-btn-secondary filter-reset">Reset Filters</button>
+    </div>
+
+    <div class="filters-grid">
+      <div class="filter-field">
         <label for="yearFilter">Year</label>
         <select
           id="yearFilter"
@@ -36,7 +79,7 @@
         </select>
       </div>
 
-      <div>
+      <div class="filter-field">
         <label for="monthFilter">Month</label>
         <select
           id="monthFilter"
@@ -49,23 +92,28 @@
         </select>
       </div>
 
-      <div>
+      <div class="filter-field filter-status-field">
         <span class="field-label">Status</span>
         <div class="status-grid">
-          <label *ngFor="let status of statuses" class="status-option" [for]="'status-' + status">
+          <label
+            *ngFor="let status of statuses"
+            class="status-option"
+            [for]="'status-' + status"
+            [ngClass]="{ 'active': selectedStatus[status] }"
+          >
             <input
               type="checkbox"
               [id]="'status-' + status"
               [(ngModel)]="selectedStatus[status]"
-              (ngModelChange)="filterProjects()"
+              (ngModelChange)="onStatusChange(status, $event)"
               class="status-checkbox"
             />
-            <span>{{ status | titlecase }}</span>
+            <span class="status-label">{{ status | titlecase }}</span>
           </label>
         </div>
       </div>
 
-      <div *ngIf="isSuperAdmin || isAdmin">
+      <div *ngIf="isSuperAdmin || isAdmin" class="filter-field">
         <label for="divisionFilter">Division</label>
         <select
           id="divisionFilter"
@@ -77,15 +125,21 @@
           <option *ngFor="let division of divisions" [value]="division.id">{{ division.name }}</option>
         </select>
       </div>
-
-      <div class="reset-wrap">
-        <button (click)="resetFilters()" class="app-btn app-btn-secondary filter-reset">Reset Filters</button>
-      </div>
     </div>
   </section>
 
   <section class="table-shell app-card">
     <div class="table-tools no-print">
+      <div class="results-copy">
+        Showing
+        <strong>{{ filteredProjects.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1 }}</strong>
+        to
+        <strong>{{ currentPage * itemsPerPage > filteredProjects.length ? filteredProjects.length : currentPage * itemsPerPage }}</strong>
+        of
+        <strong>{{ filteredProjects.length }}</strong>
+        projects
+      </div>
+
       <div class="entries-control">
         <span>Show</span>
         <select [(ngModel)]="itemsPerPage" (ngModelChange)="onItemsPerPageChange()" class="app-input entries-select">
@@ -96,7 +150,7 @@
     </div>
 
     <div class="table-wrap">
-      <table>
+      <table class="summary-table">
         <thead>
           <tr>
             <th scope="col">No.</th>
@@ -109,6 +163,7 @@
             <th scope="col">Status</th>
           </tr>
         </thead>
+
         <tbody>
           <tr *ngFor="let project of paginatedProjects; let i = index" class="table-row">
             <td class="number-cell">{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
@@ -139,8 +194,8 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <p>No projects found</p>
-                <small>Try adjusting your filters.</small>
+                <p>No projects found for this view</p>
+                <small>Try broadening the filter deck to reveal more records.</small>
               </div>
             </td>
           </tr>
@@ -149,16 +204,6 @@
     </div>
 
     <div *ngIf="totalPages > 0" class="pagination-wrap no-print">
-      <div class="results-copy">
-        Showing
-        <strong>{{ (currentPage - 1) * itemsPerPage + 1 }}</strong>
-        to
-        <strong>{{ currentPage * itemsPerPage > filteredProjects.length ? filteredProjects.length : currentPage * itemsPerPage }}</strong>
-        of
-        <strong>{{ filteredProjects.length }}</strong>
-        projects
-      </div>
-
       <div class="pager-actions">
         <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" class="app-btn app-btn-secondary pager-btn">
           Prev

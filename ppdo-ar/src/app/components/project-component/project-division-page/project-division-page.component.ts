@@ -13,11 +13,13 @@ import { ProjectListComponent } from '../project-list/project-list.component';
   standalone: true,
   imports: [CommonModule, RouterModule, ProjectListComponent],
   templateUrl: './project-division-page.component.html',
+  styleUrls: ['./project-division-page.component.css']
 })
 export class ProjectDivisionPageComponent implements OnInit, OnDestroy {
   divisionCode: string | null = null;
   division: Division | null = null;
   projects: Project[] = [];
+  isLoading = true;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -29,6 +31,7 @@ export class ProjectDivisionPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.paramMap.pipe(
       switchMap(params => {
+        this.isLoading = true;
         this.divisionCode = params.get('divisionCode');
         if (this.divisionCode) {
           // Fetch and assign the division object
@@ -44,7 +47,33 @@ export class ProjectDivisionPageComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(projects => {
       this.projects = projects;
+      this.isLoading = false;
     });
+  }
+
+  get totalProjects(): number {
+    return this.projects.length;
+  }
+
+  get completedProjects(): number {
+    return this.projects.filter(project => project.status === 'completed').length;
+  }
+
+  get ongoingProjects(): number {
+    return this.projects.filter(project => project.status === 'ongoing').length;
+  }
+
+  get averageCompletion(): number {
+    if (this.projects.length === 0) {
+      return 0;
+    }
+
+    const totalCompletion = this.projects.reduce(
+      (sum, project) => sum + (project.percentCompletion ?? 0),
+      0
+    );
+
+    return Math.round(totalCompletion / this.projects.length);
   }
 
   ngOnDestroy(): void {
