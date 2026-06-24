@@ -171,6 +171,18 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     this.updatePagination();
   }
 
+  onStatusChange(status: string, checked: boolean): void {
+    if (checked) {
+      Object.keys(this.selectedStatus).forEach(key => {
+        this.selectedStatus[key] = key === status;
+      });
+    } else {
+      this.selectedStatus[status] = false;
+    }
+
+    this.filterProjects();
+  }
+
   resetFilters(): void {
     this.selectedStatus = {
       planned: false,

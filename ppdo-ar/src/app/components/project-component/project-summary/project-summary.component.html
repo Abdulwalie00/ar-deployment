@@ -105,7 +105,7 @@
               type="checkbox"
               [id]="'status-' + status"
               [(ngModel)]="selectedStatus[status]"
-              (ngModelChange)="filterProjects()"
+              (ngModelChange)="onStatusChange(status, $event)"
               class="status-checkbox"
             />
             <span class="status-label">{{ status | titlecase }}</span>
