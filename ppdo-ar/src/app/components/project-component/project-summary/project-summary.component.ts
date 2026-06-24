@@ -23,6 +23,15 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   projects: Project[] = [];
   filteredProjects: Project[] = [];
   paginatedProjects: Project[] = [];
+  summaryStats = {
+    total: 0,
+    planned: 0,
+    ongoing: 0,
+    completed: 0,
+    cancelled: 0,
+    completionRate: 0
+  };
+  activeFilterCount: number = 0;
 
   // Filter options
   divisions: Division[] = [];
@@ -143,7 +152,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     }
 
     // Apply Division Filter (only for Admins)
-    if (this.isAdmin && this.selectedDivision) {
+    if ((this.isAdmin || this.isSuperAdmin) && this.selectedDivision) {
       tempProjects = tempProjects.filter(p => p.division.id === this.selectedDivision);
     }
 
@@ -156,6 +165,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     }
 
     this.filteredProjects = tempProjects;
+    this.updateSummaryStats();
+    this.activeFilterCount = this.computeActiveFilterCount();
     this.currentPage = 1; // Reset to first page after filtering
     this.updatePagination();
   }
@@ -195,6 +206,56 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
       this.currentPage = page;
       this.updatePagination();
     }
+  }
+
+  private updateSummaryStats(): void {
+    const counts = {
+      total: this.filteredProjects.length,
+      planned: 0,
+      ongoing: 0,
+      completed: 0,
+      cancelled: 0,
+      completionRate: 0
+    };
+
+    this.filteredProjects.forEach(project => {
+      if (project.status === 'planned') {
+        counts.planned += 1;
+      }
+      if (project.status === 'ongoing') {
+        counts.ongoing += 1;
+      }
+      if (project.status === 'completed') {
+        counts.completed += 1;
+      }
+      if (project.status === 'cancelled') {
+        counts.cancelled += 1;
+      }
+    });
+
+    if (counts.total > 0) {
+      counts.completionRate = Math.round((counts.completed / counts.total) * 100);
+    }
+
+    this.summaryStats = counts;
+  }
+
+  private computeActiveFilterCount(): number {
+    let count = 0;
+
+    if (this.selectedYear) {
+      count += 1;
+    }
+    if (this.selectedMonth) {
+      count += 1;
+    }
+    if ((this.isAdmin || this.isSuperAdmin) && this.selectedDivision) {
+      count += 1;
+    }
+
+    count += Object.keys(this.selectedStatus).filter(status => this.selectedStatus[status]).length;
+
+    return count;
   }
 
   private safePrintValue(value: any): string {
