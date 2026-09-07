@@ -16,6 +16,7 @@
   </header>
 
   <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="add-form-layout">
+    <p class="required-note"><span class="required-indicator" aria-hidden="true">*</span> Required fields</p>
     <main class="main-column">
       <section class="surface-card section-card">
         <div class="section-head">
@@ -25,7 +26,7 @@
 
         <div class="field-grid two-col">
           <div class="field-block wide">
-            <label for="title">Project Title</label>
+            <label for="title">Project Title <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="title"
@@ -39,7 +40,7 @@
           </div>
 
           <div class="field-block wide">
-            <label for="location">Location</label>
+            <label for="location">Location <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="location"
@@ -53,7 +54,7 @@
           </div>
 
           <div class="field-block wide">
-            <label for="description">Description</label>
+            <label for="description">Description <span class="required-indicator" aria-hidden="true">*</span></label>
             <textarea
               id="description"
               formControlName="description"
@@ -67,7 +68,7 @@
           </div>
 
           <div class="field-block wide">
-            <label for="objectives">Objective</label>
+            <label for="objectives">Objective <span class="required-indicator" aria-hidden="true">*</span></label>
             <textarea
               id="objectives"
               formControlName="objectives"
@@ -101,7 +102,7 @@
 
         <div class="field-grid two-col compact-gap">
           <div class="field-block">
-            <label for="latitude">Latitude</label>
+            <label for="latitude">Latitude <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="number"
               id="latitude"
@@ -118,7 +119,7 @@
           </div>
 
           <div class="field-block">
-            <label for="longitude">Longitude</label>
+            <label for="longitude">Longitude <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="number"
               id="longitude"
@@ -147,7 +148,7 @@
 
         <div class="field-grid three-col">
           <div class="field-block">
-            <label for="budget">Budget</label>
+            <label for="budget">Budget <span class="required-indicator" aria-hidden="true">*</span></label>
             <div class="money-wrap">
               <span class="currency">₱</span>
               <input
@@ -165,7 +166,7 @@
           </div>
 
           <div class="field-block">
-            <label for="fundSource">Fund Source</label>
+            <label for="fundSource">Fund Source <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="fundSource"
@@ -179,7 +180,7 @@
           </div>
 
           <div class="field-block">
-            <label for="targetParticipant">Target Participants</label>
+            <label for="targetParticipant">Target Participants <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="targetParticipant"
@@ -193,7 +194,7 @@
           </div>
 
           <div class="field-block">
-            <label for="startDate">Start Date</label>
+            <label for="startDate">Start Date <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="date"
               id="startDate"
@@ -207,7 +208,7 @@
           </div>
 
           <div class="field-block">
-            <label for="endDate">End Date</label>
+            <label for="endDate">End Date <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="date"
               id="endDate"
@@ -224,7 +225,7 @@
           </div>
 
           <div class="field-block">
-            <label for="division">Division</label>
+            <label for="division">Division <span class="required-indicator" aria-hidden="true">*</span></label>
             <select
               id="division"
               formControlName="divisionId"
@@ -339,7 +340,7 @@
           </div>
 
           <div class="field-block">
-            <label for="status">Status</label>
+            <label for="status">Status <span class="required-indicator" aria-hidden="true">*</span></label>
             <select
               id="status"
               formControlName="status"
@@ -353,7 +354,7 @@
           </div>
 
           <div class="field-block">
-            <label for="typeOfProject">Type of Project</label>
+            <label for="typeOfProject">Type of Project <span class="required-indicator" aria-hidden="true">*</span></label>
             <select
               id="typeOfProject"
               formControlName="typeOfProject"
@@ -372,7 +373,7 @@
           </div>
 
           <div *ngIf="showAipYear" class="field-block">
-            <label for="aipYear">AIP Year</label>
+            <label for="aipYear">AIP Year <span class="required-indicator" aria-hidden="true">*</span></label>
             <select
               id="aipYear"
               formControlName="aipYear"

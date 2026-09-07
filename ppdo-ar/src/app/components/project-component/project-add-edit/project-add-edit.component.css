@@ -91,6 +91,14 @@
 	align-items: start;
 }
 
+.required-note {
+	grid-column: 1 / -1;
+	margin: 0;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: color-mix(in srgb, var(--app-text) 72%, var(--app-muted));
+}
+
 .main-column,
 .side-column {
 	display: flex;
@@ -175,6 +183,11 @@
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	color: color-mix(in srgb, var(--app-text) 86%, var(--app-muted));
+}
+
+.required-indicator {
+	color: #dc2626;
+	font-weight: 800;
 }
 
 .input-control,
