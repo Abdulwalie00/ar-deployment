@@ -218,6 +218,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 th,
@@ -237,11 +238,46 @@ th {
   color: var(--app-muted);
 }
 
+th:first-child,
+td.col-project {
+  width: 38%;
+}
+
+th.col-status,
+td.col-status {
+  width: 13%;
+  vertical-align: top;
+}
+
+th.col-timeline,
+td.col-timeline {
+  width: 24%;
+  vertical-align: top;
+}
+
+th.col-progress,
+td.col-progress {
+  width: 15%;
+  vertical-align: top;
+}
+
+th:last-child,
+td.col-action {
+  width: 10%;
+  vertical-align: top;
+}
+
 .project-title-row {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+td.col-project small {
+  display: block;
+  margin-top: 0.22rem;
 }
 
 .new-badge {
@@ -286,8 +322,21 @@ td small {
 
 .progress-wrap {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.timeline-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  line-height: 1.2;
+}
+
+.timeline-range {
+  color: var(--app-muted);
+  font-size: 0.72rem;
 }
 
 .progress-track {
@@ -308,6 +357,8 @@ td small {
   color: var(--app-primary);
   text-decoration: none;
   font-weight: 700;
+  display: inline-block;
+  margin-top: 0.1rem;
 }
 
 .view-link:hover {
@@ -335,5 +386,56 @@ td small {
   .division-actions {
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .division-table-wrap table,
+  .division-table-wrap tbody,
+  .division-table-wrap tr,
+  .division-table-wrap td {
+    display: block;
+    width: 100%;
+  }
+
+  .division-table-wrap table {
+    table-layout: auto;
+  }
+
+  .division-table-wrap thead {
+    display: none;
+  }
+
+  .division-table-wrap tbody tr {
+    border-bottom: 1px solid color-mix(in srgb, var(--app-border) 70%, transparent);
+    padding: 0.75rem 0.8rem;
+  }
+
+  .division-table-wrap td {
+    border-bottom: none;
+    padding: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .division-table-wrap td.col-action {
+    margin-bottom: 0;
+  }
+
+  .division-table-wrap td[data-label] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .division-table-wrap td[data-label]::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--app-muted);
+  }
+
+  .division-table-wrap td.col-progress .progress-track {
+    width: 100%;
+    max-width: 12rem;
   }
 }
