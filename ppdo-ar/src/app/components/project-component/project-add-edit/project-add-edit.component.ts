@@ -45,7 +45,6 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
 
   projectForm!: FormGroup;
   isEditMode: boolean = false;
-  showMoreFields: boolean = false;
   showAipYear: boolean = false;
   projectId: string | null = null;
   divisions: Division[] = [];

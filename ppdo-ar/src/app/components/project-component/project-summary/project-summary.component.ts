@@ -284,7 +284,7 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     let divisionName = 'All Divisions';
     let divisionLogoUrl = '';
 
-    if (this.isAdmin) {
+    if (this.isAdmin || this.isSuperAdmin) {
       if (this.selectedDivision) {
         const division = this.divisions.find(d => d.id === this.selectedDivision);
         divisionName = division ? division.name : 'All Divisions';

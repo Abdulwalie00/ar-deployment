@@ -91,6 +91,14 @@
 	align-items: start;
 }
 
+.required-note {
+	grid-column: 1 / -1;
+	margin: 0;
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: color-mix(in srgb, var(--app-text) 72%, var(--app-muted));
+}
+
 .main-column,
 .side-column {
 	display: flex;
@@ -175,6 +183,11 @@
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	color: color-mix(in srgb, var(--app-text) 86%, var(--app-muted));
+}
+
+.required-indicator {
+	color: #dc2626;
+	font-weight: 800;
 }
 
 .input-control,
@@ -370,30 +383,6 @@
 	font-size: 0.75rem;
 }
 
-.compact-card {
-	padding: 0.86rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.62rem;
-}
-
-.compact-top h4 {
-	margin: 0;
-	font-size: 0.88rem;
-	font-weight: 700;
-}
-
-.compact-top p {
-	margin: 0.2rem 0 0;
-	font-size: 0.76rem;
-	color: color-mix(in srgb, var(--app-text) 67%, var(--app-muted));
-}
-
-.full-btn {
-	width: 100%;
-	justify-content: center;
-}
-
 .action-bar {
 	grid-column: 1 / -1;
 	display: flex;
@@ -477,7 +466,7 @@
 	.add-hero,
 	.section-card,
 	.side-stack,
-	.compact-card {
+	.side-stack {
 		border-radius: 0.86rem;
 	}
 

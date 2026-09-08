@@ -2,8 +2,10 @@ package com.lds.ppdoarbackend.config;
 
 import com.lds.ppdoarbackend.model.Division;
 import com.lds.ppdoarbackend.model.Project;
+import com.lds.ppdoarbackend.model.ProjectCategory;
 import com.lds.ppdoarbackend.model.User;
 import com.lds.ppdoarbackend.repository.DivisionRepository;
+import com.lds.ppdoarbackend.repository.ProjectCategoryRepository;
 import com.lds.ppdoarbackend.repository.ProjectRepository;
 import com.lds.ppdoarbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +13,19 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
 public class DataLoader implements CommandLineRunner {
+
+    private static final int[] SAMPLE_YEARS = {2024, 2025, 2026};
+    private static final String[] SAMPLE_TYPES = {"Operational", "PPA/AIP", "Initiative"};
+    private static final String[] SAMPLE_STATUSES = {"planned", "ongoing", "completed"};
 
     @Autowired
     private UserRepository userRepository;
@@ -27,6 +35,9 @@ public class DataLoader implements CommandLineRunner {
 
     @Autowired
     private DivisionRepository divisionRepository;
+
+    @Autowired
+    private ProjectCategoryRepository projectCategoryRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -106,6 +117,8 @@ public class DataLoader implements CommandLineRunner {
                 Map.entry("ICTO", "Information and Communication Technology Office")
         );
 
+            int divisionIndex = 0;
+
         for (Map.Entry<String, String> entry : divisions.entrySet()) {
             String code = entry.getKey();
             String name = entry.getValue();
@@ -146,24 +159,35 @@ public class DataLoader implements CommandLineRunner {
 
                 // Create a sample project for the new division
                 Project sampleProject = new Project();
+                int sampleYear = SAMPLE_YEARS[divisionIndex % SAMPLE_YEARS.length];
+                String sampleType = SAMPLE_TYPES[divisionIndex % SAMPLE_TYPES.length];
+                String sampleStatus = SAMPLE_STATUSES[divisionIndex % SAMPLE_STATUSES.length];
+                Date startDate = createDate(sampleYear, 1 + (divisionIndex % 6), 3 + (divisionIndex % 20));
+                Date implementationSchedule = addMonths(startDate, 1);
+                Date endDate = addMonths(startDate, 5);
+
                 sampleProject.setId(UUID.randomUUID().toString());
                 sampleProject.setTitle("Sample Project for " + code);
                 sampleProject.setDescription("This is a sample project for " + name);
+                sampleProject.setObjectives("Deliver priority outcomes for " + name + " and strengthen service delivery targets.");
                 sampleProject.setLocation("City Hall");
                 sampleProject.setLatitude(8.0011);
                 sampleProject.setLongitude(124.2862);
-                sampleProject.setStartDate(new Date());
-                sampleProject.setEndDate(new Date());
-                sampleProject.setImplementationSchedule(new Date());
-                sampleProject.setDateOfAccomplishment(new Date());
+                sampleProject.setStartDate(startDate);
+                sampleProject.setEndDate(endDate);
+                sampleProject.setImplementationSchedule(implementationSchedule);
+                sampleProject.setDateOfAccomplishment("completed".equals(sampleStatus) ? endDate : implementationSchedule);
                 sampleProject.setBudget(50000.00);
-                sampleProject.setPercentCompletion(50.0);
+                sampleProject.setPercentCompletion(percentForStatus(sampleStatus));
                 sampleProject.setFundSource("General Fund");
-                sampleProject.setStatus("ongoing");
+                sampleProject.setStatus(sampleStatus);
                 sampleProject.setTargetParticipant("Participants from " + name);
                 sampleProject.setOfficeInCharge("Office of the Mayor");
                 sampleProject.setRemarks("This is a sample remark.");
+                sampleProject.setAipYear(sampleYear);
+                sampleProject.setTypeOfProject(sampleType);
                 sampleProject.setDivision(division);
+                sampleProject.setProjectCategory(resolveOrCreateProjectCategory(division));
                 sampleProject.setDateCreated(new Date());
                 sampleProject.setDateUpdated(new Date());
 
@@ -172,6 +196,45 @@ public class DataLoader implements CommandLineRunner {
             } else {
                 System.out.println("Division already exists: " + name);
             }
+
+            divisionIndex++;
         }
+    }
+
+    private Date createDate(int year, int month, int dayOfMonth) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(year, month - 1, dayOfMonth, 0, 0, 0);
+        return calendar.getTime();
+    }
+
+    private Date addMonths(Date baseDate, int monthsToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.MONTH, monthsToAdd);
+        return calendar.getTime();
+    }
+
+    private double percentForStatus(String status) {
+        return switch (status) {
+            case "planned" -> 0.0;
+            case "completed" -> 100.0;
+            default -> 55.0;
+        };
+    }
+
+    private ProjectCategory resolveOrCreateProjectCategory(Division division) {
+        List<ProjectCategory> categories = projectCategoryRepository.findByDivisionId(division.getId());
+        if (!categories.isEmpty()) {
+            return categories.get(0);
+        }
+
+        ProjectCategory projectCategory = new ProjectCategory();
+        projectCategory.setName("General Projects");
+        projectCategory.setCode(division.getCode() + "-GEN");
+        projectCategory.setDivision(division);
+        projectCategory.setDateUpdated(new Date());
+
+        return projectCategoryRepository.save(projectCategory);
     }
 }

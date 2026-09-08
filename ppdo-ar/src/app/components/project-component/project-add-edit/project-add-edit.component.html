@@ -16,6 +16,7 @@
   </header>
 
   <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="add-form-layout">
+    <p class="required-note"><span class="required-indicator" aria-hidden="true">*</span> Required fields</p>
     <main class="main-column">
       <section class="surface-card section-card">
         <div class="section-head">
@@ -25,7 +26,7 @@
 
         <div class="field-grid two-col">
           <div class="field-block wide">
-            <label for="title">Project Title</label>
+            <label for="title">Project Title <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="title"
@@ -39,7 +40,7 @@
           </div>
 
           <div class="field-block wide">
-            <label for="location">Location</label>
+            <label for="location">Location <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="location"
@@ -53,7 +54,7 @@
           </div>
 
           <div class="field-block wide">
-            <label for="description">Description</label>
+            <label for="description">Description <span class="required-indicator" aria-hidden="true">*</span></label>
             <textarea
               id="description"
               formControlName="description"
@@ -67,7 +68,7 @@
           </div>
 
           <div class="field-block wide">
-            <label for="objectives">Objective</label>
+            <label for="objectives">Objective <span class="required-indicator" aria-hidden="true">*</span></label>
             <textarea
               id="objectives"
               formControlName="objectives"
@@ -101,7 +102,7 @@
 
         <div class="field-grid two-col compact-gap">
           <div class="field-block">
-            <label for="latitude">Latitude</label>
+            <label for="latitude">Latitude <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="number"
               id="latitude"
@@ -118,7 +119,7 @@
           </div>
 
           <div class="field-block">
-            <label for="longitude">Longitude</label>
+            <label for="longitude">Longitude <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="number"
               id="longitude"
@@ -147,7 +148,7 @@
 
         <div class="field-grid three-col">
           <div class="field-block">
-            <label for="budget">Budget</label>
+            <label for="budget">Budget <span class="required-indicator" aria-hidden="true">*</span></label>
             <div class="money-wrap">
               <span class="currency">₱</span>
               <input
@@ -165,7 +166,7 @@
           </div>
 
           <div class="field-block">
-            <label for="fundSource">Fund Source</label>
+            <label for="fundSource">Fund Source <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="fundSource"
@@ -179,7 +180,7 @@
           </div>
 
           <div class="field-block">
-            <label for="targetParticipant">Target Participants</label>
+            <label for="targetParticipant">Target Participants <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="text"
               id="targetParticipant"
@@ -193,7 +194,7 @@
           </div>
 
           <div class="field-block">
-            <label for="startDate">Start Date</label>
+            <label for="startDate">Start Date <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="date"
               id="startDate"
@@ -207,7 +208,7 @@
           </div>
 
           <div class="field-block">
-            <label for="endDate">End Date</label>
+            <label for="endDate">End Date <span class="required-indicator" aria-hidden="true">*</span></label>
             <input
               type="date"
               id="endDate"
@@ -224,7 +225,7 @@
           </div>
 
           <div class="field-block">
-            <label for="division">Division</label>
+            <label for="division">Division <span class="required-indicator" aria-hidden="true">*</span></label>
             <select
               id="division"
               formControlName="divisionId"
@@ -244,13 +245,120 @@
         </div>
       </section>
 
-      <section *ngIf="showMoreFields" class="surface-card section-card extra-section">
+    </main>
+
+    <aside class="side-column">
+      <section class="surface-card section-card side-stack">
+        <div class="section-head">
+          <h3>Classification</h3>
+          <p>Keep this project aligned with program planning.</p>
+        </div>
+
+        <div class="field-stack">
+          <div class="field-block">
+            <label for="projectCategory">Project Category</label>
+            <select
+              id="projectCategory"
+              formControlName="projectCategoryId"
+              (change)="onCategoryChange($event)"
+              class="select-control"
+            >
+              <option value="">Select a category (optional)</option>
+              <option *ngFor="let cat of projectCategories" [value]="cat.id">{{ cat.name }}</option>
+              <option value="add-new-category">+ Add New Category</option>
+            </select>
+          </div>
+
+          <div class="field-block">
+            <label for="status">Status <span class="required-indicator" aria-hidden="true">*</span></label>
+            <select
+              id="status"
+              formControlName="status"
+              class="select-control"
+            >
+              <option value="planned">Planned</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div class="field-block">
+            <label for="typeOfProject">Type of Project <span class="required-indicator" aria-hidden="true">*</span></label>
+            <select
+              id="typeOfProject"
+              formControlName="typeOfProject"
+              class="select-control"
+              [ngClass]="{'invalid-field': projectForm.get('typeOfProject')?.invalid && projectForm.get('typeOfProject')?.touched}"
+            >
+              <option value="" disabled>Select a type</option>
+              <option value="Operational">Operational</option>
+              <option value="PPA/AIP">PPA/AIP</option>
+              <option value="Initiative">Initiative</option>
+              <option value="Others">Others</option>
+            </select>
+            <div *ngIf="projectForm.get('typeOfProject')?.invalid && projectForm.get('typeOfProject')?.touched" class="field-error">
+              Type of Project is required.
+            </div>
+          </div>
+
+          <div *ngIf="showAipYear" class="field-block">
+            <label for="aipYear">AIP Year <span class="required-indicator" aria-hidden="true">*</span></label>
+            <select
+              id="aipYear"
+              formControlName="aipYear"
+              class="select-control"
+            >
+              <option *ngFor="let year of aipYears" [ngValue]="year">{{ year }}</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="surface-card section-card side-stack">
+        <div class="section-head">
+          <h3>Project Images</h3>
+          <p>Upload visual proof and annotate each photo.</p>
+        </div>
+
+        <div class="upload-wrap">
+          <input
+            type="file"
+            multiple
+            (change)="onImageSelected($event)"
+            accept="image/*"
+            class="upload-input"
+          />
+        </div>
+
+        <div formArrayName="images" class="image-grid">
+          <div *ngFor="let imageControl of images.controls; let i = index" [formGroupName]="i" class="image-card">
+            <img [src]="imageControl.get('imageUrl')?.value" alt="Project image" />
+            <button
+              type="button"
+              (click)="removeImage(i)"
+              class="remove-image-btn"
+              title="Remove image"
+            >
+              x
+            </button>
+            <input
+              type="text"
+              formControlName="caption"
+              placeholder="Add caption"
+              class="input-control image-caption"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="surface-card section-card side-stack">
         <div class="section-head">
           <h3>Extended Tracking</h3>
           <p>Capture implementation and accountability details.</p>
         </div>
 
-        <div class="field-grid five-col">
+        <div class="field-stack">
           <div class="field-block">
             <label for="percentCompletion">Percent of Completion</label>
             <input
@@ -313,126 +421,6 @@
             </div>
           </div>
         </div>
-      </section>
-    </main>
-
-    <aside class="side-column">
-      <section class="surface-card section-card side-stack">
-        <div class="section-head">
-          <h3>Classification</h3>
-          <p>Keep this project aligned with program planning.</p>
-        </div>
-
-        <div class="field-stack">
-          <div class="field-block">
-            <label for="projectCategory">Project Category</label>
-            <select
-              id="projectCategory"
-              formControlName="projectCategoryId"
-              (change)="onCategoryChange($event)"
-              class="select-control"
-            >
-              <option value="">Select a category (optional)</option>
-              <option *ngFor="let cat of projectCategories" [value]="cat.id">{{ cat.name }}</option>
-              <option value="add-new-category">+ Add New Category</option>
-            </select>
-          </div>
-
-          <div class="field-block">
-            <label for="status">Status</label>
-            <select
-              id="status"
-              formControlName="status"
-              class="select-control"
-            >
-              <option value="planned">Planned</option>
-              <option value="ongoing">Ongoing</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-
-          <div class="field-block">
-            <label for="typeOfProject">Type of Project</label>
-            <select
-              id="typeOfProject"
-              formControlName="typeOfProject"
-              class="select-control"
-              [ngClass]="{'invalid-field': projectForm.get('typeOfProject')?.invalid && projectForm.get('typeOfProject')?.touched}"
-            >
-              <option value="" disabled>Select a type</option>
-              <option value="Operational">Operational</option>
-              <option value="PPA/AIP">PPA/AIP</option>
-              <option value="Initiative">Initiative</option>
-              <option value="Others">Others</option>
-            </select>
-            <div *ngIf="projectForm.get('typeOfProject')?.invalid && projectForm.get('typeOfProject')?.touched" class="field-error">
-              Type of Project is required.
-            </div>
-          </div>
-
-          <div *ngIf="showAipYear" class="field-block">
-            <label for="aipYear">AIP Year</label>
-            <select
-              id="aipYear"
-              formControlName="aipYear"
-              class="select-control"
-            >
-              <option *ngFor="let year of aipYears" [ngValue]="year">{{ year }}</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="surface-card section-card side-stack">
-        <div class="section-head">
-          <h3>Project Images</h3>
-          <p>Upload visual proof and annotate each photo.</p>
-        </div>
-
-        <div class="upload-wrap">
-          <input
-            type="file"
-            multiple
-            (change)="onImageSelected($event)"
-            accept="image/*"
-            class="upload-input"
-          />
-        </div>
-
-        <div formArrayName="images" class="image-grid">
-          <div *ngFor="let imageControl of images.controls; let i = index" [formGroupName]="i" class="image-card">
-            <img [src]="imageControl.get('imageUrl')?.value" alt="Project image" />
-            <button
-              type="button"
-              (click)="removeImage(i)"
-              class="remove-image-btn"
-              title="Remove image"
-            >
-              x
-            </button>
-            <input
-              type="text"
-              formControlName="caption"
-              placeholder="Add caption"
-              class="input-control image-caption"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section class="surface-card compact-card">
-        <div class="compact-top">
-          <h4>Need More Fields?</h4>
-          <p>Toggle advanced project tracking inputs.</p>
-        </div>
-        <button
-          type="button"
-          (click)="showMoreFields = !showMoreFields"
-          class="app-btn app-btn-secondary full-btn"
-        >
-          {{ showMoreFields ? 'Show Less Details' : 'Show More Details' }}
-        </button>
       </section>
     </aside>
 

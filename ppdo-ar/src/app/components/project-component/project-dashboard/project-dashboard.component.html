@@ -88,16 +88,16 @@
           <thead>
           <tr>
             <th>Project</th>
-            <th>Status</th>
-            <th>Timeline</th>
-            <th>Progress</th>
+            <th class="col-status">Status</th>
+            <th class="col-timeline">Timeline</th>
+            <th class="col-progress">Progress</th>
             <th>Action</th>
           </tr>
           </thead>
 
           <tbody>
           <tr *ngFor="let project of projectsByDivision[divisionName]">
-            <td>
+            <td class="col-project">
               <div class="project-title-row">
                 <span>{{ project.title }}</span>
                 <span *ngIf="project.isNew" class="new-badge">New</span>
@@ -105,7 +105,7 @@
               <small>{{ project.location }}</small>
             </td>
 
-            <td>
+            <td class="col-status" data-label="Status">
               <span
                 class="state-pill"
                 [ngClass]="{
@@ -119,9 +119,14 @@
               </span>
             </td>
 
-            <td>{{ project.startDate | date:'MMM d, y' }} - {{ project.endDate | date:'MMM d, y' }}</td>
+            <td class="col-timeline" data-label="Timeline">
+              <div class="timeline-cell-wrap">
+                <span>{{ project.startDate | date:'MMM d, y' }}</span>
+                <span class="timeline-range">to {{ project.endDate | date:'MMM d, y' }}</span>
+              </div>
+            </td>
 
-            <td>
+            <td class="col-progress" data-label="Progress">
               <div class="progress-wrap">
                 <div class="progress-track">
                   <div class="progress-value" [style.width.%]="project.percentCompletion"></div>
@@ -130,7 +135,7 @@
               </div>
             </td>
 
-            <td>
+            <td class="col-action">
               <a [routerLink]="['/project-detail', project.id]" class="view-link">View</a>
             </td>
           </tr>

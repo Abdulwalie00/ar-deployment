@@ -25,16 +25,34 @@ const completionByStatus: Record<Project['status'], number> = {
   cancelled: 0
 };
 
-const hydrateDummyProject = (project: DummyProjectSeed): Project => {
-  const year = new Date(project.startDate).getFullYear();
+const demoYears = [2024, 2025, 2026];
+const demoTypes = ['Operational', 'PPA/AIP', 'Initiative'];
+
+const withYear = (date: Date, targetYear: number): Date => {
+  const clone = new Date(date);
+  clone.setFullYear(targetYear);
+  return clone;
+};
+
+const hydrateDummyProject = (project: DummyProjectSeed, index: number): Project => {
+  const year = demoYears[index % demoYears.length];
+  const typeOfProject = demoTypes[index % demoTypes.length];
+  const startDate = withYear(project.startDate, year);
+  const endDate = withYear(project.endDate, year);
+
+  if (endDate < startDate) {
+    endDate.setFullYear(year + 1);
+  }
 
   return {
     ...project,
-    implementationSchedule: new Date(project.startDate),
+    startDate,
+    endDate,
+    implementationSchedule: new Date(startDate),
     dateOfAccomplishment:
       project.status === 'completed'
-        ? new Date(project.endDate)
-        : new Date(project.startDate),
+        ? new Date(endDate)
+        : new Date(startDate),
     percentCompletion: completionByStatus[project.status],
     targetParticipant: 'Community residents and stakeholders',
     officeInCharge: `${project.division.code} Office`,
@@ -43,7 +61,13 @@ const hydrateDummyProject = (project: DummyProjectSeed): Project => {
         ? 'Deferred pending policy review'
         : 'Monitoring ongoing implementation milestones',
     objectives: `Deliver ${project.title.toLowerCase()} outcomes aligned with ${project.division.name} priorities.`,
-    typeOfProject: 'Operational',
+    projectCategory: {
+      id: `cat-${project.division.code.toLowerCase()}`,
+      name: `${project.division.code} General Projects`,
+      code: `${project.division.code}-GEN`,
+      division: project.division
+    },
+    typeOfProject,
     aipYear: year,
     narrativeReport: `${project.title} is currently ${project.status}.`
   };
