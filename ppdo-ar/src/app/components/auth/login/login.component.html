@@ -98,6 +98,10 @@
               Signing In...
             </span>
           </button>
+
+          <button *ngIf="pwa.canInstall()" type="button" class="install-link" (click)="pwa.install()">
+            ⤓ Install as a desktop app
+          </button>
         </form>
       </div>
 

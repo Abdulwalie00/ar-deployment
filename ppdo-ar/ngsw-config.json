@@ -12,7 +12,10 @@
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "/icons/**",
+          "/app/assets/logos/LDS.png",
+          "/app/assets/logos/ICTO.png"
         ]
       }
     },

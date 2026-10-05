@@ -31,6 +31,14 @@ import { ConfirmService } from '../../../services/confirm.service';
         <div class="toast-copy">
           <strong>{{ toast.title }}</strong>
           <span *ngIf="toast.message">{{ toast.message }}</span>
+          <button
+            *ngIf="toast.action as action"
+            type="button"
+            class="app-btn app-btn-primary app-btn-sm toast-action"
+            (click)="action.run(); toastService.dismiss(toast.id)"
+          >
+            {{ action.label }}
+          </button>
         </div>
         <button type="button" class="toast-close" (click)="toastService.dismiss(toast.id)" aria-label="Dismiss message">
           <fa-icon [icon]="faXmark"></fa-icon>

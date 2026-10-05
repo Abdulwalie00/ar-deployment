@@ -10,6 +10,7 @@ import {
   animate,
 } from '@angular/animations';
 import { AuthService } from '../../../services/auth.service';
+import { PwaService } from '../../../services/pwa.service';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 
@@ -47,7 +48,7 @@ export class LoginComponent {
 
 
   // We inject the AuthService and Router.
-  constructor(private authService: AuthService, private router: Router, route: ActivatedRoute) {
+  constructor(private authService: AuthService, private router: Router, route: ActivatedRoute, public pwa: PwaService) {
     const requested = route.snapshot.queryParamMap.get('returnUrl');
     // Only follow in-app paths so the link cannot redirect off-site.
     if (requested && requested.startsWith('/') && !requested.startsWith('//')) {

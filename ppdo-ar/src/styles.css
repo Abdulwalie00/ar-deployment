@@ -703,3 +703,101 @@ body::before {
 .app-table th.text-right {
   text-align: right;
 }
+
+/* ---------- Installed app (PWA) ---------- */
+
+.app-titlebar {
+  display: none;
+}
+
+/* Desktop app with the window-controls overlay: our own slim title bar sits
+   beside the minimize/maximize/close buttons and can be dragged. */
+@media (display-mode: window-controls-overlay) {
+  .app-titlebar {
+    position: fixed;
+    left: env(titlebar-area-x, 0);
+    top: env(titlebar-area-y, 0);
+    width: env(titlebar-area-width, 100%);
+    height: env(titlebar-area-height, 33px);
+    z-index: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0 0.8rem;
+    font-size: 0.78rem;
+    color: var(--app-text);
+    -webkit-app-region: drag;
+    app-region: drag;
+    user-select: none;
+  }
+
+  .app-titlebar-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+  }
+
+  .app-titlebar-name {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .app-titlebar-page {
+    color: var(--app-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-titlebar-page::before {
+    content: '/';
+    margin-right: 0.55rem;
+    opacity: 0.5;
+  }
+
+  .app-titlebar-offline {
+    margin-left: auto;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #fff;
+    background: #d97706;
+  }
+
+  body {
+    padding-top: env(titlebar-area-height, 33px);
+  }
+
+  /* Fit the app shell below the title bar instead of overflowing it. */
+  :root .app-shell.app-shell {
+    min-height: calc(100vh - env(titlebar-area-height, 33px));
+  }
+
+  :root .shell-frame.shell-frame {
+    min-height: calc(100vh - env(titlebar-area-height, 33px) - 1.8rem);
+  }
+
+  /* The mobile drawer and header menus start below the title bar. */
+  :root .sidebar-shell.sidebar-shell {
+    top: env(titlebar-area-height, 33px);
+  }
+}
+
+/* Feel like a native app rather than a web page when installed. */
+.is-installed-app body {
+  overscroll-behavior: none;
+}
+
+.is-installed-app .app-chip,
+.is-installed-app .app-btn,
+.is-installed-app .menu-link,
+.is-installed-app .submenu-link,
+.is-installed-app .status-card {
+  user-select: none;
+}
+
+.toast-action {
+  justify-self: start;
+  margin-top: 0.4rem;
+}

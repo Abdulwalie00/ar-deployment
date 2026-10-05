@@ -3,11 +3,23 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 export type ToastTone = 'success' | 'error' | 'info' | 'warning';
 
+export interface ToastAction {
+  label: string;
+  run: () => void;
+}
+
 export interface Toast {
   id: number;
   tone: ToastTone;
   title: string;
   message?: string;
+  action?: ToastAction;
+}
+
+export interface ToastOptions {
+  /** Milliseconds before auto-dismiss; 0 keeps it until the user closes it. */
+  duration?: number;
+  action?: ToastAction;
 }
 
 /**
@@ -46,11 +58,16 @@ export class ToastService {
     this.toasts.update(list => list.filter(t => t.id !== id));
   }
 
-  private show(tone: ToastTone, title: string, message?: string, duration = 4000): void {
+  /** Shows a toast with full control over duration and an optional action button. Returns its id. */
+  show(tone: ToastTone, title: string, message?: string, options: ToastOptions | number = {}): number {
+    const { duration = 4000, action } = typeof options === 'number' ? { duration: options } : options;
     const id = this.nextId++;
     // Keep the stack short so toasts never cover the page.
-    this.toasts.update(list => [...list.slice(-3), { id, tone, title, message }]);
-    setTimeout(() => this.dismiss(id), duration);
+    this.toasts.update(list => [...list.slice(-3), { id, tone, title, message, action }]);
+    if (duration > 0) {
+      setTimeout(() => this.dismiss(id), duration);
+    }
+    return id;
   }
 
   private describeError(error: unknown): string | undefined {

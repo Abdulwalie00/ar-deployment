@@ -328,3 +328,14 @@
   font-size: 0.8rem;
   font-weight: 600;
 }
+
+.install-link {
+  justify-self: center;
+  margin-top: 0.3rem;
+  border: 0;
+  background: transparent;
+  color: var(--app-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}

@@ -1,59 +1,77 @@
 {
-  "name": "PPDO-AR",
-  "short_name": "PPDO-AR",
-  "theme_color": "#136f63",
-  "background_color": "#f2f7f5",
+  "id": "/",
+  "name": "PGLDS Project Monitoring",
+  "short_name": "PGLDS PMR",
+  "description": "Project monitoring and reporting workspace for the offices of the Provincial Government of Lanao del Sur.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "scope": "./",
-  "start_url": "./",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#eef4f1",
+  "background_color": "#eef4f1",
+  "categories": ["productivity", "business", "government"],
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
   "icons": [
+    { "src": "icons/icon-72x72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-128x128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-144x144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-152x152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-384x384.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
     {
-      "src": "icons/icon-72x72.png",
-      "sizes": "72x72",
+      "src": "screenshots/login-wide.png",
+      "sizes": "1280x800",
       "type": "image/png",
-      "purpose": "maskable any"
+      "form_factor": "wide",
+      "label": "Sign in to PGLDS Project Monitoring"
     },
     {
-      "src": "icons/icon-96x96.png",
-      "sizes": "96x96",
+      "src": "screenshots/login-narrow.png",
+      "sizes": "540x960",
       "type": "image/png",
-      "purpose": "maskable any"
+      "form_factor": "narrow",
+      "label": "PGLDS Project Monitoring on a phone"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Project status across all offices",
+      "url": "/project-dashboard",
+      "icons": [{ "src": "icons/shortcut-dashboard.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
-      "src": "icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "name": "New Project",
+      "short_name": "New Project",
+      "description": "Record a new project",
+      "url": "/project-add",
+      "icons": [{ "src": "icons/shortcut-add.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
-      "src": "icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "name": "Notifications",
+      "short_name": "Notifications",
+      "description": "Latest project updates and comments",
+      "url": "/notifications",
+      "icons": [{ "src": "icons/shortcut-bell.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
-      "src": "icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "name": "Summary Report",
+      "short_name": "Summary",
+      "description": "Printable project summary",
+      "url": "/project-summary",
+      "icons": [{ "src": "icons/shortcut-report.png", "sizes": "96x96", "type": "image/png" }]
     }
   ]
 }

@@ -24,7 +24,8 @@
               "src/favicon.ico",
               "src/app/assets",
               "src/manifest.webmanifest",
-              "src/icons"
+              "src/icons",
+              "src/screenshots"
             ],
             "styles": [
               "src/styles.css"

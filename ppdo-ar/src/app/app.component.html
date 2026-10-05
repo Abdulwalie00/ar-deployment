@@ -1,3 +1,11 @@
+<!-- Title bar for the installed desktop app (only visible in window-controls-overlay mode). -->
+<div class="app-titlebar" aria-hidden="true">
+  <img src="icons/icon-72x72.png" alt="" class="app-titlebar-icon" />
+  <span class="app-titlebar-name">{{ appName }}</span>
+  <span *ngIf="pageTitle" class="app-titlebar-page">{{ pageTitle }}</span>
+  <span *ngIf="!pwa.isOnline()" class="app-titlebar-offline">Offline</span>
+</div>
+
 <a class="skip-link" href="#main-content" (click)="skipToMain($event)">Skip to main content</a>
 <router-outlet></router-outlet>
 <app-feedback-host></app-feedback-host>

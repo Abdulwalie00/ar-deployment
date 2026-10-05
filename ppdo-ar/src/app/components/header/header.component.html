@@ -114,6 +114,9 @@
           <a routerLink="/profile" class="menu-item" (click)="closeMenu()" role="menuitem">
             <fa-icon [icon]="faUser"></fa-icon> My profile
           </a>
+          <button *ngIf="pwa.canInstall()" class="menu-item" (click)="installApp()" role="menuitem">
+            <fa-icon [icon]="faDownload"></fa-icon> Install desktop app
+          </button>
           <button class="menu-item danger" (click)="confirmLogout()" role="menuitem">
             <fa-icon [icon]="faRightFromBracket"></fa-icon> Sign out
           </button>

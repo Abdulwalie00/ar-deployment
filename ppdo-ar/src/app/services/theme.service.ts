@@ -127,6 +127,9 @@ export class ThemeService {
 
   private applyThemeMode(isDarkMode: boolean, persist: boolean): void {
     document.documentElement.classList.toggle('dark', isDarkMode);
+    // Lets the installed app's title bar blend with the page background.
+    document.querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', isDarkMode ? '#0f1514' : '#eef4f1');
 
     if (persist) {
       localStorage.setItem(this.themeStorageKey, isDarkMode ? 'dark' : 'light');

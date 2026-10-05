@@ -2,7 +2,7 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBell, faSun, faMoon, faBars, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faSun, faMoon, faBars, faUser, faRightFromBracket, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription, of, timer } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -18,6 +18,7 @@ import { LayoutService } from '../../services/layout.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ToastService } from '../../services/toast.service';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
+import { PwaService } from '../../services/pwa.service';
 
 const NOTIFICATION_POLL_MS = 15000;
 
@@ -35,6 +36,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   faBars = faBars;
   faUser = faUser;
   faRightFromBracket = faRightFromBracket;
+  faDownload = faDownload;
   isDarkMode = false;
 
   notifications: Notification[] = [];
@@ -62,6 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private confirmService: ConfirmService,
     private toast: ToastService,
     public layout: LayoutService,
+    public pwa: PwaService,
     private el: ElementRef,
     private router: Router
   ) {}
@@ -245,6 +248,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private closeMenus(): void {
     this.menuOpen = false;
     this.notificationMenuOpen = false;
+  }
+
+  installApp(): void {
+    this.closeMenu();
+    void this.pwa.install();
   }
 
   // Ask before signing out so a stray click does not end the session.
