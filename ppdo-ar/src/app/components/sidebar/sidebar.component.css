@@ -216,3 +216,130 @@
 		padding-top: 0.5rem;
 	}
 }
+
+.menu-link.group-active:not(:hover) {
+	color: var(--app-primary);
+}
+
+.office-search {
+	position: relative;
+	display: flex;
+	align-items: center;
+	margin: 0 0.1rem 0.6rem;
+}
+
+.office-search-icon {
+	position: absolute;
+	left: 0.65rem;
+	font-size: 0.75rem;
+	color: var(--app-muted);
+	pointer-events: none;
+}
+
+.office-search-input {
+	width: 100%;
+	border: 1px solid var(--app-border);
+	background: var(--app-surface);
+	color: var(--app-text);
+	border-radius: 0.65rem;
+	padding: 0.48rem 1.9rem 0.48rem 1.9rem;
+	font-size: 0.78rem;
+	outline: none;
+}
+
+.office-search-input:focus {
+	border-color: var(--app-primary);
+}
+
+.office-search-input::-webkit-search-cancel-button {
+	display: none;
+}
+
+.office-search-clear {
+	position: absolute;
+	right: 0.3rem;
+	border: 0;
+	background: transparent;
+	color: var(--app-muted);
+	font-size: 0.75rem;
+	padding: 0.2rem 0.4rem;
+	cursor: pointer;
+}
+
+.office-search-empty {
+	margin: 0 0.4rem 0.6rem;
+	font-size: 0.75rem;
+	color: var(--app-muted);
+}
+
+.submenu-copy {
+	display: grid;
+	min-width: 0;
+}
+
+.submenu-full {
+	font-size: 0.66rem;
+	opacity: 0.75;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.submenu-popup-title {
+	padding: 0.3rem 0.54rem 0.4rem;
+	font-size: 0.66rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--app-muted);
+}
+
+.mobile-only {
+	display: none;
+}
+
+.sidebar-backdrop {
+	display: none;
+}
+
+@media (max-width: 900px) {
+	.sidebar-shell {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 95;
+		width: 17rem !important;
+		max-width: 85vw;
+		background: var(--app-surface);
+		box-shadow: 0 0 40px rgba(0, 0, 0, 0.25);
+		transform: translateX(-105%);
+		transition: transform 220ms ease;
+	}
+
+	.sidebar-shell.mobile-open {
+		transform: translateX(0);
+	}
+
+	.sidebar-backdrop {
+		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: 90;
+		background: rgba(10, 20, 18, 0.45);
+	}
+
+	.mobile-only {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.desktop-only {
+		display: none;
+	}
+}
+
+a.menu-link:not(.collapsed) {
+	justify-content: flex-start;
+}

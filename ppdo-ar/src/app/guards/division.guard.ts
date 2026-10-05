@@ -44,8 +44,8 @@ export class DivisionGuard implements CanActivate {
         const dialogRef = this.dialog.open(WarningDialogComponent, {
           width: '350px',
           data: {
-            title: 'Access Denied',
-            message: 'Warning: You do not have permission to access this division.'
+            title: 'Access limited to your office',
+            message: 'You can only view projects of your own office. We will take you back to it.'
           }
         });
 

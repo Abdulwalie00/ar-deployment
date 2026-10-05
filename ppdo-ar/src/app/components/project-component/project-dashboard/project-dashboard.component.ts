@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { of, forkJoin } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { Project } from '../../../models/project.model';
 import { ProjectDataService } from '../../../services/project-data.service';
 import { AuthService } from '../../../services/auth.service';
@@ -47,6 +47,8 @@ export class ProjectDashboardComponent implements OnInit {
   // Properties for the year filter
   years: number[] = [];
   selectedYear: number | string = '';
+  isLoading = true;
+  loadError = false;
   constructor(
     private projectDataService: ProjectDataService,
     public authService: AuthService,
@@ -54,6 +56,12 @@ export class ProjectDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadDashboard();
+  }
+
+  loadDashboard(): void {
+    this.isLoading = true;
+    this.loadError = false;
     const isAdmin = this.authService.isAdmin();
     const isSuperAdmin = this.authService.isSuperAdmin();
 
@@ -75,18 +83,41 @@ export class ProjectDashboardComponent implements OnInit {
     // Use forkJoin to get both the main projects and the new projects in one go
     forkJoin({
       projects: projectsObservable,
-      newProjects: this.projectDataService.getNewProjects()
-    }).subscribe(({ projects, newProjects }) => {
-      this.newProjectIds = new Set(newProjects.map(p => p.id));
-      const projectsWithNewStatus = projects.map(p => ({
-        ...p,
-        isNew: this.newProjectIds.has(p.id)
-      }));
+      // The "New" badge is optional; don't fail the dashboard over it.
+      newProjects: this.projectDataService.getNewProjects().pipe(catchError(() => of([] as Project[])))
+    }).subscribe({
+      next: ({ projects, newProjects }) => {
+        this.newProjectIds = new Set(newProjects.map(p => p.id));
+        const projectsWithNewStatus = projects.map(p => ({
+          ...p,
+          isNew: this.newProjectIds.has(p.id)
+        }));
 
-      this.projects = projectsWithNewStatus;
-      this.populateYears();
-      this.applyFilters();
+        this.projects = projectsWithNewStatus;
+        this.populateYears();
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.loadError = true;
+      }
     });
+  }
+
+  /** Query params for a status card (null = all statuses), keeping regular users inside their division. */
+  statusLinkParams(status: string | null): Record<string, string | number> {
+    const params: Record<string, string | number> = {};
+    if (status) {
+      params['status'] = status;
+    }
+    if (this.selectedYear) {
+      params['year'] = this.selectedYear;
+    }
+    if (this.userDivisionCode) {
+      params['division'] = this.userDivisionCode;
+    }
+    return params;
   }
 
   private populateYears(): void {

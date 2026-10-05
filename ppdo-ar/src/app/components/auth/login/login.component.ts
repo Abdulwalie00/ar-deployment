@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import {NgIf} from '@angular/common';
 import {
   trigger,
@@ -40,19 +41,41 @@ export class LoginComponent {
   error = '';
   loading = false;
   success = false;
+  showPassword = false;
+  capsLockOn = false;
+  private returnUrl = '/project-dashboard';
 
 
   // We inject the AuthService and Router.
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, route: ActivatedRoute) {
+    const requested = route.snapshot.queryParamMap.get('returnUrl');
+    // Only follow in-app paths so the link cannot redirect off-site.
+    if (requested && requested.startsWith('/') && !requested.startsWith('//')) {
+      this.returnUrl = requested;
+    }
+  }
   ldsLogoUrl: string = 'app/assets/logos/LDS.png';
   ictoLogoUrl: string = 'app/assets/logos/ICTO.png';
   icon = faCheck;
+
+  get hasReturnUrl(): boolean {
+    return this.returnUrl !== '/project-dashboard';
+  }
+
+  onPasswordKey(event: KeyboardEvent): void {
+    this.capsLockOn = event.getModifierState?.('CapsLock') ?? false;
+  }
 
   /**
    * This method is called when the user submits the login form.
    * It uses the AuthService to send the credentials to the backend.
    */
   login(): void {
+    if (!this.username.trim() || !this.password) {
+      this.error = 'Please enter both your username and password.';
+      return;
+    }
+
     this.error = '';
     this.loading = true;
 
@@ -68,17 +91,24 @@ export class LoginComponent {
       next: () => {
         this.loading = false;
         this.success = true;
-        // Navigate to the dashboard after a brief delay.
+        // Short pause so the success state registers, then continue.
         setTimeout(() => {
-          this.router.navigate(['/project-dashboard']);
-        }, 1000);
+          this.router.navigateByUrl(this.returnUrl);
+        }, 500);
       },
       // --- Error Case ---
       // The 'error' block runs if the backend returns an error (e.g., 401, 403).
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.loading = false;
-        // Display a user-friendly error message.
-        this.error = 'Invalid username or password. Please try again.';
+        this.password = '';
+        // Tell the user what actually went wrong, in plain words.
+        if (err.status === 0) {
+          this.error = 'Cannot reach the server. Check your network connection and try again.';
+        } else if (err.status >= 500) {
+          this.error = 'The server is having trouble right now. Please try again in a moment.';
+        } else {
+          this.error = 'Incorrect username or password. Please try again.';
+        }
         console.error('Login failed', err); // Log the technical error for debugging.
       }
     });

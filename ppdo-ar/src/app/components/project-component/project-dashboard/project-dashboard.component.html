@@ -37,26 +37,43 @@
         [class.completed]="status === 'completed'"
         [class.cancelled]="status === 'cancelled'"
         [routerLink]="['/project-list']"
-        [queryParams]="!authService.isAdmin() && userDivisionCode ? { status: status, division: userDivisionCode, year: selectedYear } : { status: status, year: selectedYear }"
+        [queryParams]="statusLinkParams(status)"
+        [attr.aria-label]="'View ' + statusCounts[status] + ' ' + status + ' projects'"
       >
         <div>
           <h3>{{ status | titlecase }}</h3>
           <p>Projects</p>
         </div>
-        <strong>{{ statusCounts[status] }}</strong>
+        <strong>{{ isLoading ? '–' : statusCounts[status] }}</strong>
       </a>
 
-      <div class="status-card total-card">
+      <a
+        class="status-card total-card"
+        [routerLink]="['/project-list']"
+        [queryParams]="statusLinkParams(null)"
+        [attr.aria-label]="'View all ' + statusCounts.total + ' projects'"
+      >
         <div>
           <h3>Total</h3>
           <p>All statuses</p>
         </div>
-        <strong>{{ statusCounts.total }}</strong>
-      </div>
+        <strong>{{ isLoading ? '–' : statusCounts.total }}</strong>
+      </a>
     </div>
   </section>
 
-  <section class="division-section app-card">
+  <div *ngIf="isLoading" class="app-card app-state" role="status">
+    <span class="app-spinner app-spinner-lg" aria-hidden="true"></span>
+    <p>Loading your projects…</p>
+  </div>
+
+  <div *ngIf="loadError" class="app-card app-state" role="alert">
+    <h3>We couldn't load the dashboard</h3>
+    <p>Please check your connection and try again.</p>
+    <button type="button" class="app-btn app-btn-primary" (click)="loadDashboard()">Try again</button>
+  </div>
+
+  <section *ngIf="!isLoading && !loadError" class="division-section app-card">
     <div class="division-head">
       <div>
         <h2>Projects by Division</h2>

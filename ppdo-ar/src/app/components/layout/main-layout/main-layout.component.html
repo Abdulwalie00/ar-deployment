@@ -1,11 +1,11 @@
 <div class="app-shell" [@fadeInAnimation]>
-  <div class="shell-frame app-glass fade-up">
+  <div class="shell-frame app-glass">
     <app-sidebar></app-sidebar>
 
     <div class="shell-content">
       <app-header></app-header>
 
-      <main class="shell-main">
+      <main class="shell-main" #scrollArea id="main-content" tabindex="-1">
         <div class="route-stage">
           <router-outlet></router-outlet>
         </div>

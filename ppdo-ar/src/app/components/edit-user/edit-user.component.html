@@ -1,119 +1,136 @@
-<div *ngIf="user" class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Edit User Account</h2>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Update the user's profile information and role.</p>
+<div class="account-create-page fade-up">
+  <section class="account-hero app-card">
+    <div class="hero-orb hero-orb-a"></div>
+    <div class="hero-orb hero-orb-b"></div>
+
+    <div class="hero-copy">
+      <span class="app-chip">Account Management</span>
+      <h1>Edit User Account</h1>
+      <p>Update profile details, role access, office, or reset the password.</p>
     </div>
+  </section>
 
-    <form (ngSubmit)="submit()" class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-          <div class="mt-1 relative rounded-md shadow-sm">
-            <input
-              id="firstName"
-              [(ngModel)]="user.firstName"
-              name="firstName"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter first name"
-              required
-            />
-          </div>
+  <section *ngIf="!user && !loadError" class="account-form-shell app-card">
+    <div class="form-loading" role="status">
+      <span class="app-spinner" aria-hidden="true"></span> Loading account details…
+    </div>
+  </section>
+
+  <section *ngIf="loadError" class="account-form-shell app-card">
+    <div class="app-state" role="alert">
+      <h3>This account could not be loaded</h3>
+      <p>It may have been deleted, or the server could not be reached.</p>
+      <button type="button" class="app-btn app-btn-primary" (click)="cancel()">Back to accounts</button>
+    </div>
+  </section>
+
+  <section *ngIf="user" class="account-form-shell app-card">
+    <header class="form-head">
+      <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+      <p>Fields marked <span class="required-indicator">*</span> are required.</p>
+    </header>
+
+    <form #userForm="ngForm" (ngSubmit)="submit(userForm)" class="account-form" autocomplete="off" novalidate>
+      <div class="fields-grid">
+        <div class="field-block">
+          <label for="firstName">First Name <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input id="firstName" #firstName="ngModel" [(ngModel)]="user.firstName" name="firstName" class="app-input" placeholder="Enter first name" required />
+          <p *ngIf="firstName.invalid && firstName.touched" class="app-field-error">First name is required.</p>
         </div>
 
-        <div>
-          <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-          <div class="mt-1 relative rounded-md shadow-sm">
-            <input
-              id="lastName"
-              [(ngModel)]="user.lastName"
-              name="lastName"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter last name"
-              required
-            />
-          </div>
+        <div class="field-block">
+          <label for="middleName">Middle Name</label>
+          <input id="middleName" [(ngModel)]="user.middleName" name="middleName" class="app-input" placeholder="Optional" />
         </div>
 
-        <div class="md:col-span-2">
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-          <div class="mt-1 relative rounded-md shadow-sm">
-            <input
-              id="email"
-              [(ngModel)]="user.email"
-              name="email"
-              type="email"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
+        <div class="field-block">
+          <label for="lastName">Last Name <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input id="lastName" #lastName="ngModel" [(ngModel)]="user.lastName" name="lastName" class="app-input" placeholder="Enter last name" required />
+          <p *ngIf="lastName.invalid && lastName.touched" class="app-field-error">Last name is required.</p>
         </div>
 
-        <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-          <div class="mt-1 relative rounded-md shadow-sm">
-            <input
-              id="username"
-              [(ngModel)]="user.username"
-              name="username"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter username"
-              required
-            />
-          </div>
+        <div class="field-block">
+          <label for="email">Email <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input id="email" #email="ngModel" [(ngModel)]="user.email" name="email" type="email" class="app-input" placeholder="name@example.com" required email />
+          <p *ngIf="email.touched && email.errors?.['required']" class="app-field-error">Email is required.</p>
+          <p *ngIf="email.touched && email.errors?.['email']" class="app-field-error">Enter a valid email address, like name&#64;example.com.</p>
         </div>
 
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
-          <div class="mt-1 relative rounded-md shadow-sm">
+        <div class="field-block">
+          <label for="username">Username <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input
+            id="username"
+            #username="ngModel"
+            [(ngModel)]="user.username"
+            name="username"
+            class="app-input"
+            placeholder="Enter username"
+            autocapitalize="none"
+            spellcheck="false"
+            pattern="\S+"
+            required
+          />
+          <p *ngIf="username.touched && username.errors?.['required']" class="app-field-error">Username is required.</p>
+          <p *ngIf="username.touched && username.errors?.['pattern']" class="app-field-error">Usernames cannot contain spaces.</p>
+        </div>
+
+        <div class="field-block">
+          <label for="password">New Password</label>
+          <div class="password-field">
             <input
               id="password"
               [(ngModel)]="password"
               name="password"
-              type="password"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              [type]="showPassword ? 'text' : 'password'"
+              class="app-input"
               placeholder="Leave blank to keep current password"
+              autocomplete="new-password"
             />
+            <button
+              type="button"
+              class="reveal-btn"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+              [attr.aria-pressed]="showPassword"
+            >
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
           </div>
+          <p class="app-field-hint">Only fill this in to reset the user's password.</p>
         </div>
 
-        <div class="md:col-span-2">
-          <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
-          <select
-            id="role"
-            [(ngModel)]="user.role"
-            name="role"
-            class="w-full mt-1 pl-3 pr-10 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            required
-          >
+        <div class="field-block">
+          <label for="role">Role <span class="required-indicator" aria-hidden="true">*</span></label>
+          <select id="role" [(ngModel)]="user.role" name="role" class="app-input" required>
+            <option *ngIf="user.role === 'ROLE_SUPERADMIN'" value="ROLE_SUPERADMIN">Super Admin</option>
             <option value="ROLE_ADMIN">Admin</option>
             <option value="ROLE_USER">User</option>
+          </select>
+          <p class="app-field-hint">
+            {{ user.role === 'ROLE_USER' ? 'Users can only see and manage projects of their own office.' : 'Admins can view and manage projects of every office.' }}
+          </p>
+        </div>
+
+        <div class="field-block">
+          <label for="divisionId">Office / Division</label>
+          <select id="divisionId" [(ngModel)]="divisionId" name="divisionId" class="app-input">
+            <option [ngValue]="null" disabled>Select an office</option>
+            <option *ngFor="let division of divisions" [ngValue]="division.id">
+              {{ division.name }} ({{ division.code }})
+            </option>
           </select>
         </div>
       </div>
 
-      <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-        <button
-          type="button"
-          (click)="cancel()"
-          class="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors">
+      <div class="form-actions">
+        <button type="button" (click)="cancel()" class="app-btn app-btn-secondary" [disabled]="isSaving">
           Cancel
-        </button> 
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-          Update User
+        </button>
+        <button type="submit" class="app-btn app-btn-primary" [disabled]="isSaving">
+          <span *ngIf="isSaving" class="app-spinner" aria-hidden="true"></span>
+          {{ isSaving ? 'Saving…' : 'Save Changes' }}
         </button>
       </div>
     </form>
-  </div>
-
-  <app-confirm-dialog
-    *ngIf="showDialog"
-    [message]="'Confirm update to this user?'"
-    (confirm)="onConfirm($event)">
-  </app-confirm-dialog>
-</div>
-
-<div *ngIf="!user" class="p-6 max-w-xl mx-auto text-center">
-  <p class="text-gray-800 dark:text-gray-300">Loading user data...</p>
+  </section>
 </div>

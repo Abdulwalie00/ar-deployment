@@ -37,8 +37,12 @@
           <p>Sign in to continue to your project command center.</p>
         </header>
 
-        <form (ngSubmit)="login()" class="login-form">
-          <div *ngIf="error" class="login-error">
+        <form (ngSubmit)="login()" class="login-form" id="main-content">
+          <p *ngIf="hasReturnUrl && !error" class="login-notice">
+            Sign in to continue where you left off.
+          </p>
+
+          <div *ngIf="error" class="login-error" role="alert">
             <p>{{ error }}</p>
           </div>
 
@@ -50,19 +54,38 @@
             [(ngModel)]="username"
             placeholder="Enter your username"
             class="app-input"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            autofocus
             required
           />
 
           <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            [(ngModel)]="password"
-            placeholder="Enter your password"
-            class="app-input"
-            required
-          />
+          <div class="password-wrap">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="Enter your password"
+              class="app-input"
+              autocomplete="current-password"
+              (keyup)="onPasswordKey($event)"
+              (keydown)="onPasswordKey($event)"
+              required
+            />
+            <button
+              type="button"
+              class="reveal-btn"
+              (click)="showPassword = !showPassword"
+              [attr.aria-pressed]="showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <p *ngIf="capsLockOn" class="caps-warning" role="status">Caps Lock is on.</p>
 
           <button
             type="submit"
@@ -90,7 +113,7 @@
           <fa-icon [icon]="icon" class="success-icon"></fa-icon>
         </div>
         <h3>Login Successful</h3>
-        <p>Routing you to the dashboard.</p>
+        <p>Taking you to your workspace…</p>
       </div>
     </section>
   </div>

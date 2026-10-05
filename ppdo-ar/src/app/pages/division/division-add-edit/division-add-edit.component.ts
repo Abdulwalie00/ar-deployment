@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { Division } from '../../../models/project.model';
 import { DivisionService } from '../../../services/division.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-division-add-edit',
@@ -20,7 +21,8 @@ export class DivisionAddEditComponent implements OnInit {
     private fb: FormBuilder,
     private divisionService: DivisionService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -53,10 +55,12 @@ export class DivisionAddEditComponent implements OnInit {
 
     saveOperation.subscribe({
       next: () => {
+        this.toast.success(this.isEditMode ? 'Office updated' : 'Office added', divisionData.name);
         this.router.navigate(['/divisions']);
       },
       error: (err) => {
         console.error("Failed to save division", err);
+        this.toast.error('The office could not be saved', err);
       }
     });
   }

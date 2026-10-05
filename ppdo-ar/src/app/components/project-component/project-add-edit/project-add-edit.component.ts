@@ -1,10 +1,11 @@
 // src/app/components/project-component/project-add-edit/project-add-edit.component.ts
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ToastService } from '../../../services/toast.service';
 import { CommonModule, Location } from '@angular/common';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, FormsModule, FormArray} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import type { CircleMarker, LeafletMouseEvent, Map } from 'leaflet';
 
@@ -61,6 +62,10 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
 
   // New property for the AIP years dropdown
   aipYears: number[] = [];
+  isSaving = false;
+  isUploadingImages = false;
+  isLoadingProject = false;
+  private saved = false;
   private leafletLib?: typeof import('leaflet');
   private locationMap?: Map;
   private locationMarker?: CircleMarker;
@@ -77,6 +82,8 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
     private authService: AuthService,
     private userService: UserService,
     private location: Location,
+    private toast: ToastService,
+    private host: ElementRef<HTMLElement>,
   ) {}
 
   ngOnInit(): void {
@@ -122,7 +129,14 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
         this.isEditMode = !!this.projectId;
 
         if (this.isEditMode && this.projectId) {
-          return this.projectDataService.getProjectById(this.projectId);
+          this.isLoadingProject = true;
+          return this.projectDataService.getProjectById(this.projectId).pipe(
+            catchError(err => {
+              this.toast.error('Could not load this project for editing', err);
+              return of(null);
+            }),
+            finalize(() => this.isLoadingProject = false)
+          );
         } else {
           return of(null);
         }
@@ -130,7 +144,7 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
     ).subscribe(project => {
       if (this.isEditMode && project) {
         this.loadProjectForEdit(project);
-      } else { // Add mode for non-admin
+      } else if (!this.isEditMode) { // Add mode for non-admin
         if (!this.isSuperAdmin && !this.isAdmin) {
           this.userService.getCurrentUserDivision().subscribe(userDivision => {
             if (userDivision) {
@@ -186,9 +200,25 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   loadDivisions(): void {
-    this.projectDataService.getDivisions().subscribe(divisions => {
-      this.divisions = divisions;
+    this.projectDataService.getDivisions().subscribe({
+      next: divisions => {
+        this.divisions = divisions;
+        this.preselectDivisionFromQuery();
+      },
+      error: err => this.toast.error('Could not load the list of offices', err)
     });
+  }
+
+  /** "Add Project" from an office page passes ?division=CODE; start with that office selected. */
+  private preselectDivisionFromQuery(): void {
+    const code = this.route.snapshot.queryParamMap.get('division');
+    if (this.isEditMode || !code || this.projectForm.get('divisionId')?.value) {
+      return;
+    }
+    const match = this.divisions.find(division => division.code === code);
+    if (match) {
+      this.projectForm.patchValue({ divisionId: match.id });
+    }
   }
 
   loadAllProjectCategories(): void {
@@ -280,11 +310,24 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
       return;
     }
     const files = Array.from(input.files);
+    const nonImages = files.filter(file => !file.type.startsWith('image/'));
+    if (nonImages.length > 0) {
+      this.toast.warning('Only image files can be uploaded', nonImages.map(f => f.name).join(', '));
+      input.value = '';
+      return;
+    }
+
     const uploadObservables = files.map(file =>
       this.projectDataService.uploadImage(file)
     );
 
-    forkJoin(uploadObservables).subscribe({
+    this.isUploadingImages = true;
+    forkJoin(uploadObservables).pipe(
+      finalize(() => {
+        this.isUploadingImages = false;
+        input.value = ''; // Allow choosing the same file again.
+      })
+    ).subscribe({
       next: (urls) => {
         urls.forEach(url => {
           const newImage: ProjectImage = {
@@ -296,13 +339,19 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
           };
           this.addImage(newImage);
         });
+        this.projectForm.markAsDirty();
+        this.toast.success(urls.length === 1 ? 'Photo uploaded' : `${urls.length} photos uploaded`);
       },
-      error: (err) => console.error('Image upload failed', err)
+      error: (err) => {
+        console.error('Image upload failed', err);
+        this.toast.error('Photo upload failed', err);
+      }
     });
   }
 
   removeImage(index: number): void {
     this.images.removeAt(index);
+    this.projectForm.markAsDirty();
   }
 
   onPercentInput(event: Event): void {
@@ -340,6 +389,9 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
         { latitude, longitude },
         { emitEvent: false }
       );
+      this.projectForm.get('latitude')?.markAsTouched();
+      this.projectForm.get('longitude')?.markAsTouched();
+      this.projectForm.markAsDirty();
 
       this.placeOrMoveMarker(latitude, longitude, true);
     });
@@ -406,12 +458,23 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   onSubmit(): void {
+    if (this.isSaving) {
+      return;
+    }
     if (this.projectForm.invalid) {
       this.projectForm.markAllAsTouched();
+      const missing = this.countInvalidFields();
+      this.toast.warning(
+        'Please complete the highlighted fields',
+        missing === 1 ? '1 field needs your attention.' : `${missing} fields need your attention.`
+      );
+      this.focusFirstInvalidField();
       return;
     }
     this.dialogAction = this.isEditMode ? 'update' : 'add';
-    this.dialogMessage = `Are you sure you want to ${this.dialogAction} this project?`;
+    this.dialogMessage = this.isEditMode
+      ? 'Save your changes to this project?'
+      : 'Add this project to the records?';
     this.showConfirmationDialog = true;
   }
 
@@ -429,10 +492,60 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
         ? this.projectDataService.updateProject(this.projectId, payload)
         : this.projectDataService.addProject(payload);
 
-      operation.subscribe(project => {
-        this.location.back()
+      this.isSaving = true;
+      operation.subscribe({
+        next: project => {
+          this.saved = true;
+          this.isSaving = false;
+          this.toast.success(
+            this.isEditMode ? 'Project updated' : 'Project added',
+            `"${formValue.title}" was saved successfully.`
+          );
+          // A new project opens its detail page so the result is visible;
+          // an edit returns to wherever the user came from.
+          if (!this.isEditMode && project?.id) {
+            this.router.navigate(['/project-detail', project.id], { replaceUrl: true });
+          } else {
+            this.location.back();
+          }
+        },
+        error: err => {
+          // Keep everything the user typed so they can retry.
+          this.isSaving = false;
+          this.toast.error('The project could not be saved', err);
+        }
       });
     }
+  }
+
+  /** Used by the unsaved-changes guard before leaving the page. */
+  hasUnsavedChanges(): boolean {
+    return !this.saved && this.projectForm?.dirty;
+  }
+
+  /** Warn before closing or reloading the tab with unsaved edits. */
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+    }
+  }
+
+  private countInvalidFields(): number {
+    return Object.values(this.projectForm.controls).filter(control => control.invalid).length
+      + (this.projectForm.hasError('dateRange') ? 1 : 0);
+  }
+
+  private focusFirstInvalidField(): void {
+    setTimeout(() => {
+      const firstInvalid = this.host.nativeElement.querySelector<HTMLElement>(
+        'form .ng-invalid[formControlName], form .invalid-field'
+      );
+      if (firstInvalid) {
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstInvalid.focus({ preventScroll: true });
+      }
+    });
   }
 
   onCancel(): void {

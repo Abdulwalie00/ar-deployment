@@ -45,6 +45,9 @@
 
 <app-project-confirmation-dialog
   [show]="showDeleteConfirmation"
+  title="Delete this office?"
+  confirmText="Delete office"
+  tone="danger"
   [message]="deleteMessage"
   (confirmed)="handleDeleteConfirmation($event)"
 ></app-project-confirmation-dialog>

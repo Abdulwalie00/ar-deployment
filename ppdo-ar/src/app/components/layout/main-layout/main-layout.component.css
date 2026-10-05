@@ -52,3 +52,16 @@
 		padding: 0.55rem;
 	}
 }
+
+/*
+ * No backdrop-filter/transform here: either would turn this frame into the
+ * containing block for position:fixed dialogs and drawers inside the app,
+ * pinning them to the frame instead of the screen.
+ */
+.shell-frame {
+	backdrop-filter: none;
+}
+
+.shell-main:focus {
+	outline: none;
+}

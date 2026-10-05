@@ -7,6 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { ProjectConfirmationDialogComponent } from '../project-confirmation-dialog/project-confirmation-dialog.component';
 import {ProjectCategoryAddDialogComponent} from '../project-category-add-dialog/project-category-add-dialog.component';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-project-category-list',
@@ -28,7 +29,8 @@ export class ProjectCategoryListComponent implements OnInit {
   constructor(
     private projectDataService: ProjectDataService,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -78,13 +80,14 @@ export class ProjectCategoryListComponent implements OnInit {
     if (confirmed && this.categoryToDelete) {
       this.projectDataService.deleteProjectCategory(this.categoryToDelete.id).subscribe({
         next: () => {
+          this.toast.success('Category deleted', this.categoryToDelete?.name);
           this.loadCategories(); // Refresh list on successful deletion
           this.categoryToDelete = null;
           this.showDeleteConfirmation = false;
         },
         error: (err) => {
           console.error("Failed to delete category", err);
-          // Optionally, show an error message to the user
+          this.toast.error('The category could not be deleted', 'It may still be used by existing projects.');
           this.categoryToDelete = null;
           this.showDeleteConfirmation = false;
         }

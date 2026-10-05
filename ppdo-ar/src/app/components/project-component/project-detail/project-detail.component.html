@@ -251,21 +251,27 @@
         </div>
 
         <div class="comment-compose">
+          <label for="newComment" class="sr-only">Write a comment</label>
           <textarea
+            id="newComment"
             [(ngModel)]="newComment"
             class="app-input comment-input"
             rows="3"
-            placeholder="Write a comment..."
+            placeholder="Write a comment…"
+            (keydown.control.enter)="postComment()"
+            (keydown.meta.enter)="postComment()"
           >
           </textarea>
 
-          <div class="flex justify-end mt-3">
+          <div class="flex items-center justify-between gap-3 mt-3">
+            <span class="app-field-hint">Press Ctrl + Enter to post</span>
             <button
               (click)="postComment()"
-              [disabled]="!newComment.trim()"
+              [disabled]="!newComment.trim() || isPostingComment"
               class="app-btn app-btn-primary"
             >
-              Post Comment
+              <span *ngIf="isPostingComment" class="app-spinner" aria-hidden="true"></span>
+              {{ isPostingComment ? 'Posting…' : 'Post Comment' }}
             </button>
           </div>
         </div>
@@ -353,7 +359,12 @@
 </div>
 
 <ng-template #projectNotFound>
+  <div *ngIf="isLoading" class="app-card app-state" role="status">
+    <span class="app-spinner app-spinner-lg" aria-hidden="true"></span>
+    <p>Loading project details…</p>
+  </div>
   <div
+    *ngIf="!isLoading"
     class="not-found-shell app-card flex flex-col items-center justify-center py-16 px-6 text-center max-w-2xl mx-auto mt-8"
   >
     <div class="bg-blue-50 dark:bg-blue-900/30 rounded-full p-5 mb-5">
@@ -404,6 +415,9 @@
 
 <app-project-confirmation-dialog
   [show]="showConfirmationDialog"
+  title="Delete this project?"
+  confirmText="Delete project"
+  tone="danger"
   [message]="dialogMessage"
   (confirmed)="onConfirmation($event)"
 ></app-project-confirmation-dialog>
@@ -412,19 +426,34 @@
   *ngIf="showCarousel && currentProject"
   @fade
   class="carousel-overlay fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Project photo viewer"
+  (click)="closeCarousel()"
 >
   <div
     class="carousel-shell relative w-full max-w-5xl h-full flex items-center justify-center"
+    (click)="$event.stopPropagation()"
   >
     <button
       (click)="closeCarousel()"
+      aria-label="Close photo viewer"
       class="carousel-close absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold z-20 transition-all duration-200 transform hover:scale-110"
     >
       &times;
     </button>
 
+    <span
+      *ngIf="currentProject.images.length > 1"
+      class="absolute top-6 left-4 z-20 text-sm font-medium text-white/80"
+      aria-live="polite"
+    >
+      Photo {{ currentImageIndex + 1 }} of {{ currentProject.images.length }}
+    </span>
+
     <button
       (click)="prevImage()"
+      aria-label="Previous photo"
       class="carousel-nav absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 text-2xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105"
     >
       &#8249;
@@ -442,6 +471,7 @@
 
     <button
       (click)="nextImage()"
+      aria-label="Next photo"
       class="carousel-nav absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 text-2xl z-10 transition-all duration-200 ease-in-out transform hover:scale-105"
     >
       &#8250;

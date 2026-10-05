@@ -57,6 +57,9 @@
   <!-- Delete Confirmation Dialog -->
   <app-project-confirmation-dialog
     [show]="showDeleteConfirmation"
+    title="Delete this category?"
+    confirmText="Delete category"
+    tone="danger"
     [message]="deleteMessage"
     (confirmed)="handleDeleteConfirmation($event)"
   ></app-project-confirmation-dialog>

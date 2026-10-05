@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { User } from '../../models/user.model';
+import { User, roleLabel } from '../../models/user.model';
 import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
 import { AppColorTheme, ThemeService } from '../../services/theme.service';
+import { ToastService } from '../../services/toast.service';
 
 interface ThemeChoice {
   key: AppColorTheme;
@@ -25,6 +27,8 @@ export class ProfileComponent implements OnInit {
   user: User | null = null;
   profileForm: FormGroup;
   editMode = false;
+  isSaving = false;
+  showPassword = false;
   successMessage: string | null = null;
   initials: string = '';
   avatarColor: string = '#000000';
@@ -42,16 +46,18 @@ export class ProfileComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private userService: UserService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private toast: ToastService,
+    private router: Router
   ) {
     this.profileForm = this.fb.group({
-      firstName: [''],
-      lastName: [''],
-      email: [''],
-      username: [''],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required, Validators.pattern(/^\S+$/)]],
       password: [''],
       confirmPassword: ['']
-    }, { validator: this.passwordMatchValidator });
+    }, { validators: this.passwordMatchValidator });
   }
 
   ngOnInit() {
@@ -119,6 +125,7 @@ export class ProfileComponent implements OnInit {
 
   toggleEdit() {
     this.editMode = !this.editMode;
+    this.showPassword = false;
     if (!this.editMode && this.user) {
       this.profileForm.patchValue(this.user);
       this.profileForm.get('password')?.reset('');
@@ -127,41 +134,70 @@ export class ProfileComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.profileForm.invalid) {
-      // Form is invalid, likely due to password mismatch
-      console.error('Password mismatch');
+    if (this.profileForm.invalid || !this.user) {
+      this.profileForm.markAllAsTouched();
+      this.toast.warning(
+        'Please check your details',
+        this.profileForm.hasError('mismatch') ? 'The two passwords do not match.' : 'Some fields need your attention.'
+      );
       return;
     }
-    if (this.profileForm.valid && this.user) {
-      const formValues = this.profileForm.value;
-      const updatedUser: any = {
-        ...this.user,
-        firstName: formValues.firstName,
-        lastName: formValues.lastName,
-        email: formValues.email,
-        username: formValues.username
-      };
 
-      if (formValues.password) {
-        updatedUser.password = formValues.password;
-      }
+    const formValues = this.profileForm.value;
+    const usernameChanged = formValues.username.trim() !== this.user.username;
+    const updatedUser: any = {
+      ...this.user,
+      firstName: formValues.firstName.trim(),
+      lastName: formValues.lastName.trim(),
+      email: formValues.email.trim(),
+      username: formValues.username.trim(),
+      divisionId: this.user.division?.id
+    };
 
-      this.userService.updateUser(this.user.id, updatedUser).subscribe({
-        next: (response) => {
-          this.user = response;
-          this.profileForm.patchValue(response);
-          this.createAvatar();
-          this.editMode = false;
-          this.successMessage = 'Profile updated successfully!';
-          setTimeout(() => {
-            this.successMessage = null;
-            window.location.reload();
-          }, 1000);
-        },
-        error: (err) => {
-          console.error('Failed to update user', err);
-        }
-      });
+    if (formValues.password) {
+      updatedUser.password = formValues.password;
     }
+
+    this.isSaving = true;
+    this.userService.updateUser(this.user.id, updatedUser).subscribe({
+      next: (response) => {
+        this.isSaving = false;
+
+        // The sign-in token is tied to the old username, so a new
+        // username (or password) requires signing in again.
+        if (usernameChanged) {
+          this.toast.success('Profile updated', 'Your username changed. Please sign in with your new username.');
+          this.authService.logout();
+          this.router.navigate(['/login']);
+          return;
+        }
+
+        this.user = response;
+        this.profileForm.patchValue(response);
+        this.profileForm.get('password')?.reset('');
+        this.profileForm.get('confirmPassword')?.reset('');
+        this.createAvatar();
+        this.editMode = false;
+        this.userService.profileUpdated$.next(response);
+        this.toast.success('Profile updated', formValues.password ? 'Your new password is now active.' : undefined);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        console.error('Failed to update user', err);
+        this.toast.error(
+          'Your profile could not be saved',
+          err?.status >= 500 ? 'That username or email may already be used by another account.' : err
+        );
+      }
+    });
+  }
+
+  roleName(): string {
+    return roleLabel(this.user?.role);
+  }
+
+  fieldInvalid(name: string): boolean {
+    const control = this.profileForm.get(name);
+    return !!control && control.invalid && control.touched;
   }
 }

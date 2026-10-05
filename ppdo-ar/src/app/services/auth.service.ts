@@ -1,18 +1,30 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import {jwtDecode} from 'jwt-decode';
 import {environment} from '../environment/environment';
+import { ToastService } from './toast.service';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   private userRolesSubject = new BehaviorSubject<string[]>(this.getRolesFromToken());
+  private expiryTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router, private toast: ToastService) {
+    // Clear a token that expired while the app was closed, and schedule
+    // automatic sign-out for the one that is still valid.
+    if (this.getToken() && !this.hasValidToken()) {
+      this.clearSession();
+      this.toast.warning('Your session has expired', 'Please sign in again to continue.');
+    } else {
+      this.scheduleExpiry();
+    }
+  }
 
   login(credentials: { username: string, password: string }): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(environment.apiUrl + 'auth/login', credentials).pipe(
@@ -20,14 +32,30 @@ export class AuthService {
         localStorage.setItem('authToken', response.token);
         this.isAuthenticatedSubject.next(true);
         this.userRolesSubject.next(this.getRolesFromToken()); // Update roles on login
+        this.scheduleExpiry();
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
-    this.isAuthenticatedSubject.next(false);
-    this.userRolesSubject.next([]);
+    this.clearSession();
+  }
+
+  /**
+   * Signs the user out because their session is no longer valid and sends
+   * them to the login page, remembering where they were.
+   */
+  expireSession(): void {
+    if (!this.getToken()) {
+      return;
+    }
+    this.clearSession();
+    this.toast.warning('Your session has expired', 'Please sign in again to continue.');
+
+    const returnUrl = this.router.url;
+    this.router.navigate(['/login'], {
+      queryParams: returnUrl && !returnUrl.startsWith('/login') ? { returnUrl } : undefined
+    });
   }
 
   getRoles(): string[] {
@@ -80,8 +108,40 @@ export class AuthService {
     return localStorage.getItem('authToken');
   }
 
-  private hasToken(): boolean {
-    return !!this.getToken();
+  hasValidToken(): boolean {
+    const expiresAt = this.getTokenExpiry();
+    return !!this.getToken() && (expiresAt === null || expiresAt > Date.now());
+  }
+
+  private clearSession(): void {
+    localStorage.removeItem('authToken');
+    clearTimeout(this.expiryTimer);
+    this.isAuthenticatedSubject.next(false);
+    this.userRolesSubject.next([]);
+  }
+
+  private scheduleExpiry(): void {
+    clearTimeout(this.expiryTimer);
+    const expiresAt = this.getTokenExpiry();
+    if (expiresAt === null) {
+      return;
+    }
+    // setTimeout overflows above ~24.8 days; tokens here last hours.
+    const delay = Math.min(expiresAt - Date.now(), 2_147_483_647);
+    this.expiryTimer = setTimeout(() => this.expireSession(), Math.max(delay, 0));
+  }
+
+  /** Expiry time of the stored token in ms, or null if it has none. */
+  private getTokenExpiry(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const decoded: { exp?: number } = jwtDecode(token);
+      return decoded.exp ? decoded.exp * 1000 : null;
+    } catch {
+      return 0; // Unreadable token: treat as already expired.
+    }
   }
 
   private getRolesFromToken(): string[] {

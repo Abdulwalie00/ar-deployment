@@ -3,22 +3,19 @@
     <div
       class="hero-avatar"
       [ngStyle]="{ 'background-color': avatarColor }"
-      aria-label="User avatar"
+      aria-hidden="true"
     >
       {{ initials }}
     </div>
 
     <div class="hero-copy">
-      <span class="app-chip">{{ user?.role || 'User' }}</span>
+      <span class="app-chip">{{ roleName() }}{{ user?.division?.code ? ' · ' + user?.division?.code : '' }}</span>
       <h1>
         {{ user?.firstName }}{{ user?.middleName ? ' ' + user?.middleName : '' }}
         {{ user?.lastName }}
       </h1>
       <p>{{ user?.email }}</p>
-      <p>
-        Welcome back,
-        <strong>{{ user?.username }}</strong>
-      </p>
+      <p *ngIf="user?.division?.name">{{ user?.division?.name }}</p>
     </div>
 
     <div class="hero-actions">
@@ -26,6 +23,7 @@
         *ngIf="!editMode"
         (click)="toggleEdit()"
         class="app-btn app-btn-primary"
+        [disabled]="!user"
       >
         Edit Profile
       </button>
@@ -34,112 +32,132 @@
         *ngIf="editMode"
         (click)="toggleEdit()"
         class="app-btn app-btn-secondary"
+        [disabled]="isSaving"
       >
         Cancel
       </button>
     </div>
   </section>
 
-  <div *ngIf="successMessage" class="success-banner" role="alert">
-    <span>{{ successMessage }}</span>
-  </div>
-
   <div class="profile-layout">
     <section class="app-card profile-card">
       <header class="section-head">
         <h2>Account Details</h2>
-        <p>Manage your personal information and credentials.</p>
+        <p>{{ editMode ? 'Update your information, then save your changes.' : 'Click “Edit Profile” to change your information or password.' }}</p>
       </header>
 
-      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm" autocomplete="off">
+      <form (ngSubmit)="onSubmit()" [formGroup]="profileForm" autocomplete="off" novalidate>
         <div class="field-grid">
           <div>
-            <label>First Name</label>
+            <label for="profileFirstName">First Name</label>
             <input
+              id="profileFirstName"
               type="text"
               class="app-input"
               [readonly]="!editMode"
               [class.read-only]="!editMode"
               formControlName="firstName"
             />
+            <p *ngIf="editMode && fieldInvalid('firstName')" class="error-copy">First name is required.</p>
           </div>
 
           <div>
-            <label>Last Name</label>
+            <label for="profileLastName">Last Name</label>
             <input
+              id="profileLastName"
               type="text"
               class="app-input"
               [readonly]="!editMode"
               [class.read-only]="!editMode"
               formControlName="lastName"
             />
+            <p *ngIf="editMode && fieldInvalid('lastName')" class="error-copy">Last name is required.</p>
           </div>
 
           <div>
-            <label>Email</label>
+            <label for="profileEmail">Email</label>
             <input
+              id="profileEmail"
               type="email"
               class="app-input"
               [readonly]="!editMode"
               [class.read-only]="!editMode"
               formControlName="email"
             />
+            <p *ngIf="editMode && fieldInvalid('email')" class="error-copy">Enter a valid email address.</p>
           </div>
 
           <div>
-            <label>Username</label>
+            <label for="profileUsername">Username</label>
             <input
+              id="profileUsername"
               type="text"
               class="app-input"
               [readonly]="!editMode"
               [class.read-only]="!editMode"
               formControlName="username"
+              autocapitalize="none"
+              spellcheck="false"
             />
+            <p *ngIf="editMode && fieldInvalid('username')" class="error-copy">Username is required and cannot contain spaces.</p>
+            <p *ngIf="editMode && !fieldInvalid('username')" class="app-field-hint">Changing it will sign you out so you can sign in with the new one.</p>
           </div>
         </div>
 
         <div *ngIf="editMode" class="password-zone">
           <h3>Change Password</h3>
+          <p class="app-field-hint">Leave both fields empty to keep your current password.</p>
 
           <div class="field-grid">
             <div>
-              <label>New Password</label>
-              <input type="password" class="app-input" formControlName="password" />
+              <label for="profilePassword">New Password</label>
+              <input id="profilePassword" [type]="showPassword ? 'text' : 'password'" class="app-input" formControlName="password" autocomplete="new-password" />
             </div>
 
             <div>
-              <label>Confirm New Password</label>
-              <input type="password" class="app-input" formControlName="confirmPassword" />
+              <label for="profileConfirmPassword">Confirm New Password</label>
+              <input id="profileConfirmPassword" [type]="showPassword ? 'text' : 'password'" class="app-input" formControlName="confirmPassword" autocomplete="new-password" />
             </div>
           </div>
 
+          <label class="flex items-center gap-2 mt-2 text-sm" style="color: var(--app-muted); cursor: pointer;">
+            <input type="checkbox" [checked]="showPassword" (change)="showPassword = !showPassword" />
+            Show passwords
+          </label>
+
           <p
-            *ngIf="profileForm.hasError('mismatch')"
+            *ngIf="profileForm.hasError('mismatch') && profileForm.get('confirmPassword')?.value"
             class="error-copy"
+            role="alert"
           >
             Password and confirmation do not match.
           </p>
         </div>
 
         <div *ngIf="editMode" class="submit-row">
-          <button type="submit" class="app-btn app-btn-primary">Save Changes</button>
+          <button type="submit" class="app-btn app-btn-primary" [disabled]="isSaving">
+            <span *ngIf="isSaving" class="app-spinner" aria-hidden="true"></span>
+            {{ isSaving ? 'Saving…' : 'Save Changes' }}
+          </button>
         </div>
       </form>
     </section>
 
     <aside class="app-card theme-card stagger">
       <header class="section-head">
-        <h2>Color Theme Picker</h2>
-        <p>Select your preferred accent palette.</p>
+        <h2>Color Theme</h2>
+        <p>Pick the accent color you like best. It is saved on this device.</p>
       </header>
 
-      <div class="theme-grid">
+      <div class="theme-grid" role="radiogroup" aria-label="Color theme">
         <button
           *ngFor="let theme of colorChoices"
           type="button"
           class="theme-option"
+          role="radio"
           [class.active]="isThemeSelected(theme.key)"
-          [attr.aria-label]="'Switch theme to ' + theme.label"
+          [attr.aria-checked]="isThemeSelected(theme.key)"
+          [attr.aria-label]="theme.label + ' theme'"
           (click)="setColorTheme(theme.key)"
         >
           <span
@@ -151,10 +169,6 @@
           <span class="theme-label">{{ theme.label }}</span>
         </button>
       </div>
-
-      <p class="theme-note">
-        Available colors: Yellow, Red, Blue, Orange, Green, Purple.
-      </p>
     </aside>
   </div>
 </div>

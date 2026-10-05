@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import {HeaderComponent} from '../../header/header.component';
-import {RouterOutlet} from '@angular/router';
+import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {SidebarComponent} from '../../sidebar/sidebar.component';
 import {animate, style, transition, trigger} from '@angular/animations';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
@@ -22,6 +24,19 @@ import {animate, style, transition, trigger} from '@angular/animations';
     ]),
   ],
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnDestroy {
+  @ViewChild('scrollArea') scrollArea?: ElementRef<HTMLElement>;
+  private navSubscription: Subscription;
 
+  constructor(router: Router) {
+    // Page content scrolls inside <main>, so the router's own scroll reset
+    // does not reach it. Start every new page at the top.
+    this.navSubscription = router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => this.scrollArea?.nativeElement.scrollTo({ top: 0 }));
+  }
+
+  ngOnDestroy(): void {
+    this.navSubscription.unsubscribe();
+  }
 }

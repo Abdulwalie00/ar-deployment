@@ -1,12 +1,24 @@
 <header class="header-shell app-glass">
   <div class="header-grid">
-    <a routerLink="/project-dashboard" class="brand-link">
-      <div class="brand-mark">PMR</div>
-      <div class="brand-copy">
-        <p class="brand-kicker">Integrated Monitoring Workspace</p>
-        <h1>Project Management Report</h1>
-      </div>
-    </a>
+    <div class="brand-row">
+      <button
+        type="button"
+        class="app-icon-btn menu-toggle"
+        (click)="layout.toggleMobileNav()"
+        [attr.aria-expanded]="layout.mobileNavOpen()"
+        aria-label="Open navigation menu"
+      >
+        <fa-icon [icon]="faBars"></fa-icon>
+      </button>
+
+      <a routerLink="/project-dashboard" class="brand-link" aria-label="Go to dashboard">
+        <div class="brand-mark">PMR</div>
+        <div class="brand-copy">
+          <p class="brand-kicker">Integrated Monitoring Workspace</p>
+          <h1>Project Management Report</h1>
+        </div>
+      </a>
+    </div>
 
     <div class="header-actions">
       <div class="icto-tag">
@@ -16,41 +28,68 @@
 
       <span class="app-chip time-chip">{{ currentTime }}</span>
 
-      <button (click)="toggleDarkMode()" class="app-icon-btn" title="Toggle Theme">
+      <button
+        (click)="toggleDarkMode()"
+        class="app-icon-btn"
+        [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+        [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
         <fa-icon [icon]="isDarkMode ? faSun : faMoon"></fa-icon>
       </button>
 
       <div class="relative">
-        <button (click)="toggleNotificationMenu()" class="app-icon-btn" title="Notifications">
+        <button
+          (click)="toggleNotificationMenu()"
+          class="app-icon-btn"
+          title="Notifications"
+          [attr.aria-label]="unreadCount > 0 ? unreadCount + ' unread notifications' : 'Notifications'"
+          [attr.aria-expanded]="notificationMenuOpen"
+          aria-haspopup="true"
+        >
           <fa-icon [icon]="faBell"></fa-icon>
-          <span *ngIf="unreadCount > 0" class="notif-count">{{ unreadCount }}</span>
+          <span *ngIf="unreadCount > 0" class="notif-count" aria-hidden="true">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </button>
 
-        <div *ngIf="notificationMenuOpen" class="menu-panel notif-panel">
-          <div class="menu-head">Notifications</div>
+        <div *ngIf="notificationMenuOpen" class="menu-panel notif-panel" role="menu">
+          <div class="menu-head">
+            Notifications
+            <span *ngIf="unreadCount > 0" class="app-badge">{{ unreadCount }} new</span>
+          </div>
 
           <div *ngIf="notifications.length > 0; else noNotifications" class="notif-list">
-            <a
+            <button
+              type="button"
               *ngFor="let notification of notifications"
               (click)="onNotificationClick(notification)"
               class="notif-item"
+              role="menuitem"
             >
-              {{ notification.message }}
-            </a>
+              <span class="notif-dot" aria-hidden="true"></span>
+              <span class="notif-copy">
+                <span>{{ notification.message }}</span>
+                <small>{{ notification.dateCreated | timeAgo }}</small>
+              </span>
+            </button>
           </div>
 
           <ng-template #noNotifications>
-            <p class="menu-empty">No new notifications.</p>
+            <p class="menu-empty">You're all caught up. No new notifications.</p>
           </ng-template>
 
           <a routerLink="/notifications" (click)="toggleNotificationMenu()" class="menu-link">
-            View All Notifications
+            View all notifications
           </a>
         </div>
       </div>
 
       <div class="relative">
-        <button class="user-chip" (click)="toggleMenu()">
+        <button
+          class="user-chip"
+          (click)="toggleMenu()"
+          [attr.aria-expanded]="menuOpen"
+          aria-haspopup="true"
+          aria-label="Account menu"
+        >
           <div
             *ngIf="currentUser"
             class="user-avatar"
@@ -63,21 +102,23 @@
             <span class="user-name">
               {{ currentUser ? currentUser.firstName + ' ' + currentUser.lastName : 'User' }}
             </span>
-            <span class="user-sub">Online</span>
+            <span class="user-sub">{{ roleName }}{{ currentUser?.division?.code ? ' · ' + currentUser?.division?.code : '' }}</span>
           </div>
         </button>
 
-        <div *ngIf="menuOpen" class="menu-panel profile-panel">
-          <a routerLink="/profile" class="menu-item" (click)="closeMenu()">Profile</a>
-          <button class="menu-item danger" (click)="confirmLogout()">Logout</button>
+        <div *ngIf="menuOpen" class="menu-panel profile-panel" role="menu">
+          <div *ngIf="currentUser" class="menu-head profile-head">
+            <span>{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+            <small>{{ currentUser.email }}</small>
+          </div>
+          <a routerLink="/profile" class="menu-item" (click)="closeMenu()" role="menuitem">
+            <fa-icon [icon]="faUser"></fa-icon> My profile
+          </a>
+          <button class="menu-item danger" (click)="confirmLogout()" role="menuitem">
+            <fa-icon [icon]="faRightFromBracket"></fa-icon> Sign out
+          </button>
         </div>
       </div>
     </div>
   </div>
-
-  <app-confirm-dialog
-    *ngIf="showDialog"
-    [message]="'Are you sure you want to log out?'"
-    (confirm)="onConfirm($event)"
-  ></app-confirm-dialog>
 </header>

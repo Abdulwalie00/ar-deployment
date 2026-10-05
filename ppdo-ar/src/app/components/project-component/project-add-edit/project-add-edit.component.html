@@ -322,13 +322,22 @@
         </div>
 
         <div class="upload-wrap">
+          <label for="projectImages" class="sr-only">Upload project photos</label>
           <input
+            id="projectImages"
             type="file"
             multiple
             (change)="onImageSelected($event)"
             accept="image/*"
             class="upload-input"
+            [disabled]="isUploadingImages"
           />
+          <p *ngIf="isUploadingImages" class="app-field-hint flex items-center gap-2 mt-2" role="status">
+            <span class="app-spinner" aria-hidden="true"></span> Uploading photos…
+          </p>
+          <p *ngIf="!isUploadingImages && images.length === 0" class="app-field-hint mt-2">
+            You can select several photos at once.
+          </p>
         </div>
 
         <div formArrayName="images" class="image-grid">
@@ -339,8 +348,9 @@
               (click)="removeImage(i)"
               class="remove-image-btn"
               title="Remove image"
+              [attr.aria-label]="'Remove image ' + (i + 1)"
             >
-              x
+              ✕
             </button>
             <input
               type="text"
@@ -434,16 +444,21 @@
       </button>
       <button
         type="submit"
-        [disabled]="projectForm.invalid"
+        [disabled]="isSaving || isUploadingImages || isLoadingProject"
         class="app-btn app-btn-primary"
       >
-        {{ isEditMode ? 'Update Project' : 'Add Project' }}
+        <span *ngIf="isSaving" class="app-spinner" aria-hidden="true"></span>
+        <ng-container *ngIf="isSaving">Saving…</ng-container>
+        <ng-container *ngIf="!isSaving && isUploadingImages">Waiting for photos…</ng-container>
+        <ng-container *ngIf="!isSaving && !isUploadingImages">{{ isEditMode ? 'Save Changes' : 'Add Project' }}</ng-container>
       </button>
     </footer>
   </form>
 
   <app-project-confirmation-dialog
     [show]="showConfirmationDialog"
+    [title]="isEditMode ? 'Save changes?' : 'Add new project?'"
+    [confirmText]="isEditMode ? 'Save changes' : 'Add project'"
     [message]="dialogMessage"
     (confirmed)="onConfirmation($event)"
   ></app-project-confirmation-dialog>

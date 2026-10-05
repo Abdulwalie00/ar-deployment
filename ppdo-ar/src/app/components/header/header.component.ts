@@ -1,25 +1,30 @@
 // header.component.ts
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faBell, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faSun, faMoon, faBars, faUser, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, interval } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subscription, of, timer } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { NotificationService } from '../../services/notification.service';
-import { User } from '../../models/user.model';
+import { User, roleLabel } from '../../models/user.model';
 import { Notification } from '../../models/notification.model';
-import {ConfirmDialogComponent} from '../confirm-dialog/confirm-dialog.component';
 import { ThemeService } from '../../services/theme.service';
+import { LayoutService } from '../../services/layout.service';
+import { ConfirmService } from '../../services/confirm.service';
+import { ToastService } from '../../services/toast.service';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
+
+const NOTIFICATION_POLL_MS = 15000;
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, RouterLink, ConfirmDialogComponent],
+  imports: [CommonModule, FontAwesomeModule, RouterLink, TimeAgoPipe],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -27,8 +32,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   faBell = faBell;
   faSun = faSun;
   faMoon = faMoon;
+  faBars = faBars;
+  faUser = faUser;
+  faRightFromBracket = faRightFromBracket;
   isDarkMode = false;
-  showDialog = false;
 
   notifications: Notification[] = [];
   unreadCount = 0;
@@ -44,6 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private intervalId: any;
   private authSubscription!: Subscription;
   private notificationSubscription!: Subscription;
+  private profileSubscription!: Subscription;
 
 
   constructor(
@@ -51,6 +59,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private notificationService: NotificationService,
     private themeService: ThemeService,
+    private confirmService: ConfirmService,
+    private toast: ToastService,
+    public layout: LayoutService,
+    private el: ElementRef,
     private router: Router
   ) {}
 
@@ -70,24 +82,55 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.stopNotificationPolling();
       }
     });
+
+    this.profileSubscription = this.userService.profileUpdated$.subscribe(user => {
+      this.currentUser = user;
+      this.createAvatar();
+    });
   }
 
   ngOnDestroy(): void {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+    this.profileSubscription?.unsubscribe();
     this.stopNotificationPolling();
     clearInterval(this.intervalId);
   }
 
+  get roleName(): string {
+    return roleLabel(this.currentUser?.role ?? this.authService.getUserRole());
+  }
+
+  /** Close open menus when clicking anywhere else on the page. */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.el.nativeElement.contains(event.target)) {
+      this.closeMenus();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeMenus();
+  }
+
   startNotificationPolling(): void {
-    this.notificationSubscription = interval(10000) // Poll every 10 seconds
+    this.stopNotificationPolling();
+    // Load right away, then keep the badge fresh in the background.
+    this.notificationSubscription = timer(0, NOTIFICATION_POLL_MS)
       .pipe(
-        switchMap(() => this.notificationService.getUnreadNotifications())
+        switchMap(() => this.notificationService.getUnreadNotifications().pipe(
+          catchError(() => of(null)) // Keep polling through brief network hiccups.
+        ))
       )
       .subscribe(notifications => {
-        this.notifications = notifications;
-        this.unreadCount = notifications.length;
+        if (notifications) {
+          this.notifications = notifications.sort(
+            (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+          );
+          this.unreadCount = notifications.length;
+        }
       });
   }
 
@@ -121,7 +164,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             console.error('Failed to fetch user:', err);
-            this._performLogout(); // Change 'this.logout()' to 'this._performLogout()'
+            // Being offline is not a reason to end the session.
+            if (err?.status !== 0) {
+              this._performLogout();
+            }
           }
         });
       } catch (error) {
@@ -139,14 +185,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onNotificationClick(notification: Notification): void {
-    this.notificationService.markAsRead(notification.id).subscribe(() => {
-      this.notificationMenuOpen = false;
-      this.router.navigate(['/project-detail', notification.project.id]);
+    this.notificationMenuOpen = false;
+    // Update the badge right away so the click feels instant.
+    this.notifications = this.notifications.filter(n => n.id !== notification.id);
+    this.unreadCount = this.notifications.length;
+
+    this.notificationService.markAsRead(notification.id).subscribe({
+      error: () => { /* The next poll restores the true state. */ }
     });
+    if (notification.project?.id) {
+      this.router.navigate(['/project-detail', notification.project.id]);
+    }
   }
 
   toggleNotificationMenu(): void {
     this.notificationMenuOpen = !this.notificationMenuOpen;
+    this.menuOpen = false;
   }
 
   generateColor(str: string): string {
@@ -181,24 +235,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
+    this.notificationMenuOpen = false;
   }
 
   closeMenu(): void {
     this.menuOpen = false;
   }
 
-  // New method to initiate the logout confirmation
-  confirmLogout(): void {
-    this.showDialog = true;
-    this.closeMenu();
+  private closeMenus(): void {
+    this.menuOpen = false;
+    this.notificationMenuOpen = false;
   }
 
-  // Handle the confirmation from the dialog
-  onConfirm(confirmed: boolean): void {
-    if (confirmed) {
-      this._performLogout();
-    }
-    this.showDialog = false;
+  // Ask before signing out so a stray click does not end the session.
+  confirmLogout(): void {
+    this.closeMenu();
+    this.confirmService.ask({
+      title: 'Sign out?',
+      message: 'You will need to enter your password again to get back in.',
+      confirmText: 'Sign out'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this._performLogout();
+        this.toast.info('You have been signed out');
+      }
+    });
   }
 
   // The actual logout logic, now a private method

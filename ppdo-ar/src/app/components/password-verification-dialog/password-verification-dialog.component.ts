@@ -1,26 +1,33 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import {AuthService} from '../../services/auth.service';
 
 @Component({
   selector: 'app-password-verification-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './password-verification-dialog.component.html',
 })
-export class PasswordVerificationDialogComponent {
+export class PasswordVerificationDialogComponent implements AfterViewInit {
   @Output() confirmed = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
+  @ViewChild('passwordInput') passwordInput?: ElementRef<HTMLInputElement>;
 
   password = '';
   errorMessage = '';
   isLoading = false;
-  faSpinner = faSpinner;
 
   constructor(private authService: AuthService) {}
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.passwordInput?.nativeElement.focus());
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeDialog();
+  }
 
   verifyPassword(): void {
     if (!this.password) {
@@ -38,7 +45,11 @@ export class PasswordVerificationDialogComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = 'Incorrect password. Please try again.';
+        this.password = '';
+        this.errorMessage = err?.status === 0
+          ? 'Cannot reach the server. Please try again.'
+          : 'That password is not correct. Please try again.';
+        this.passwordInput?.nativeElement.focus();
         console.error('Password verification failed', err);
       }
     });

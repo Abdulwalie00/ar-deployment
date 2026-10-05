@@ -287,3 +287,44 @@
     height: 2.8rem;
   }
 }
+
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap .app-input {
+  padding-right: 4.2rem;
+}
+
+.reveal-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--app-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.caps-warning {
+  margin: -0.3rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b45309;
+}
+
+.login-notice {
+  border: 1px solid color-mix(in srgb, var(--app-primary) 35%, transparent);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--app-primary) 8%, var(--app-surface));
+  padding: 0.6rem 0.75rem;
+  margin: 0;
+  color: var(--app-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { User } from '../models/user.model';
 import {Division} from '../models/project.model';
 import {environment} from '../environment/environment'; // Adjust path if needed
@@ -13,6 +13,8 @@ const API_URL2 = `${environment.apiUrl}manage-users`;
   providedIn: 'root'
 })
 export class UserService {
+  /** Emits after the signed-in user edits their own profile, so the header can refresh. */
+  readonly profileUpdated$ = new Subject<User>();
 
   constructor(private http: HttpClient) { }
 

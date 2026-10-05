@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Division } from '../../../models/project.model';
 import { DivisionService } from '../../../services/division.service';
+import { ToastService } from '../../../services/toast.service';
 import {
   ProjectConfirmationDialogComponent
 } from '../../../components/project-component/project-confirmation-dialog/project-confirmation-dialog.component';
@@ -19,7 +20,7 @@ export class DivisionListComponent implements OnInit {
   divisionToDelete: Division | null = null;
   deleteMessage = '';
 
-  constructor(private divisionService: DivisionService, private router: Router) {}
+  constructor(private divisionService: DivisionService, private router: Router, private toast: ToastService) {}
 
   ngOnInit(): void {
     this.loadDivisions();
@@ -47,12 +48,14 @@ export class DivisionListComponent implements OnInit {
     if (confirmed && this.divisionToDelete) {
       this.divisionService.deleteDivision(this.divisionToDelete.id).subscribe({
         next: () => {
+          this.toast.success('Office deleted', this.divisionToDelete?.name);
           this.loadDivisions();
           this.divisionToDelete = null;
           this.showDeleteConfirmation = false;
         },
         error: (err) => {
           console.error("Failed to delete division", err);
+          this.toast.error('The office could not be deleted', 'It may still have projects or users assigned to it.');
           this.divisionToDelete = null;
           this.showDeleteConfirmation = false;
         }

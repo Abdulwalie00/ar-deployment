@@ -1,29 +1,29 @@
 
-import {Component, ElementRef, OnDestroy, OnInit, Renderer2, signal} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, Renderer2, effect, signal, untracked} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {Router, RouterModule} from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import {NavigationEnd, Router, RouterModule} from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   faHome,
-  faChartBar,
-  faCog,
   faChevronRight,
   faChevronDown,
-  faFileAlt,
-  faDatabase,
   faUsers,
   faCircle,
   faCaretRight,
   faCaretLeft,
   faCaretDown,
-  faBuilding,
-  faBuildingCircleArrowRight,
-  faBuildingColumns, faBuildingCircleExclamation, faLineChart, faSeedling, faPeopleGroup, faBridgeWater
+  faBuildingColumns, faLineChart, faSeedling, faPeopleGroup, faBridgeWater,
+  faBell, faFolderOpen, faFileLines, faMagnifyingGlass, faXmark
 } from '@fortawesome/free-solid-svg-icons';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import {AuthService} from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { LayoutService } from '../../services/layout.service';
+
+const COLLAPSED_STORAGE_KEY = 'sidebar-collapsed';
 
 interface MenuItem {
   title: string;
@@ -38,7 +38,7 @@ interface MenuItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, RouterModule, FontAwesomeModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
   animations: [
@@ -57,15 +57,27 @@ interface MenuItem {
 export class SidebarComponent implements OnInit, OnDestroy {
   isAdmin$: Observable<boolean>;
   isSuperAdmin$: Observable<boolean>;
-  isCollapsed = signal(false);
+  isCollapsed = signal(this.readCollapsedPreference());
   currentMenuTopPosition: number = 1;
+  officeQuery = '';
+  userDivisionCode: string | null = null;
   private globalClickUnlistener: (() => void) | undefined = undefined;
+  private routerSubscription?: Subscription;
+
+  faHome = faHome;
+  faBell = faBell;
+  faFolderOpen = faFolderOpen;
+  faFileLines = faFileLines;
+  faMagnifyingGlass = faMagnifyingGlass;
+  faXmark = faXmark;
 
   constructor(
     private router: Router,
     private renderer: Renderer2,
     private el: ElementRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService,
+    public layout: LayoutService
   ) {
     this.isAdmin$ = this.authService.userRoles$.pipe(
       map(roles => roles.includes('ROLE_ADMIN') || roles.includes('ROLE_SUPERADMIN'))
@@ -74,6 +86,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
       map(roles => roles.includes('ROLE_SUPERADMIN'))
     );
     this.collapseSubmenuOnNavigate();
+
+    // The mobile drawer always shows full labels.
+    effect(() => {
+      if (this.layout.mobileNavOpen() && untracked(this.isCollapsed)) {
+        this.isCollapsed.set(false);
+        this.expandActiveGroup();
+      }
+    });
   }
 
   menuItems = signal<MenuItem[]>([
@@ -173,11 +193,69 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.globalClickUnlistener = this.renderer.listen('document', 'click', (event: MouseEvent) => {
       this.handleClickOutside(event);
     });
+
+    this.expandActiveGroup();
+
+    // Regular users only see their own office, so link straight to it.
+    if (!this.authService.isAdmin() && !this.authService.isSuperAdmin()) {
+      this.userService.getCurrentUserDivision().subscribe({
+        next: division => this.userDivisionCode = division?.code ?? null,
+        error: () => this.userDivisionCode = null
+      });
+    }
   }
 
   ngOnDestroy() {
     if (this.globalClickUnlistener) {
       this.globalClickUnlistener();
+    }
+    this.routerSubscription?.unsubscribe();
+  }
+
+  /** Children of a sector that match the office search (all when empty). */
+  visibleChildren(item: MenuItem): MenuItem[] {
+    const query = this.officeQuery.trim().toLowerCase();
+    if (!query || !item.children) {
+      return item.children ?? [];
+    }
+    return item.children.filter(child =>
+      child.title.toLowerCase().includes(query) ||
+      (child.tooltip ?? '').toLowerCase().includes(query)
+    );
+  }
+
+  get isSearching(): boolean {
+    return this.officeQuery.trim().length > 0;
+  }
+
+  get hasSearchResults(): boolean {
+    return this.menuItems().some(item => item.children && this.visibleChildren(item).length > 0);
+  }
+
+  clearOfficeSearch(): void {
+    this.officeQuery = '';
+  }
+
+  isGroupActive(item: MenuItem): boolean {
+    return !!item.children?.some(child => child.link && this.router.url.startsWith(child.link));
+  }
+
+  /** Opens the sector that contains the current page so users see where they are. */
+  private expandActiveGroup(): void {
+    if (this.isCollapsed()) {
+      return;
+    }
+    const activeGroup = this.menuItems().find(item => this.isGroupActive(item));
+    if (activeGroup && !activeGroup.isExpanded) {
+      this.menuItems().forEach(item => item.isExpanded = item === activeGroup);
+    }
+  }
+
+  private readCollapsedPreference(): boolean {
+    try {
+      return localStorage.getItem(COLLAPSED_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
     }
   }
 
@@ -221,22 +299,34 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   toggleSidebar() {
     this.isCollapsed.set(!this.isCollapsed());
+    try {
+      localStorage.setItem(COLLAPSED_STORAGE_KEY, String(this.isCollapsed()));
+    } catch {
+      // Preference is a convenience only.
+    }
 
     if (this.isCollapsed()) {
       this.menuItems().forEach(menu => {
         menu.isExpanded = false;
       });
+    } else {
+      this.expandActiveGroup();
     }
   }
 
   collapseSubmenuOnNavigate() {
-    this.router.events.subscribe(() => {
-      if (this.isCollapsed()) {
-        this.menuItems().forEach(menu => {
-          menu.isExpanded = false;
-        });
-      }
-    });
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.layout.closeMobileNav();
+        if (this.isCollapsed()) {
+          this.menuItems().forEach(menu => {
+            menu.isExpanded = false;
+          });
+        } else {
+          this.expandActiveGroup();
+        }
+      });
   }
 
 

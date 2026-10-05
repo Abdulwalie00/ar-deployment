@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ProjectDataService} from "../../../services/project-data.service";
 import {ProjectCategory, ProjectCategoryDto} from "../../../models/project.model";
+import { ToastService } from "../../../services/toast.service";
 
 @Component({
   selector: 'app-project-category-add-dialog',
@@ -22,7 +23,8 @@ export class ProjectCategoryAddDialogComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private projectDataService: ProjectDataService
+    private projectDataService: ProjectDataService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -58,11 +60,13 @@ export class ProjectCategoryAddDialogComponent implements OnInit, OnChanges {
 
     saveOperation.subscribe({
       next: (savedCategory) => {
+        this.toast.success(this.isEditMode ? "Category updated" : "Category added", savedCategory?.name);
         this.saved.emit(savedCategory);
         this.resetAndClose();
       },
       error: (err) => {
         console.error("Failed to save category", err);
+        this.toast.error("The category could not be saved", err);
       }
     });
   }

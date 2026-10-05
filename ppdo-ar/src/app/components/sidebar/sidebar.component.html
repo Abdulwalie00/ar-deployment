@@ -1,60 +1,110 @@
-<ng-container *ngIf="isAdmin$ | async">
-  <aside
-    [@sidebarSlide]="isCollapsed() ? 'collapsed' : 'expanded'"
-    class="sidebar-shell"
-  >
-    <div class="sidebar-head">
-      <div class="head-copy" *ngIf="!isCollapsed()">
-        <p class="head-kicker">LDS Province</p>
-        <h2>PGLDS-AR</h2>
-      </div>
+<div
+  *ngIf="layout.mobileNavOpen()"
+  class="sidebar-backdrop"
+  (click)="layout.closeMobileNav()"
+  aria-hidden="true"
+></div>
 
-      <button (click)="toggleSidebar()" class="toggle-btn" [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
-        <fa-icon [icon]="isCollapsed() ? faCaretRight : faCaretLeft"></fa-icon>
-      </button>
+<aside
+  [@sidebarSlide]="isCollapsed() ? 'collapsed' : 'expanded'"
+  class="sidebar-shell"
+  [class.mobile-open]="layout.mobileNavOpen()"
+  [class.is-collapsed]="isCollapsed()"
+  aria-label="Main navigation"
+>
+  <div class="sidebar-head">
+    <div class="head-copy" *ngIf="!isCollapsed()">
+      <p class="head-kicker">LDS Province</p>
+      <h2>PGLDS-AR</h2>
     </div>
 
-    <nav class="sidebar-nav">
+    <button
+      (click)="toggleSidebar()"
+      class="toggle-btn desktop-only"
+      [title]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-label]="isCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      [attr.aria-expanded]="!isCollapsed()"
+    >
+      <fa-icon [icon]="isCollapsed() ? faCaretRight : faCaretLeft"></fa-icon>
+    </button>
+
+    <button
+      (click)="layout.closeMobileNav()"
+      class="toggle-btn mobile-only"
+      aria-label="Close menu"
+    >
+      <fa-icon [icon]="faXmark"></fa-icon>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <!-- Admins and super admins: every sector and office -->
+    <ng-container *ngIf="isAdmin$ | async; else userNav">
+      <div *ngIf="!isCollapsed()" class="office-search">
+        <fa-icon [icon]="faMagnifyingGlass" class="office-search-icon"></fa-icon>
+        <input
+          type="search"
+          [(ngModel)]="officeQuery"
+          placeholder="Find an office…"
+          aria-label="Find an office by code or name"
+          class="office-search-input"
+          (keydown.escape)="clearOfficeSearch()"
+        />
+        <button *ngIf="isSearching" type="button" class="office-search-clear" (click)="clearOfficeSearch()" aria-label="Clear search">
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
+      </div>
+
+      <p *ngIf="isSearching && !hasSearchResults" class="office-search-empty">
+        No office matches “{{ officeQuery }}”.
+      </p>
+
       <ul class="menu-stack">
         <li *ngFor="let item of menuItems()" class="menu-line">
           <ng-container *ngIf="item.title === 'SEPARATOR'">
-            <div class="menu-separator" [class.centered]="isCollapsed()">
+            <div *ngIf="!isSearching" class="menu-separator" [class.centered]="isCollapsed()">
               <span *ngIf="!isCollapsed()">Sectors</span>
             </div>
           </ng-container>
 
           <ng-container *ngIf="item.title !== 'SEPARATOR' && (!item.requiredRole || (item.requiredRole === 'ROLE_SUPERADMIN' && (isSuperAdmin$ | async)))">
-            <div *ngIf="!item.children">
+            <div *ngIf="!item.children && !isSearching">
               <a
                 [routerLink]="item.link"
                 routerLinkActive="active"
                 class="menu-link"
                 [class.collapsed]="isCollapsed()"
+                [title]="isCollapsed() ? item.title : ''"
+                [attr.aria-label]="isCollapsed() ? item.title : null"
               >
                 <fa-icon [icon]="item.icon" class="menu-icon"></fa-icon>
                 <span *ngIf="!isCollapsed()" class="menu-text">{{ item.title }}</span>
               </a>
             </div>
 
-            <div *ngIf="item.children" class="relative">
+            <div *ngIf="item.children && visibleChildren(item).length > 0" class="relative">
               <button
                 (click)="handleMenuClick(item, $event)"
                 class="menu-link menu-trigger"
                 [class.collapsed]="isCollapsed()"
+                [class.group-active]="isGroupActive(item)"
+                [title]="isCollapsed() ? item.title : ''"
+                [attr.aria-label]="isCollapsed() ? item.title : null"
+                [attr.aria-expanded]="isSearching || !!item.isExpanded"
               >
                 <div class="menu-left" [class.center-only]="isCollapsed()">
                   <fa-icon [icon]="item.icon" class="menu-icon"></fa-icon>
                   <span *ngIf="!isCollapsed()" class="menu-text">{{ item.title }}</span>
                 </div>
-                <fa-icon *ngIf="!isCollapsed()" [icon]="item.isExpanded ? faCaretDown : faCaretRight" class="menu-caret"></fa-icon>
+                <fa-icon *ngIf="!isCollapsed()" [icon]="(isSearching || item.isExpanded) ? faCaretDown : faCaretRight" class="menu-caret"></fa-icon>
               </button>
 
               <ul
                 *ngIf="!isCollapsed()"
-                [@slideDownUp]="item.isExpanded ? 'open' : 'closed'"
+                [@slideDownUp]="(isSearching || item.isExpanded) ? 'open' : 'closed'"
                 class="submenu"
               >
-                <li *ngFor="let child of item.children">
+                <li *ngFor="let child of visibleChildren(item)">
                   <a
                     (click)="handleSubmenuClick(); $event.stopPropagation()"
                     [routerLink]="child.link"
@@ -63,7 +113,10 @@
                     class="submenu-link"
                   >
                     <fa-icon [icon]="child.icon" class="submenu-icon"></fa-icon>
-                    <span>{{ child.title }}</span>
+                    <span class="submenu-copy">
+                      <span>{{ child.title }}</span>
+                      <small *ngIf="isSearching" class="submenu-full">{{ child.tooltip }}</small>
+                    </span>
                   </a>
                 </li>
               </ul>
@@ -74,6 +127,7 @@
                 [style.top.px]="currentMenuTopPosition"
                 [style.left.px]="56"
               >
+                <li class="submenu-popup-title">{{ item.title }}</li>
                 <li *ngFor="let child of item.children">
                   <a
                     [routerLink]="child.link"
@@ -90,6 +144,36 @@
           </ng-container>
         </li>
       </ul>
-    </nav>
-  </aside>
-</ng-container>
+    </ng-container>
+
+    <!-- Regular users: their own office and personal pages -->
+    <ng-template #userNav>
+      <ul class="menu-stack">
+        <li class="menu-line">
+          <a routerLink="/project-dashboard" routerLinkActive="active" class="menu-link" [class.collapsed]="isCollapsed()" [title]="isCollapsed() ? 'Dashboard' : ''">
+            <fa-icon [icon]="faHome" class="menu-icon"></fa-icon>
+            <span *ngIf="!isCollapsed()" class="menu-text">Dashboard</span>
+          </a>
+        </li>
+        <li *ngIf="userDivisionCode" class="menu-line">
+          <a [routerLink]="['/project-division', userDivisionCode]" routerLinkActive="active" class="menu-link" [class.collapsed]="isCollapsed()" [title]="isCollapsed() ? 'My office projects' : ''">
+            <fa-icon [icon]="faFolderOpen" class="menu-icon"></fa-icon>
+            <span *ngIf="!isCollapsed()" class="menu-text">My Office ({{ userDivisionCode }})</span>
+          </a>
+        </li>
+        <li class="menu-line">
+          <a routerLink="/project-summary" routerLinkActive="active" class="menu-link" [class.collapsed]="isCollapsed()" [title]="isCollapsed() ? 'Summary report' : ''">
+            <fa-icon [icon]="faFileLines" class="menu-icon"></fa-icon>
+            <span *ngIf="!isCollapsed()" class="menu-text">Summary Report</span>
+          </a>
+        </li>
+        <li class="menu-line">
+          <a routerLink="/notifications" routerLinkActive="active" class="menu-link" [class.collapsed]="isCollapsed()" [title]="isCollapsed() ? 'Notifications' : ''">
+            <fa-icon [icon]="faBell" class="menu-icon"></fa-icon>
+            <span *ngIf="!isCollapsed()" class="menu-text">Notifications</span>
+          </a>
+        </li>
+      </ul>
+    </ng-template>
+  </nav>
+</aside>

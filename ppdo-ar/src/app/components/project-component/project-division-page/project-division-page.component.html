@@ -63,8 +63,10 @@
     </div>
 
     <ng-template #noDivisionState>
-      <div class="division-loading app-card">
-        <p>Division not found.</p>
+      <div class="app-card app-state" role="alert">
+        <h3>Office not found</h3>
+        <p>We couldn't find an office with the code “{{ divisionCode }}”, or it could not be loaded right now.</p>
+        <a routerLink="/project-dashboard" class="app-btn app-btn-primary">Back to dashboard</a>
       </div>
     </ng-template>
   </ng-template>

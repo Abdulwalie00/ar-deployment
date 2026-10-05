@@ -1,144 +1,178 @@
-<div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Create New User</h2>
-      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Fill out the form to add a new user to the system.</p>
+<div class="account-create-page fade-up">
+  <section class="account-hero app-card">
+    <div class="hero-orb hero-orb-a"></div>
+    <div class="hero-orb hero-orb-b"></div>
+
+    <div class="hero-copy">
+      <span class="app-chip">Account Management</span>
+      <h1>Create New User</h1>
+      <p>Set up identity, role access, and office ownership in one clean workflow.</p>
     </div>
+  </section>
 
-    <form (ngSubmit)="submit()" class="p-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-          <div class="mt-1">
-            <input
-              id="firstName"
-              [(ngModel)]="user.firstName"
-              name="firstName"
-              placeholder="Enter first name"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+  <section class="account-form-shell app-card">
+    <header class="form-head">
+      <h2>User Profile Details</h2>
+      <p>Fields marked <span class="required-indicator">*</span> are required.</p>
+    </header>
+
+    <form #userForm="ngForm" (ngSubmit)="submit(userForm)" class="account-form" autocomplete="off" novalidate>
+      <div class="fields-grid">
+        <div class="field-block">
+          <label for="firstName">First Name <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input
+            id="firstName"
+            #firstName="ngModel"
+            [(ngModel)]="user.firstName"
+            name="firstName"
+            placeholder="Enter first name"
+            class="app-input"
+            autocomplete="off"
+            required
+          />
+          <p *ngIf="firstName.invalid && firstName.touched" class="app-field-error">First name is required.</p>
         </div>
 
-        <div>
-          <label for="middleName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Middle Name</label>
-          <div class="mt-1">
-            <input
-              id="middleName"
-              [(ngModel)]="user.middleName"
-              name="middleName"
-              placeholder="Enter middle name"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+        <div class="field-block">
+          <label for="middleName">Middle Name</label>
+          <input
+            id="middleName"
+            [(ngModel)]="user.middleName"
+            name="middleName"
+            placeholder="Optional"
+            class="app-input"
+          />
         </div>
 
-        <div class="md:col-span-2">
-          <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-          <div class="mt-1">
-            <input
-              id="lastName"
-              [(ngModel)]="user.lastName"
-              name="lastName"
-              placeholder="Enter last name"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+        <div class="field-block">
+          <label for="lastName">Last Name <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input
+            id="lastName"
+            #lastName="ngModel"
+            [(ngModel)]="user.lastName"
+            name="lastName"
+            placeholder="Enter last name"
+            class="app-input"
+            required
+          />
+          <p *ngIf="lastName.invalid && lastName.touched" class="app-field-error">Last name is required.</p>
         </div>
 
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-          <div class="mt-1">
-            <input
-              id="email"
-              [(ngModel)]="user.email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+        <div class="field-block">
+          <label for="email">Email <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input
+            id="email"
+            #email="ngModel"
+            [(ngModel)]="user.email"
+            name="email"
+            type="email"
+            placeholder="name@example.com"
+            class="app-input"
+            required
+            email
+          />
+          <p *ngIf="email.touched && email.errors?.['required']" class="app-field-error">Email is required.</p>
+          <p *ngIf="email.touched && email.errors?.['email']" class="app-field-error">Enter a valid email address, like name&#64;example.com.</p>
         </div>
 
-        <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-          <div class="mt-1">
-            <input
-              id="username"
-              [(ngModel)]="user.username"
-              name="username"
-              placeholder="Enter username"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+        <div class="field-block">
+          <label for="username">Username <span class="required-indicator" aria-hidden="true">*</span></label>
+          <input
+            id="username"
+            #username="ngModel"
+            [(ngModel)]="user.username"
+            name="username"
+            placeholder="Create username"
+            class="app-input"
+            autocapitalize="none"
+            spellcheck="false"
+            pattern="\S+"
+            required
+          />
+          <p *ngIf="username.touched && username.errors?.['required']" class="app-field-error">Username is required.</p>
+          <p *ngIf="username.touched && username.errors?.['pattern']" class="app-field-error">Usernames cannot contain spaces.</p>
+          <p *ngIf="!username.touched || username.valid" class="app-field-hint">Used to sign in. No spaces.</p>
         </div>
 
-        <div class="md:col-span-2">
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-          <div class="mt-1">
+        <div class="field-block">
+          <label for="password">Password <span class="required-indicator" aria-hidden="true">*</span></label>
+          <div class="password-field">
             <input
               id="password"
+              #password="ngModel"
               [(ngModel)]="user.password"
               name="passwordHash"
-              type="password"
+              [type]="showPassword ? 'text' : 'password'"
               placeholder="Enter a secure password"
-              class="w-full pl-3 pr-3 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              class="app-input"
+              autocomplete="new-password"
               required
             />
+            <button
+              type="button"
+              class="reveal-btn"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+              [attr.aria-pressed]="showPassword"
+            >
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
           </div>
+          <p *ngIf="password.invalid && password.touched" class="app-field-error">Password is required.</p>
+          <p *ngIf="!password.touched || password.valid" class="app-field-hint">Share it with the user privately. They can change it from their profile.</p>
         </div>
 
-        <div>
-          <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+        <div class="field-block">
+          <label for="role">Role <span class="required-indicator" aria-hidden="true">*</span></label>
           <select
             id="role"
             [(ngModel)]="user.role"
             name="role"
-            class="w-full mt-1 pl-3 pr-10 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            class="app-input"
             required
           >
             <option value="ROLE_ADMIN">Admin</option>
             <option value="ROLE_USER">User</option>
           </select>
+          <p class="app-field-hint">
+            {{ user.role === 'ROLE_ADMIN' ? 'Admins can view and manage projects of every office.' : 'Users can only see and manage projects of their own office.' }}
+          </p>
         </div>
 
-        <div>
-          <label for="divisionId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Division</label>
+        <div class="field-block">
+          <label for="divisionId">Office / Division <span class="required-indicator" aria-hidden="true">*</span></label>
           <select
             id="divisionId"
+            #division="ngModel"
             [(ngModel)]="user.divisionId"
             name="divisionId"
-            class="w-full mt-1 pl-3 pr-10 py-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            class="app-input"
+            required
           >
-            <option [ngValue]="null" disabled>Select a Division</option>
+            <option [ngValue]="null" disabled>Select an office</option>
             <option *ngFor="let division of divisions" [value]="division.id">
-              {{ division.name }}
+              {{ division.name }} ({{ division.code }})
             </option>
           </select>
+          <p *ngIf="division.invalid && division.touched" class="app-field-error">Please choose the user's office.</p>
         </div>
       </div>
 
-      <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+      <div class="form-actions">
         <button
           type="button"
           (click)="cancel()"
-          class="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors">
+          class="app-btn app-btn-secondary"
+          [disabled]="isSaving"
+        >
           Cancel
         </button>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-          Add User
+
+        <button type="submit" class="app-btn app-btn-primary" [disabled]="isSaving">
+          <span *ngIf="isSaving" class="app-spinner" aria-hidden="true"></span>
+          {{ isSaving ? 'Creating…' : 'Add User' }}
         </button>
       </div>
     </form>
-  </div>
-
-  <app-confirm-dialog
-    *ngIf="showDialog"
-    [message]="'Are you sure you want to add this user?'"
-    (confirm)="onConfirm($event)"
-  ></app-confirm-dialog>
+  </section>
 </div>

@@ -1,24 +1,64 @@
 <div class="project-list-wrap fade-up">
+  <section *ngIf="isStandalone" class="app-card app-page-head">
+    <div>
+      <button type="button" class="app-btn app-btn-secondary app-btn-sm" (click)="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Dashboard
+      </button>
+      <h1>
+        {{ currentFilterStatus ? getStatusDisplayName(currentFilterStatus) + ' projects' : 'All projects' }}
+      </h1>
+      <p>
+        {{ currentDivisionCode ? currentDivisionCode + ' · ' : '' }}{{ currentYear ? 'Started in ' + currentYear : 'All years' }}
+      </p>
+    </div>
+  </section>
+
   <div class="list-head">
-    <div class="list-toolbar">
+    <div class="list-controls">
+      <div class="app-search list-search">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="search"
+          class="app-input"
+          placeholder="Search by title, location, office or fund source"
+          aria-label="Search projects"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilter()"
+          (keydown.escape)="clearSearch()"
+        />
+        <button *ngIf="searchTerm" type="button" class="app-search-clear" (click)="clearSearch()" aria-label="Clear search">✕</button>
+      </div>
+
       <div class="toolbar-actions">
+        <label class="sr-only" for="projectSort">Sort projects</label>
+        <select id="projectSort" class="app-input sort-select" [(ngModel)]="sortBy" (ngModelChange)="applyFilter()">
+          <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+
         <button (click)="toggleView()"
+                type="button"
                 class="view-toggle-btn"
                 [class.is-grid]="currentViewMode === 'grid'"
-                [attr.aria-label]="currentViewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'">
+                [title]="currentViewMode === 'grid' ? 'Switch to list view' : 'Switch to card view'"
+                [attr.aria-label]="currentViewMode === 'grid' ? 'Switch to list view' : 'Switch to card view'">
           <svg *ngIf="currentViewMode === 'grid'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
           <svg *ngIf="currentViewMode === 'list'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
         </button>
 
         <a *ngIf="showAddButton"
-           [routerLink]="currentDivisionCode ? ['/project-add'] : ['/project-add']"
+           [routerLink]="['/project-add']"
            [queryParams]="currentDivisionCode ? { division: currentDivisionCode } : {}"
            class="app-btn app-btn-primary add-project-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
           </svg>
           Add Project
@@ -26,28 +66,47 @@
       </div>
     </div>
 
-    <div *ngIf="currentFilterStatus" class="active-filter-strip">
-      <p class="active-filter-copy">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-        </svg>
-        Showing <span class="font-medium text-blue-700 dark:text-blue-400">{{ getStatusDisplayName(currentFilterStatus) }}</span> projects
+    <div class="filter-row">
+      <div class="app-filter-chips" role="group" aria-label="Filter by status">
+        <button type="button" class="app-filter-chip" [class.active]="!currentFilterStatus" (click)="setStatusFilter(null)" [attr.aria-pressed]="!currentFilterStatus">
+          All<span class="count">{{ countByStatus(null) }}</span>
+        </button>
+        <button
+          *ngFor="let status of statusOptions"
+          type="button"
+          class="app-filter-chip"
+          [class.active]="currentFilterStatus === status"
+          [attr.aria-pressed]="currentFilterStatus === status"
+          (click)="setStatusFilter(status)"
+        >
+          {{ getStatusDisplayName(status) }}<span class="count">{{ countByStatus(status) }}</span>
+        </button>
+      </div>
+
+      <p *ngIf="!isLoading && !loadError" class="result-count" aria-live="polite">
+        Showing {{ filteredProjects.length }} of {{ allProjects.length }} project{{ allProjects.length === 1 ? '' : 's' }}
       </p>
-      <button (click)="resetFilter()" class="clear-filter-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        Clear filter
-      </button>
     </div>
   </div>
 
-  <ng-container *ngIf="filteredProjects.length > 0">
+  <div *ngIf="isLoading" class="app-card app-state" role="status">
+    <span class="app-spinner app-spinner-lg" aria-hidden="true"></span>
+    <p>Loading projects…</p>
+  </div>
+
+  <div *ngIf="!isLoading && loadError" class="app-card app-state" role="alert">
+    <h3>We couldn't load the projects</h3>
+    <p>Please check your connection and try again.</p>
+    <button type="button" class="app-btn app-btn-primary" (click)="retry()">Try again</button>
+  </div>
+
+  <ng-container *ngIf="!isLoading && !loadError && filteredProjects.length > 0">
     <div *ngIf="currentViewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div
+      <a
         *ngFor="let project of filteredProjects"
-        class="project-card app-card overflow-hidden cursor-pointer"
-        (click)="viewProjectDetails(project.id)"
+        class="project-card app-card overflow-hidden block"
+        [routerLink]="['/project-detail', project.id]"
+        [attr.aria-label]="project.title + ', ' + getStatusDisplayName(project.status) + ', ' + project.percentCompletion + '% complete'"
       >
         <div class="p-6">
           <div class="flex justify-between items-start gap-2 mb-4">
@@ -70,14 +129,14 @@
 
           <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
             <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               <span>{{ project.division.name }}</span>
             </div>
 
             <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -85,7 +144,7 @@
             </div>
 
             <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 pt-3 mt-3 border-t border-gray-100 dark:border-gray-700">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <span>{{ project.startDate | date:'mediumDate' }} – {{ project.endDate | date:'mediumDate' }}</span>
@@ -96,13 +155,13 @@
                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Progress</span>
                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ project.percentCompletion }}%</span>
               </div>
-              <div class="progress-track w-full">
+              <div class="progress-track w-full" role="progressbar" [attr.aria-valuenow]="project.percentCompletion" aria-valuemin="0" aria-valuemax="100">
                 <div class="progress-fill" [style.width.%]="project.percentCompletion"></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </a>
     </div>
 
     <div *ngIf="currentViewMode === 'list'" class="list-table-shell app-card overflow-hidden">
@@ -158,9 +217,9 @@
               </div>
             </td>
             <td class="px-6 py-4 text-right">
-              <a [routerLink]="['/project-detail', project.id]" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium inline-flex items-center">
+              <a [routerLink]="['/project-detail', project.id]" (click)="$event.stopPropagation()" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium inline-flex items-center">
                 View
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -172,25 +231,36 @@
     </div>
   </ng-container>
 
-  <div *ngIf="filteredProjects.length === 0" class="empty-shell app-card flex flex-col items-center justify-center py-16">
+  <div *ngIf="!isLoading && !loadError && filteredProjects.length === 0" class="empty-shell app-card flex flex-col items-center justify-center py-16">
     <div class="bg-blue-50 dark:bg-blue-900/30 rounded-full p-4 mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
     </div>
-    <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">No projects found</h3>
-    <p class="text-gray-500 dark:text-gray-400 text-center max-w-md px-4 mb-6">
-      {{ currentFilterStatus ? 'No ' + getStatusDisplayName(currentFilterStatus) + ' projects available' : 'No projects match your criteria' }}
-    </p>
-    <button
-      *ngIf="showAddButton"
-      [routerLink]="currentDivisionCode ? ['/project-add'] : ['/project-add']"
-      [queryParams]="currentDivisionCode ? { division: currentDivisionCode } : {}"
-      class="app-btn app-btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-      </svg>
-      Create Your First Project
-    </button>
+
+    <ng-container *ngIf="allProjects.length > 0 && hasActiveFilters; else noProjectsAtAll">
+      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">No matching projects</h3>
+      <p class="text-gray-500 dark:text-gray-400 text-center max-w-md px-4 mb-6">
+        Nothing matches your current search or status filter. Try different keywords or clear the filters.
+      </p>
+      <button type="button" class="app-btn app-btn-secondary" (click)="clearAllFilters()">Clear filters</button>
+    </ng-container>
+
+    <ng-template #noProjectsAtAll>
+      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">No projects yet</h3>
+      <p class="text-gray-500 dark:text-gray-400 text-center max-w-md px-4 mb-6">
+        There are no projects recorded here{{ currentYear ? ' for ' + currentYear : '' }}. Add the first one to start tracking progress.
+      </p>
+      <a
+        *ngIf="showAddButton"
+        [routerLink]="['/project-add']"
+        [queryParams]="currentDivisionCode ? { division: currentDivisionCode } : {}"
+        class="app-btn app-btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Create the first project
+      </a>
+    </ng-template>
   </div>
 </div>

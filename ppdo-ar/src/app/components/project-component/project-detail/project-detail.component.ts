@@ -5,7 +5,10 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  HostListener,
 } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
+import { ToastService } from '../../../services/toast.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +16,7 @@ import { ProjectConfirmationDialogComponent } from '../project-confirmation-dial
 import { ProjectDataService } from '../../../services/project-data.service';
 import { Project, Comment } from '../../../models/project.model';
 import { Observable, Subject, of } from 'rxjs';
-import { switchMap, takeUntil, tap, finalize } from 'rxjs/operators';
+import { switchMap, takeUntil, tap, finalize, catchError } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../models/user.model';
@@ -49,6 +52,12 @@ import type { CircleMarker, Map } from 'leaflet';
   ],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css'],
+  animations: [
+    trigger('fade', [
+      transition(':enter', [style({ opacity: 0 }), animate('180ms ease-out', style({ opacity: 1 }))]),
+      transition(':leave', [animate('140ms ease-in', style({ opacity: 0 }))]),
+    ]),
+  ],
 })
 export class ProjectDetailComponent
   implements OnInit, OnDestroy, AfterViewChecked
@@ -69,6 +78,8 @@ export class ProjectDetailComponent
   newComment = '';
   currentUser: User | null = null;
   isAdmin = false;
+  isLoading = true;
+  isPostingComment = false;
 
   showConfirmationDialog = false;
   dialogMessage = '';
@@ -107,7 +118,8 @@ export class ProjectDetailComponent
     private authService: AuthService,
     private userService: UserService,
     private websocketService: WebsocketService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private toast: ToastService
   ) {
     this.project$ = of(undefined);
   }
@@ -118,23 +130,26 @@ export class ProjectDetailComponent
     this.project$ = this.route.paramMap.pipe(
       switchMap((params) => {
         const projectId = params.get('id');
+        this.isLoading = true;
         if (projectId) {
           this.notificationService
             .markProjectNotificationsAsRead(projectId)
-            .subscribe();
+            .subscribe({ error: () => {} });
           this.websocketService.connect(projectId);
           this.listenForNewComments();
           this.loadComments(projectId);
-          return this.projectDataService.getProjectById(projectId);
+          // A missing or failed project shows the "not found" message below.
+          return this.projectDataService.getProjectById(projectId).pipe(
+            catchError(() => of(undefined))
+          );
         }
         return of(undefined);
       }),
       tap((project) => {
-        this.currentProject = project;
+        this.currentProject = project ?? undefined;
+        this.isLoading = false;
         if (!project) {
           this.destroyProjectMap();
-          this.router.navigate(['/project-list']);
-          return;
         }
       }),
       takeUntil(this.destroy$)
@@ -165,22 +180,27 @@ export class ProjectDetailComponent
         },
         error: (err) => {
           console.error('Failed to generate narrative', err);
-          // You could show an error dialog here if needed
+          this.toast.error('Could not generate the narrative report', err);
         },
       });
   }
 
   downloadNarrative() {
     if (!this.currentProject) return;
+    const fileName = `${this.currentProject.title.replace(/[^\w\- ]+/g, '').trim() || 'Project'} - Narrative Report.docx`;
     this.projectDataService
       .downloadNarrative(this.currentProject.id)
-      .subscribe((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'NarrativeReport.docx';
-        a.click();
-        window.URL.revokeObjectURL(url);
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          this.toast.success('Download started', fileName);
+        },
+        error: (err) => this.toast.error('Could not download the report', err),
       });
   }
 
@@ -226,10 +246,15 @@ export class ProjectDetailComponent
   onConfirmation(confirmed: boolean): void {
     this.showConfirmationDialog = false;
     if (confirmed && this.dialogAction === 'delete' && this.currentProject) {
+      const title = this.currentProject.title;
       this.projectDataService
         .deleteProject(this.currentProject.id)
-        .subscribe(() => {
-          this.router.navigate(['/project-list']);
+        .subscribe({
+          next: () => {
+            this.toast.success('Project deleted', `"${title}" has been removed.`);
+            this.router.navigate(['/project-list']);
+          },
+          error: (err) => this.toast.error('Could not delete the project', err),
         });
     }
   }
@@ -285,21 +310,42 @@ export class ProjectDetailComponent
   }
 
   postComment(): void {
-    if (!this.newComment.trim() || !this.currentProject) {
+    if (!this.newComment.trim() || !this.currentProject || this.isPostingComment) {
       return;
     }
 
+    this.isPostingComment = true;
     this.projectDataService
       .addComment(this.currentProject.id, this.newComment)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isPostingComment = false)
+      )
       .subscribe({
         next: () => {
           this.newComment = '';
         },
         error: (err) => {
           console.error('Failed to post comment', err);
+          // The typed comment is kept so the user can simply try again.
+          this.toast.error('Your comment was not posted', err);
         },
       });
+  }
+
+  /** Arrow keys browse photos and Escape closes the viewer. */
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (!this.showCarousel) {
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.closeCarousel();
+    } else if (event.key === 'ArrowLeft') {
+      this.prevImage();
+    } else if (event.key === 'ArrowRight') {
+      this.nextImage();
+    }
   }
 
   ngOnDestroy(): void {

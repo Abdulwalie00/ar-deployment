@@ -20,8 +20,8 @@ export const SuperAdminGuard: CanActivateFn = (route, state): Observable<boolean
   if (authService.isAdmin()) {
     const dialogRef = dialog.open(WarningDialogComponent, {
       data: {
-        title: 'Access Restricted',
-        message: 'You must be a Super Admin to manage user accounts.'
+        title: 'Super admins only',
+        message: 'Only super admins can manage user accounts, offices, and categories. Ask a super admin if you need a change.'
       },
       width: '400px',
       disableClose: true // Prevents closing by clicking outside

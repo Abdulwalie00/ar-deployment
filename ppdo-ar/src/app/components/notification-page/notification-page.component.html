@@ -1,42 +1,76 @@
-<div class="container mx-auto p-4 md:p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
-  <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm mb-6">
-    <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-white">Notification History</h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-      All notifications from your account.
-    </p>
-  </div>
-
-  <div *ngIf="isLoading" class="text-center py-10 text-gray-500 dark:text-gray-400">
-    Loading notifications...
-  </div>
-
-  <ng-container *ngIf="!isLoading">
-    <div *ngIf="allNotifications.length === 0" class="flex flex-col items-center justify-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-      <div class="bg-blue-50 dark:bg-blue-900/30 rounded-full p-4 mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
-      </div>
-      <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">You don't have any notifications</h3>
-      <p class="text-gray-500 dark:text-gray-400 text-center max-w-md px-4 mb-6">
-        Notifications will appear here when there are updates on projects or comments.
+<div class="app-page fade-up">
+  <section class="app-card app-page-head">
+    <div>
+      <span class="app-chip">Inbox</span>
+      <h1>Notifications</h1>
+      <p>
+        Updates about projects and comments in your offices.
+        <ng-container *ngIf="!isLoading && !loadError">
+          {{ unreadCount > 0 ? 'You have ' + unreadCount + ' unread.' : 'You are all caught up.' }}
+        </ng-container>
       </p>
     </div>
+    <button
+      *ngIf="unreadCount > 0"
+      type="button"
+      class="app-btn app-btn-secondary"
+      (click)="markAllAsRead()"
+      [disabled]="isMarkingAll"
+    >
+      <span *ngIf="isMarkingAll" class="app-spinner" aria-hidden="true"></span>
+      Mark all as read
+    </button>
+  </section>
 
-    <div *ngIf="allNotifications.length > 0" class="space-y-4">
-      <div *ngFor="let notification of allNotifications"
-           class="p-4 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-4 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm"
-           (click)="onNotificationClick(notification)">
-
-        <div class="flex-grow">
-          <p class="font-medium text-gray-800 dark:text-white">
-            {{ notification.message }}
-          </p>
-          <div class="text-xs mt-1 text-gray-600 dark:text-gray-300">
-            {{ notification.dateCreated | date:'medium' }}
-          </div>
-        </div>
+  <section class="app-card">
+    <div class="app-page-head" style="padding-bottom: 0.4rem;">
+      <div class="app-filter-chips" role="group" aria-label="Filter notifications">
+        <button type="button" class="app-filter-chip" [class.active]="filter === 'all'" [attr.aria-pressed]="filter === 'all'" (click)="filter = 'all'">
+          All<span class="count">{{ allNotifications.length }}</span>
+        </button>
+        <button type="button" class="app-filter-chip" [class.active]="filter === 'unread'" [attr.aria-pressed]="filter === 'unread'" (click)="filter = 'unread'">
+          Unread<span class="count">{{ unreadCount }}</span>
+        </button>
       </div>
     </div>
-  </ng-container>
+
+    <div *ngIf="isLoading" class="app-state" role="status">
+      <span class="app-spinner app-spinner-lg" aria-hidden="true"></span>
+      <p>Loading notifications…</p>
+    </div>
+
+    <div *ngIf="!isLoading && loadError" class="app-state" role="alert">
+      <h3>We couldn't load your notifications</h3>
+      <p>Please check your connection and try again.</p>
+      <button type="button" class="app-btn app-btn-primary" (click)="fetchNotifications()">Try again</button>
+    </div>
+
+    <ng-container *ngIf="!isLoading && !loadError">
+      <div *ngIf="visibleNotifications.length === 0" class="app-state">
+        <h3>{{ filter === 'unread' && allNotifications.length > 0 ? 'No unread notifications' : "You don't have any notifications" }}</h3>
+        <p>Notifications appear here when projects are updated or someone comments.</p>
+      </div>
+
+      <ul *ngIf="visibleNotifications.length > 0" class="notif-feed">
+        <li *ngFor="let notification of visibleNotifications">
+          <button
+            type="button"
+            class="notif-row"
+            [class.unread]="!notification.isRead"
+            (click)="onNotificationClick(notification)"
+          >
+            <span class="notif-indicator" [attr.aria-label]="notification.isRead ? null : 'Unread'"></span>
+            <span class="notif-body">
+              <span class="notif-message">{{ notification.message }}</span>
+              <span class="notif-meta">
+                <span [title]="notification.dateCreated | date:'medium'">{{ notification.dateCreated | timeAgo }}</span>
+                <ng-container *ngIf="notification.project?.title"> · {{ notification.project.title }}</ng-container>
+              </span>
+            </span>
+            <span class="notif-go" aria-hidden="true">›</span>
+          </button>
+        </li>
+      </ul>
+    </ng-container>
+  </section>
 </div>

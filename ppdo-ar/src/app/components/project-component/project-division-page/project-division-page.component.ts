@@ -2,11 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subject, of } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Title } from '@angular/platform-browser';
 import { Division, Project } from '../../../models/project.model';
 import { ProjectDataService } from '../../../services/project-data.service';
 import { DivisionService } from '../../../services/division.service';
 import { ProjectListComponent } from '../project-list/project-list.component';
+import { APP_NAME } from '../../../app-title.strategy';
 
 @Component({
   selector: 'app-project-division-page',
@@ -25,19 +27,28 @@ export class ProjectDivisionPageComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private projectDataService: ProjectDataService,
-    private divisionService: DivisionService
+    private divisionService: DivisionService,
+    private title: Title
   ) {}
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
       switchMap(params => {
         this.isLoading = true;
+        this.division = null;
+        this.projects = [];
         this.divisionCode = params.get('divisionCode');
         if (this.divisionCode) {
           // Fetch and assign the division object
           return this.divisionService.getDivisionByCode(this.divisionCode).pipe(
-            tap(division => this.division = division), // Assign the division object
-            switchMap(() => this.projectDataService.getProjects(this.divisionCode!))
+            tap(division => {
+              this.division = division;
+              this.title.setTitle(`${division?.code ?? this.divisionCode} projects · ${APP_NAME}`);
+            }),
+            switchMap(() => this.projectDataService.getProjects(this.divisionCode!)),
+            // An unknown office code or a failed request ends in the
+            // "not found" message instead of an endless spinner.
+            catchError(() => of([] as Project[]))
           );
         } else {
           this.division = null;
