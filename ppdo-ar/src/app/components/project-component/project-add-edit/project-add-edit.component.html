@@ -148,7 +148,7 @@
 
         <div class="field-grid three-col">
           <div class="field-block">
-            <label for="budget">Budget <span class="required-indicator" aria-hidden="true">*</span></label>
+            <label for="budget">Budget <span *ngIf="!isEditMode" class="required-indicator" aria-hidden="true">*</span></label>
             <div class="money-wrap">
               <span class="currency">₱</span>
               <input
@@ -157,12 +157,25 @@
                 formControlName="budget"
                 class="input-control with-prefix"
                 [ngClass]="{'invalid-field': projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched}"
-                placeholder="0.00"
+                [placeholder]="isEditMode && !currentBudgetShown ? 'Unchanged' : '0.00'"
               />
             </div>
             <div *ngIf="projectForm.get('budget')?.invalid && projectForm.get('budget')?.touched" class="field-error">
-              Budget is required and must be a positive number.
+              {{ isEditMode ? 'Budget must be a positive number.' : 'Budget is required and must be a positive number.' }}
             </div>
+            <ng-container *ngIf="isEditMode && !currentBudgetShown">
+              <p class="app-field-hint mt-1">Leave blank to keep the current budget.</p>
+              <button
+                type="button"
+                class="app-btn app-btn-secondary app-btn-sm mt-1"
+                (click)="showCurrentBudget()"
+                [disabled]="isLoadingBudget"
+              >
+                <span *ngIf="isLoadingBudget" class="app-spinner" aria-hidden="true"></span>
+                Show current budget
+              </button>
+            </ng-container>
+            <p *ngIf="budgetNotice" class="app-field-hint mt-1">{{ budgetNotice }}</p>
           </div>
 
           <div class="field-block">
@@ -471,3 +484,10 @@
   >
   </app-project-category-add-dialog>
 </div>
+
+<app-password-verification-dialog
+  *ngIf="showPasswordDialog"
+  description="Enter your password to see the current budget. Every view is recorded."
+  (confirmed)="onBudgetPasswordVerified()"
+  (closed)="showPasswordDialog = false"
+></app-password-verification-dialog>

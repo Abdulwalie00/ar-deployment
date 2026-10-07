@@ -8,11 +8,15 @@ import com.lds.ppdoarbackend.repository.DivisionRepository;
 import com.lds.ppdoarbackend.repository.ProjectCategoryRepository;
 import com.lds.ppdoarbackend.repository.ProjectRepository;
 import com.lds.ppdoarbackend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +30,14 @@ public class DataLoader implements CommandLineRunner {
     private static final int[] SAMPLE_YEARS = {2024, 2025, 2026};
     private static final String[] SAMPLE_TYPES = {"Operational", "PPA/AIP", "Initiative"};
     private static final String[] SAMPLE_STATUSES = {"planned", "ongoing", "completed"};
+    private static final Logger log = LoggerFactory.getLogger(DataLoader.class);
+    private static final String OLD_DEFAULT_PASSWORD = "password";
+
+    // Initial password for seeded accounts (APP_BOOTSTRAP_PASSWORD). When empty, a random
+    // one is generated and printed once in the server log.
+    @Value("${app.bootstrap-password:}")
+    private String bootstrapPassword;
+    private String generatedPassword;
 
     @Autowired
     private UserRepository userRepository;
@@ -42,8 +54,41 @@ public class DataLoader implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /** Password given to accounts this loader creates; never the old hard-coded "password". */
+    private String initialPassword() {
+        if (bootstrapPassword != null && !bootstrapPassword.isBlank()) {
+            return bootstrapPassword;
+        }
+        if (generatedPassword == null) {
+            String alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+            SecureRandom random = new SecureRandom();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 16; i++) {
+                sb.append(alphabet.charAt(random.nextInt(alphabet.length())));
+            }
+            generatedPassword = sb.toString();
+            log.warn("Seeded accounts were created with this one-time password: {}  "
+                    + "Sign in and change it right away, or set APP_BOOTSTRAP_PASSWORD.", generatedPassword);
+        }
+        return generatedPassword;
+    }
+
+    /** Lists accounts still using the old default password so they can be changed. */
+    private void warnAboutDefaultPasswords() {
+        List<String> exposed = userRepository.findAll().stream()
+                .filter(user -> user.getPasswordHash() != null
+                        && passwordEncoder.matches(OLD_DEFAULT_PASSWORD, user.getPasswordHash()))
+                .map(User::getUsername)
+                .toList();
+        if (!exposed.isEmpty()) {
+            log.warn("SECURITY: {} account(s) still use the default password \"password\": {}. "
+                    + "Change these passwords (Account Management > Edit > New Password).", exposed.size(), exposed);
+        }
+    }
+
     @Override
     public void run(String... args) throws Exception {
+        warnAboutDefaultPasswords();
         // Create a default superadmin user if one doesn't exist
         if (userRepository.findByUsername("superadmin").isEmpty()) {
             User superAdminUser = new User();
@@ -51,7 +96,7 @@ public class DataLoader implements CommandLineRunner {
             superAdminUser.setLastName("Admin");
             superAdminUser.setEmail("superadmin@example.com");
             superAdminUser.setUsername("superadmin");
-            superAdminUser.setPasswordHash(passwordEncoder.encode("password"));
+            superAdminUser.setPasswordHash(passwordEncoder.encode(initialPassword()));
             superAdminUser.setRole("ROLE_SUPERADMIN");
             superAdminUser.setCreatedAt(new Date());
             superAdminUser.setUpdatedAt(new Date());
@@ -66,7 +111,7 @@ public class DataLoader implements CommandLineRunner {
             adminUser.setLastName("User");
             adminUser.setEmail("admin@example.com");
             adminUser.setUsername("admin");
-            adminUser.setPasswordHash(passwordEncoder.encode("password"));
+            adminUser.setPasswordHash(passwordEncoder.encode(initialPassword()));
             adminUser.setRole("ROLE_ADMIN");
             adminUser.setCreatedAt(new Date());
             adminUser.setUpdatedAt(new Date());
@@ -145,7 +190,7 @@ public class DataLoader implements CommandLineRunner {
                     divisionUser.setLastName("User");
                     divisionUser.setEmail(code.toLowerCase() + "@example.com");
                     divisionUser.setUsername(username);
-                    divisionUser.setPasswordHash(passwordEncoder.encode("password")); // Set a default password
+                    divisionUser.setPasswordHash(passwordEncoder.encode(initialPassword())); // Set a default password
                     divisionUser.setRole("ROLE_USER"); // Set a default role
                     divisionUser.setDivision(division); // Assign the new division
                     divisionUser.setCreatedAt(new Date());

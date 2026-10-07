@@ -49,7 +49,8 @@ export interface Project {
   dateUpdated: Date;
   implementationSchedule: Date;
   dateOfAccomplishment: Date;
-  budget: number;
+  /** Not included in normal API responses; fetched separately via BudgetService. */
+  budget?: number;
   percentCompletion: number;
   targetParticipant?: string;
   fundSource: string;

@@ -11,9 +11,15 @@
         Return to Projects
       </button>
 
-      <button (click)="printReport()" class="app-btn app-btn-primary hero-print-btn">
-        <fa-icon [icon]="faPrint"></fa-icon>
-        Print Report
+      <button
+        (click)="printReport()"
+        class="app-btn app-btn-primary hero-print-btn"
+        [disabled]="isPreparingPrint"
+        title="The printed report includes budgets, so your password is required"
+      >
+        <span *ngIf="isPreparingPrint" class="app-spinner" aria-hidden="true"></span>
+        <fa-icon *ngIf="!isPreparingPrint" [icon]="faPrint"></fa-icon>
+        {{ isPreparingPrint ? 'Preparing…' : 'Print Report' }}
       </button>
     </div>
 
@@ -216,3 +222,10 @@
     </div>
   </section>
 </div>
+
+<app-password-verification-dialog
+  *ngIf="showPasswordDialog"
+  description="The printed report includes budget figures. Enter your password to continue; the print is recorded."
+  (confirmed)="onPrintPasswordVerified()"
+  (closed)="showPasswordDialog = false"
+></app-password-verification-dialog>

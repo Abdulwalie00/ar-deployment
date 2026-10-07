@@ -1,5 +1,6 @@
 package com.lds.ppdoarbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -28,6 +29,8 @@ public class Project {
     private Date dateOfAccomplishment;
     private Date dateCreated;
     private Date dateUpdated;
+    // Only served by the budget endpoints after a password re-check (see ProjectBudgetController).
+    @JsonIgnore
     private Double budget;
     private Double percentCompletion;
     private String targetParticipant;

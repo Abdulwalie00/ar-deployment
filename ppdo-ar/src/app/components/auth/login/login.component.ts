@@ -103,7 +103,9 @@ export class LoginComponent {
         this.loading = false;
         this.password = '';
         // Tell the user what actually went wrong, in plain words.
-        if (err.status === 0) {
+        if (err.status === 429) {
+          this.error = err.error?.message ?? 'Too many incorrect attempts. Please wait a few minutes and try again.';
+        } else if (err.status === 0) {
           this.error = 'Cannot reach the server. Check your network connection and try again.';
         } else if (err.status >= 500) {
           this.error = 'The server is having trouble right now. Please try again in a moment.';

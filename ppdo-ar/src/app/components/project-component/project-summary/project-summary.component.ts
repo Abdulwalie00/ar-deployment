@@ -11,11 +11,16 @@ import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 import {faPrint} from '@fortawesome/free-solid-svg-icons';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
+import { BudgetService, BUDGET_LOCKED_STATUS, ProjectBudget } from '../../../services/budget.service';
+import { ToastService } from '../../../services/toast.service';
+import { PasswordVerificationDialogComponent } from '../../password-verification-dialog/password-verification-dialog.component';
 
 @Component({
   selector: 'app-project-summary',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FaIconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, FaIconComponent, PasswordVerificationDialogComponent],
   templateUrl: './project-summary.component.html',
   styleUrls: ['./project-summary.component.css']
 })
@@ -59,6 +64,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
   itemsPerPageOptions: number[] = [10, 20, 50, 100];
   totalPages: number = 0;
   faPrint = faPrint
+  showPasswordDialog = false;
+  isPreparingPrint = false;
 
   // User role and division
   isAdmin: boolean = false;
@@ -73,6 +80,8 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private userService: UserService,
     private location: Location,
+    private budgetService: BudgetService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -278,7 +287,39 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
     this.location.back();
   }
 
+  /** Print button: budgets are fetched only after the password re-check. */
   printReport(): void {
+    if (this.filteredProjects.length === 0) {
+      this.renderPrint(new Map());
+    } else if (this.budgetService.isUnlocked()) {
+      this.fetchBudgetsAndPrint();
+    } else {
+      this.showPasswordDialog = true;
+    }
+  }
+
+  onPrintPasswordVerified(): void {
+    this.showPasswordDialog = false;
+    this.fetchBudgetsAndPrint();
+  }
+
+  private fetchBudgetsAndPrint(): void {
+    this.isPreparingPrint = true;
+    this.budgetService.getBudgets(this.filteredProjects.map(project => project.id)).pipe(
+      finalize(() => this.isPreparingPrint = false)
+    ).subscribe({
+      next: budgets => this.renderPrint(budgets),
+      error: (err: HttpErrorResponse) => {
+        if (err.status === BUDGET_LOCKED_STATUS) {
+          this.showPasswordDialog = true;
+        } else {
+          this.toast.error('Could not prepare the report', err);
+        }
+      }
+    });
+  }
+
+  private renderPrint(budgets: Map<string, ProjectBudget>): void {
     const month = this.selectedMonth || 'All Months';
     const year = this.selectedYear || 'All Years';
     let divisionName = 'All Divisions';
@@ -331,10 +372,10 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
                 <td>${this.safePrintValue(startDate)}</td>
                 <td>${this.safePrintValue(endDate)}</td>
                 <td>${this.safePrintValue(project.officeInCharge)}</td>
-                <td>${this.safePrintValue(project.budget)}</td>
+                <td>${this.budgetText(budgets, project.id)}</td>
                 <td>${this.safePrintValue(project.fundSource)}</td>
                 <td>${this.safePrintValue(project.percentCompletion)}${'%'}</td>
-                <td>${this.safePrintValue(project.budget)}</td>
+                <td>${this.budgetText(budgets, project.id)}</td>
                 <td>${this.safePrintValue(project.remarks)}</td>
               </tr>
           `;
@@ -419,20 +460,45 @@ export class ProjectSummaryComponent implements OnInit, OnDestroy {
           ${projectRows}
         </tbody>
       </table>
+      <p style="margin-top: 16px; font-size: 8pt; color: #555;">
+        Printed by ${this.safePrintValue(this.authService.getUsername())} on ${new Date().toLocaleString()}.
+        Contains budget information &mdash; handle according to office policy.
+      </p>
     </body>
     </html>
   `;
 
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(printHtml);
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 500); // Timeout to ensure content loads
+    // Print from a hidden frame instead of a pop-up window: browsers block
+    // pop-ups opened after the password prompt.
+    const frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+    const frameDoc = frame.contentWindow?.document;
+    if (!frameDoc || !frame.contentWindow) {
+      frame.remove();
+      return;
     }
+    frameDoc.open();
+    frameDoc.write(printHtml);
+    frameDoc.close();
+    setTimeout(() => {
+      frame.contentWindow?.focus();
+      frame.contentWindow?.print();
+      // Remove the frame (and the budget figures in it) once printing is done.
+      setTimeout(() => frame.remove(), 1000);
+    }, 500); // Timeout to ensure images load
+  }
+
+  /** Budget cell text: the figure, blank if never set, or "Restricted" if not viewable. */
+  private budgetText(budgets: Map<string, ProjectBudget>, projectId: string): string {
+    const entry = budgets.get(projectId);
+    if (!entry || entry.restricted) {
+      return 'Restricted';
+    }
+    return entry.budget === null || entry.budget === undefined
+      ? ''
+      : entry.budget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
 }

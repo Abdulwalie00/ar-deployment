@@ -96,7 +96,10 @@ public class ProjectService {
         project.setEndDate(projectDto.getEndDate());
         project.setImplementationSchedule(projectDto.getImplementationSchedule());
         project.setDateOfAccomplishment(projectDto.getDateOfAccomplishment());
-        project.setBudget(projectDto.getBudget());
+        // No budget in the request means "unchanged" (the edit form keeps it locked).
+        if (projectDto.getBudget() != null) {
+            project.setBudget(projectDto.getBudget());
+        }
         if ("completed".equalsIgnoreCase(projectDto.getStatus())) {
             project.setPercentCompletion(100.0);
         } else {

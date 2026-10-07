@@ -65,6 +65,11 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       # Sourced from .env file
       JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES:-120}
+      # Who can see budgets: ADMINS_AND_OWN_OFFICE (default), ADMINS_ONLY, SUPERADMINS_ONLY
+      BUDGET_VISIBILITY: ${BUDGET_VISIBILITY:-ADMINS_AND_OWN_OFFICE}
+      BUDGET_UNLOCK_MINUTES: ${BUDGET_UNLOCK_MINUTES:-10}
+      APP_BOOTSTRAP_PASSWORD: ${APP_BOOTSTRAP_PASSWORD:-}
       UPLOAD_DIR: /app/uploads/
     volumes:
       - uploads:/app/uploads

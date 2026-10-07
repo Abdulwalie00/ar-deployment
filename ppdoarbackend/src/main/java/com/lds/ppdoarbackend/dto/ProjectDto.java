@@ -1,5 +1,6 @@
 package com.lds.ppdoarbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lds.ppdoarbackend.model.ProjectImage;
 import lombok.Data;
 import java.util.Date;
@@ -17,6 +18,8 @@ public class ProjectDto {
     private Date endDate;
     private Date implementationSchedule;
     private Date dateOfAccomplishment;
+    // Accepted from forms, never echoed back in responses.
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Double budget;
     private Double percentCompletion;
     private String targetParticipant;

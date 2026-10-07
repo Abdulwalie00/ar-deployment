@@ -1,6 +1,9 @@
 // src/app/components/project-component/project-add-edit/project-add-edit.component.ts
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ToastService } from '../../../services/toast.service';
+import { BudgetService, BUDGET_LOCKED_STATUS } from '../../../services/budget.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { PasswordVerificationDialogComponent } from '../../password-verification-dialog/password-verification-dialog.component';
 import { CommonModule, Location } from '@angular/common';
 import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, FormsModule, FormArray} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -35,6 +38,7 @@ export function dateRangeValidator(control: AbstractControl): { [key: string]: b
     ReactiveFormsModule,
     ProjectConfirmationDialogComponent,
     ProjectCategoryAddDialogComponent,
+    PasswordVerificationDialogComponent,
     FormsModule,
     // Import the dialog
   ],
@@ -65,6 +69,10 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
   isSaving = false;
   isUploadingImages = false;
   isLoadingProject = false;
+  isLoadingBudget = false;
+  currentBudgetShown = false;
+  showPasswordDialog = false;
+  budgetNotice = '';
   private saved = false;
   private leafletLib?: typeof import('leaflet');
   private locationMap?: Map;
@@ -84,6 +92,7 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
     private location: Location,
     private toast: ToastService,
     private host: ElementRef<HTMLElement>,
+    private budgetService: BudgetService,
   ) {}
 
   ngOnInit(): void {
@@ -127,6 +136,12 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
       switchMap(params => {
         this.projectId = params.get('id');
         this.isEditMode = !!this.projectId;
+
+        // A new project needs a budget; when editing, a blank budget means "keep the current one"
+        // (budgets are not sent with project data and need a password re-check to view).
+        const budgetControl = this.projectForm.get('budget');
+        budgetControl?.setValidators(this.isEditMode ? [Validators.min(0)] : [Validators.required, Validators.min(0)]);
+        budgetControl?.updateValueAndValidity({ emitEvent: false });
 
         if (this.isEditMode && this.projectId) {
           this.isLoadingProject = true;
@@ -237,6 +252,8 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
     // For non-admins in edit mode, load categories for their division
     if (!this.isSuperAdmin && !this.isAdmin) {
       this.loadProjectCategories(project.division.id);
+      // The office list is only loaded for admins; show the project's own office.
+      this.divisions = [project.division];
     }
 
     this.projectForm.patchValue({
@@ -247,7 +264,7 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
       longitude: project.longitude ?? null,
       startDate: new Date(project.startDate).toISOString().substring(0, 10),
       endDate: new Date(project.endDate).toISOString().substring(0, 10),
-      budget: project.budget,
+      budget: null, // Locked until "Show current budget"; blank keeps it unchanged.
       percentCompletion: project.percentCompletion,
       implementationSchedule: project.implementationSchedule,
       dateOfAccomplishment: project.dateOfAccomplishment,
@@ -486,6 +503,8 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
         ...formValue,
         latitude: this.parseCoordinate(formValue.latitude),
         longitude: this.parseCoordinate(formValue.longitude),
+        // Blank budget while editing = keep the current value on the server.
+        budget: this.parseCoordinate(formValue.budget),
       };
 
       const operation = this.isEditMode && this.projectId
@@ -516,6 +535,47 @@ export class ProjectAddEditComponent implements OnInit, AfterViewInit, OnDestroy
         }
       });
     }
+  }
+
+  /** Reveals the saved budget in the form (asks for the password first if needed). */
+  showCurrentBudget(): void {
+    if (this.budgetService.isUnlocked()) {
+      this.loadCurrentBudget();
+    } else {
+      this.showPasswordDialog = true;
+    }
+  }
+
+  onBudgetPasswordVerified(): void {
+    this.showPasswordDialog = false;
+    this.loadCurrentBudget();
+  }
+
+  private loadCurrentBudget(): void {
+    if (!this.projectId) return;
+    this.isLoadingBudget = true;
+    this.budgetNotice = '';
+    this.budgetService.getBudget(this.projectId).pipe(
+      finalize(() => this.isLoadingBudget = false)
+    ).subscribe({
+      next: result => {
+        this.currentBudgetShown = true;
+        const control = this.projectForm.get('budget');
+        // Only fill it in if the user has not already typed a new value.
+        if (control && (control.value === null || control.value === '')) {
+          control.setValue(result.budget, { emitEvent: false });
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        if (err.status === BUDGET_LOCKED_STATUS) {
+          this.showPasswordDialog = true;
+        } else if (err.status === 403) {
+          this.budgetNotice = 'You do not have permission to view or change this budget.';
+        } else {
+          this.toast.error('Could not load the budget', err);
+        }
+      }
+    });
   }
 
   /** Used by the unsaved-changes guard before leaving the page. */

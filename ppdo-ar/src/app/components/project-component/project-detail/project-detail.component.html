@@ -316,12 +316,15 @@
       <section class="detail-block budget-block">
         <header class="block-head">
           <h2>Budget</h2>
-          <p>Protected financial value.</p>
+          <p>Protected. Every view is recorded.</p>
         </header>
 
         <div class="budget-value-row">
           <p *ngIf="isBudgetVisible" class="budget-value">
-            {{ project.budget | currency : "PHP" : "symbol" : "1.2-2" }}
+            <ng-container *ngIf="budgetValue !== null; else budgetNotSet">
+              {{ budgetValue | currency : "PHP" : "symbol" : "1.2-2" }}
+            </ng-container>
+            <ng-template #budgetNotSet>Not set</ng-template>
           </p>
           <p *ngIf="!isBudgetVisible" class="budget-mask">
             ********
@@ -331,10 +334,40 @@
             (click)="toggleBudgetVisibility()"
             class="budget-toggle"
             type="button"
+            [disabled]="isLoadingBudget"
+            [attr.aria-label]="isBudgetVisible ? 'Hide budget' : 'Show budget'"
+            [title]="isBudgetVisible ? 'Hide budget' : 'Show budget (asks for your password)'"
           >
-            <fa-icon [icon]="isBudgetVisible ? faEyeSlash : faEye"></fa-icon>
+            <span *ngIf="isLoadingBudget" class="app-spinner" aria-hidden="true"></span>
+            <fa-icon *ngIf="!isLoadingBudget" [icon]="isBudgetVisible ? faEyeSlash : faEye"></fa-icon>
           </button>
         </div>
+
+        <p *ngIf="isBudgetVisible && budgetService.unlockedUntil()" class="app-field-hint">
+          Hidden again automatically at {{ budgetService.unlockedUntil() | date : "shortTime" }}.
+        </p>
+        <p *ngIf="budgetError" class="app-field-error" role="alert">{{ budgetError }}</p>
+
+        <button
+          *ngIf="isAdmin"
+          type="button"
+          class="app-btn app-btn-secondary app-btn-sm budget-history-toggle"
+          (click)="toggleBudgetHistory()"
+        >
+          {{ showBudgetHistory ? 'Hide access history' : 'Who viewed or changed this?' }}
+        </button>
+
+        <ul *ngIf="showBudgetHistory" class="budget-history">
+          <li *ngIf="budgetHistory.length === 0" class="app-field-hint">No budget activity recorded yet.</li>
+          <li *ngFor="let entry of budgetHistory">
+            <strong>{{ budgetActionLabel(entry.action) }}</strong>
+            <span *ngIf="entry.action === 'CHANGE'">
+              {{ entry.oldValue === null ? '—' : (entry.oldValue | currency : "PHP" : "symbol" : "1.0-0") }}
+              → {{ entry.newValue === null ? '—' : (entry.newValue | currency : "PHP" : "symbol" : "1.0-0") }}
+            </span>
+            <small>{{ entry.username }} · {{ entry.createdAt | date : "MMM d, y, h:mm a" }}</small>
+          </li>
+        </ul>
       </section>
 
       <section class="detail-block timeline-block">
@@ -488,6 +521,9 @@
 
 <app-password-verification-dialog
   *ngIf="showPasswordDialog"
+  [description]="actionToPerformAfterVerification === 'deleteProject'
+    ? 'For security, enter your password to delete this project.'
+    : 'Enter your password to view budget figures. They stay visible for a few minutes, and every view is recorded.'"
   (confirmed)="onPasswordVerified()"
   (closed)="onPasswordDialogClosed()"
 ></app-password-verification-dialog>

@@ -6,9 +6,12 @@ import {
   ElementRef,
   AfterViewChecked,
   HostListener,
+  effect,
 } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ToastService } from '../../../services/toast.service';
+import { BudgetService, BudgetHistoryEntry, BUDGET_LOCKED_STATUS } from '../../../services/budget.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -90,6 +93,11 @@ export class ProjectDetailComponent
   isGeneratingNarrative = false;
 
   isBudgetVisible = false;
+  budgetValue: number | null = null;
+  isLoadingBudget = false;
+  budgetError = '';
+  showBudgetHistory = false;
+  budgetHistory: BudgetHistoryEntry[] = [];
   faEye = faEye;
   faEyeSlash = faEyeSlash;
   faArrowsRotate = faArrowRotateRight;
@@ -119,9 +127,17 @@ export class ProjectDetailComponent
     private userService: UserService,
     private websocketService: WebsocketService,
     private notificationService: NotificationService,
-    private toast: ToastService
+    private toast: ToastService,
+    public budgetService: BudgetService
   ) {
     this.project$ = of(undefined);
+
+    // When the unlock period ends, hide the figure again.
+    effect(() => {
+      if (!this.budgetService.isUnlocked() && this.isBudgetVisible) {
+        this.hideBudget();
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -212,10 +228,79 @@ export class ProjectDetailComponent
 
   toggleBudgetVisibility(): void {
     if (this.isBudgetVisible) {
-      this.isBudgetVisible = false;
+      this.hideBudget();
+    } else if (this.budgetService.isUnlocked()) {
+      this.loadBudget();
     } else {
       this.actionToPerformAfterVerification = 'viewBudget';
       this.showPasswordDialog = true;
+    }
+  }
+
+  /** Budget figures come from their own endpoint, which needs the password re-check. */
+  private loadBudget(): void {
+    if (!this.currentProject) return;
+    this.isLoadingBudget = true;
+    this.budgetError = '';
+    this.budgetService
+      .getBudget(this.currentProject.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoadingBudget = false))
+      )
+      .subscribe({
+        next: (result) => {
+          this.budgetValue = result.budget;
+          this.isBudgetVisible = true;
+          if (this.showBudgetHistory) {
+            this.loadBudgetHistory();
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          if (err.status === BUDGET_LOCKED_STATUS) {
+            // The unlock expired: ask for the password again.
+            this.actionToPerformAfterVerification = 'viewBudget';
+            this.showPasswordDialog = true;
+          } else if (err.status === 403) {
+            this.budgetError = err.error?.message ?? 'You do not have permission to view this budget.';
+          } else {
+            this.toast.error('Could not load the budget', err);
+          }
+        },
+      });
+  }
+
+  private hideBudget(): void {
+    this.isBudgetVisible = false;
+    this.budgetValue = null;
+  }
+
+  toggleBudgetHistory(): void {
+    this.showBudgetHistory = !this.showBudgetHistory;
+    if (this.showBudgetHistory) {
+      this.loadBudgetHistory();
+    }
+  }
+
+  private loadBudgetHistory(): void {
+    if (!this.currentProject) return;
+    this.budgetService
+      .getHistory(this.currentProject.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (history) => (this.budgetHistory = history),
+        error: (err) => this.toast.error('Could not load the budget history', err),
+      });
+  }
+
+  budgetActionLabel(action: BudgetHistoryEntry['action']): string {
+    switch (action) {
+      case 'VIEW': return 'Viewed';
+      case 'CHANGE': return 'Changed';
+      case 'EXPORT': return 'Printed';
+      case 'DENIED': return 'Access denied';
+      case 'UNLOCK': return 'Unlocked';
+      default: return 'Failed unlock';
     }
   }
 
@@ -227,7 +312,7 @@ export class ProjectDetailComponent
   onPasswordVerified(): void {
     this.showPasswordDialog = false;
     if (this.actionToPerformAfterVerification === 'viewBudget') {
-      this.isBudgetVisible = true;
+      this.loadBudget();
     } else if (this.actionToPerformAfterVerification === 'deleteProject') {
       if (!this.currentProject) return;
       this.dialogMessage = `Are you sure you want to delete project "${this.currentProject.title}"? This action cannot be undone.`;

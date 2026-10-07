@@ -5,6 +5,8 @@ package com.lds.ppdoarbackend.controller;
 import com.lds.ppdoarbackend.dto.CommentDto;
 import com.lds.ppdoarbackend.model.Comment;
 import com.lds.ppdoarbackend.service.CommentService;
+import com.lds.ppdoarbackend.service.ProjectAccessService;
+import com.lds.ppdoarbackend.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,13 +25,21 @@ public class CommentController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate; // <-- INJECT THE TEMPLATE
 
+    @Autowired
+    private ProjectService projectService;
+
+    @Autowired
+    private ProjectAccessService access;
+
     @GetMapping
     public List<Comment> getComments(@PathVariable String projectId, @AuthenticationPrincipal UserDetails userDetails) {
+        access.requireProjectAccess(access.currentUser(), projectService.getProjectById(projectId));
         return commentService.getCommentsForProject(projectId, userDetails);
     }
 
     @PostMapping
     public Comment createComment(@PathVariable String projectId, @RequestBody CommentDto commentDto, @AuthenticationPrincipal UserDetails userDetails) {
+        access.requireProjectAccess(access.currentUser(), projectService.getProjectById(projectId));
         System.out.println("Received comment content: '" + commentDto.getContent() + "'");
 
         commentDto.setProjectId(projectId);

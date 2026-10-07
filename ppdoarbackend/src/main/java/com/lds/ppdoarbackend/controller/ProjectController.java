@@ -5,7 +5,10 @@ import com.lds.ppdoarbackend.dto.ProjectDto;
 import com.lds.ppdoarbackend.model.Project;
 import com.lds.ppdoarbackend.model.ProjectImage;
 import com.lds.ppdoarbackend.repository.ProjectRepository;
+import com.lds.ppdoarbackend.model.BudgetAuditLog;
+import com.lds.ppdoarbackend.service.BudgetAuditService;
 import com.lds.ppdoarbackend.service.OllamaService;
+import com.lds.ppdoarbackend.service.ProjectAccessService;
 import com.lds.ppdoarbackend.service.ProjectService;
 import com.lds.ppdoarbackend.service.UserService;
 import com.lds.ppdoarbackend.model.User;
@@ -26,6 +29,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.io.FileInputStream;
@@ -52,37 +57,99 @@ public class ProjectController {
     @Value("${upload.dir}")
     private String uploadDir;
 
+    @Autowired
+    private ProjectAccessService access;
+
+    @Autowired
+    private BudgetAuditService budgetAudit;
+
     @GetMapping
     public List<Project> getAllProjects(@RequestParam(required = false) String divisionCode,
                                         @RequestParam(required = false) String status,
                                         @RequestParam(required = false) Integer year,
                                         @RequestParam(required = false) Integer aipYear) {
+        User user = access.currentUser();
+        if (!access.isAdmin(user)) {
+            // Regular users only ever get their own office, whatever they ask for.
+            String ownOffice = access.officeCodeOf(user);
+            if (ownOffice == null) {
+                return List.of();
+            }
+            divisionCode = ownOffice;
+        }
         return projectService.getAllProjects(divisionCode, status, year, aipYear);
     }
 
     @GetMapping("/archived")
     public List<Project> getArchivedProjects() {
-        return projectService.getArchivedProjects();
+        User user = access.currentUser();
+        return projectService.getArchivedProjects().stream()
+                .filter(project -> access.canAccessProject(user, project))
+                .toList();
     }
 
     @GetMapping("/{id}")
     public Project getProjectById(@PathVariable String id) {
-        return projectService.getProjectById(id);
+        Project project = projectService.getProjectById(id);
+        access.requireProjectAccess(access.currentUser(), project);
+        return project;
     }
 
     @PostMapping
     public Project createProject(@RequestBody ProjectDto projectDto) {
-        return projectService.createProject(projectDto);
+        User user = access.currentUser();
+        if (!access.isAdmin(user)) {
+            projectDto.setDivisionId(requireOwnOfficeId(user));
+        }
+        Project created = projectService.createProject(projectDto);
+        if (created.getBudget() != null) {
+            budgetAudit.record(BudgetAuditLog.Action.CHANGE, user.getUsername(), created,
+                    null, created.getBudget(), "Initial budget when the project was created");
+        }
+        return created;
     }
 
     @PutMapping("/{id}")
     public Project updateProject(@PathVariable String id, @RequestBody ProjectDto projectDto) {
-        return projectService.updateProject(id, projectDto);
+        User user = access.currentUser();
+        Project existing = projectService.getProjectById(id);
+        access.requireProjectAccess(user, existing);
+        if (!access.isAdmin(user)) {
+            projectDto.setDivisionId(requireOwnOfficeId(user));
+        }
+
+        Double oldBudget = existing.getBudget();
+        boolean budgetChanged = projectDto.getBudget() != null && !Objects.equals(projectDto.getBudget(), oldBudget);
+        if (budgetChanged && !access.canViewBudget(user, existing)) {
+            // Users who may not see the budget may not change it either; keep the current value.
+            projectDto.setBudget(null);
+            budgetChanged = false;
+        }
+
+        Project updated = projectService.updateProject(id, projectDto);
+        if (budgetChanged) {
+            budgetAudit.record(BudgetAuditLog.Action.CHANGE, user.getUsername(), updated,
+                    oldBudget, updated.getBudget(), null);
+        }
+        return updated;
     }
 
     @DeleteMapping("/{id}")
     public void deleteProject(@PathVariable String id) {
+        User user = access.currentUser();
+        Project project = projectService.getProjectById(id);
+        access.requireProjectAccess(user, project);
+        if (!access.isAdmin(user)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can delete projects.");
+        }
         projectService.deleteProject(id);
+    }
+
+    private String requireOwnOfficeId(User user) {
+        if (user.getDivision() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your account is not assigned to an office.");
+        }
+        return user.getDivision().getId();
     }
 
     @GetMapping("/new")
@@ -96,7 +163,7 @@ public class ProjectController {
     @PostMapping("/{id}/generate-narrative")
     public ResponseEntity<?> generateNarrative(@PathVariable String id) {
         Project project = projectService.getProjectById(id);
-        if (project == null) return ResponseEntity.notFound().build();
+        access.requireProjectAccess(access.currentUser(), project);
 
         String prompt = buildNarrativePrompt(project); // Compose your prompt as described
         String narrative = ollamaService.generateNarrative(prompt); // Call Ollama
@@ -112,6 +179,7 @@ public class ProjectController {
     @GetMapping("/{id}/download-narrative")
     public ResponseEntity<byte[]> downloadNarrative(@PathVariable String id) throws java.io.IOException {
         Project project = projectService.getProjectById(id);
+        access.requireProjectAccess(access.currentUser(), project);
         XWPFDocument doc = new XWPFDocument();
 
         // Title - bold and large

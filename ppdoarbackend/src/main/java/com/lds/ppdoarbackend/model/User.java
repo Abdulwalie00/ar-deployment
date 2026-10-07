@@ -1,5 +1,6 @@
 package com.lds.ppdoarbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.Date;
@@ -17,6 +18,8 @@ public class User {
     private String email;
     @Column(unique = true)
     private String username;
+    // Never sent to the browser (it used to appear in user lists, comments and notifications).
+    @JsonIgnore
     private String passwordHash;
     private String role;
     private Date createdAt;
