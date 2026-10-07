@@ -1,5 +1,5 @@
 // header.component.ts
-import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBell, faSun, faMoon, faBars, faUser, faRightFromBracket, faDownload } from '@fortawesome/free-solid-svg-icons';
@@ -66,6 +66,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public layout: LayoutService,
     public pwa: PwaService,
     private el: ElementRef,
+    private changeDetector: ChangeDetectorRef,
     private router: Router
   ) {}
 
@@ -232,8 +233,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleDarkMode(): void {
-    this.isDarkMode = this.themeService.toggleDarkMode();
+  toggleDarkMode(event?: MouseEvent): void {
+    // Reveal the new theme from the centre of the toggle button.
+    const button = (event?.currentTarget as HTMLElement | null)?.getBoundingClientRect();
+    const origin = button ? { x: button.left + button.width / 2, y: button.top + button.height / 2 } : undefined;
+
+    this.themeService.toggleDarkModeAnimated(origin, () => {
+      this.isDarkMode = this.themeService.isDarkMode();
+      // Render the new icon before the browser captures the "after" screen.
+      this.changeDetector.detectChanges();
+    });
   }
 
   toggleMenu(): void {

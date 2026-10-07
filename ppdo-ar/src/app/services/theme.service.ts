@@ -103,6 +103,56 @@ export class ThemeService {
     return this.isDarkModeValue;
   }
 
+  /**
+   * Switches light/dark with a circular reveal that grows from `origin`
+   * (usually the toggle button). Browsers without the View Transitions API
+   * get a smooth colour fade instead; reduced-motion users get an instant switch.
+   * `afterChange` runs inside the transition so the new screen (e.g. the
+   * sun/moon icon) is already up to date when it is revealed.
+   */
+  toggleDarkModeAnimated(origin?: { x: number; y: number }, afterChange?: () => void): void {
+    const apply = () => {
+      this.toggleDarkMode();
+      afterChange?.();
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      apply();
+      return;
+    }
+
+    const startViewTransition = (document as Document & {
+      startViewTransition?: (update: () => void) => { ready: Promise<void> };
+    }).startViewTransition?.bind(document);
+
+    if (!startViewTransition) {
+      this.fadeColors(apply);
+      return;
+    }
+
+    const x = origin?.x ?? window.innerWidth - 40;
+    const y = origin?.y ?? 40;
+    // Far enough to cover the farthest corner of the screen.
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const transition = startViewTransition(apply);
+    transition.ready
+      .then(() => {
+        document.documentElement.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+          { duration: 650, easing: 'cubic-bezier(.65, 0, .35, 1)', pseudoElement: '::view-transition-new(root)' }
+        );
+      })
+      .catch(() => undefined); // Transition skipped (e.g. tab hidden); the theme still changed.
+  }
+
+  /** Fallback animation: every colour eases to its new value. */
+  private fadeColors(apply: () => void): void {
+    const root = document.documentElement;
+    root.classList.add('theme-fade');
+    apply();
+    setTimeout(() => root.classList.remove('theme-fade'), 500);
+  }
+
   isDarkMode(): boolean {
     return this.isDarkModeValue;
   }

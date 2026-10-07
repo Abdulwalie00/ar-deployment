@@ -370,3 +370,39 @@ button.notif-item {
 		width: auto;
 	}
 }
+
+/* Light/dark toggle: the moon (light mode) and sun (dark mode) swap with a spin. */
+.theme-toggle {
+	position: relative;
+	overflow: hidden;
+}
+
+.theme-icon {
+	position: absolute;
+	display: inline-flex;
+	transition: transform 500ms cubic-bezier(.2, .8, .2, 1.2), opacity 300ms ease;
+}
+
+.icon-sun {
+	color: #f6a623;
+	opacity: 0;
+	transform: rotate(-120deg) scale(0.3);
+}
+
+.theme-toggle.is-dark .icon-sun {
+	opacity: 1;
+	transform: none;
+}
+
+.theme-toggle.is-dark .icon-moon {
+	opacity: 0;
+	transform: rotate(120deg) scale(0.3);
+}
+
+.theme-toggle:hover .icon-moon {
+	transform: rotate(-18deg);
+}
+
+.theme-toggle.is-dark:hover .icon-sun {
+	transform: rotate(45deg);
+}

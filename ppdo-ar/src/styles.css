@@ -831,3 +831,34 @@ body::before {
 .budget-history small {
   color: var(--app-muted);
 }
+
+/* ---------- Light/dark switch animation ---------- */
+
+/* View Transitions: the new theme is revealed in a growing circle (see ThemeService). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+/* Fallback for browsers without View Transitions: colours ease to the new theme. */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition:
+    background-color 450ms ease,
+    background 450ms ease,
+    color 450ms ease,
+    border-color 450ms ease,
+    fill 450ms ease,
+    stroke 450ms ease !important;
+}

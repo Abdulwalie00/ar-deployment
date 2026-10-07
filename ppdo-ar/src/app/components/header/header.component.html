@@ -38,12 +38,15 @@
       <span class="app-chip time-chip">{{ currentTime }}</span>
 
       <button
-        (click)="toggleDarkMode()"
-        class="app-icon-btn"
+        (click)="toggleDarkMode($event)"
+        class="app-icon-btn theme-toggle"
+        [class.is-dark]="isDarkMode"
         [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
         [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
       >
-        <fa-icon [icon]="isDarkMode ? faSun : faMoon"></fa-icon>
+        <!-- Both icons stay in the DOM so one can spin out while the other spins in. -->
+        <fa-icon [icon]="faMoon" class="theme-icon icon-moon" aria-hidden="true"></fa-icon>
+        <fa-icon [icon]="faSun" class="theme-icon icon-sun" aria-hidden="true"></fa-icon>
       </button>
 
       <div class="relative">
