@@ -12,7 +12,16 @@
       </button>
 
       <a routerLink="/project-dashboard" class="brand-link" aria-label="Go to dashboard">
-        <div class="brand-mark">PMR</div>
+        <div class="brand-mark" aria-hidden="true">
+          <!-- Project report: clipboard with rising progress bars -->
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4.5" y="4" width="15" height="17.5" rx="3" stroke-width="1.8" />
+            <rect x="8.75" y="2.25" width="6.5" height="3.5" rx="1.2" fill="currentColor" stroke="none" />
+            <line class="brand-bar bar-1" x1="8.5" y1="17.5" x2="8.5" y2="14.5" stroke-width="2.2" />
+            <line class="brand-bar bar-2" x1="12" y1="17.5" x2="12" y2="11.5" stroke-width="2.2" />
+            <line class="brand-bar bar-3" x1="15.5" y1="17.5" x2="15.5" y2="9" stroke-width="2.2" />
+          </svg>
+        </div>
         <div class="brand-copy">
           <p class="brand-kicker">Integrated Monitoring Workspace</p>
           <h1>Project Management Report</h1>
